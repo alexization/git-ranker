@@ -22,14 +22,18 @@ public class User {
 
     private String username;
 
-    private int totalScore;
+    @Column(nullable = false)
+    private int totalScore = 0;
 
     @Enumerated(EnumType.STRING)
-    private Tier tier;
+    @Column(nullable = false)
+    private Tier tier = Tier.IRON;
 
-    private int ranking;
+    @Column(nullable = false)
+    private int ranking = 0;
 
-    private Double percentile;
+    @Column(nullable = false)
+    private Double percentile = 0.0;
 
     private String profileImage;
 
@@ -54,7 +58,7 @@ public class User {
     }
 
     public void updateProfileImage(String profileImage) {
-        if (profileImage != null && profileImage.equals(this.profileImage)) {
+        if (profileImage != null && !profileImage.equals(this.profileImage)) {
             this.profileImage = profileImage;
             this.updatedAt = LocalDateTime.now();
         }

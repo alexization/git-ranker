@@ -18,7 +18,10 @@ public class GitHubApiClient {
 
     public GitHubUserResponse getUser(String username) {
         try {
-            return restClient.get().uri("/users/{username}", username).retrieve().body(GitHubUserResponse.class);
+            return restClient.get()
+                    .uri("/users/{username}", username)
+                    .retrieve()
+                    .body(GitHubUserResponse.class);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new BusinessException(ErrorType.USER_NOT_FOUND);

@@ -4,6 +4,8 @@ import com.gitranker.api.domain.user.dto.RegisterUserReq;
 import com.gitranker.api.domain.user.dto.RegisterUserRes;
 import com.gitranker.api.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,10 +18,11 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ApiResponse<RegisterUserRes> registerUser(@RequestBody RegisterUserReq request) {
+    public ResponseEntity<ApiResponse<RegisterUserRes>> registerUser(@RequestBody RegisterUserReq request) {
         RegisterUserRes response = userService.registerUser(request.username());
 
-        return ApiResponse.success(response);
+        HttpStatus status = response.isNewUser() ? HttpStatus.CREATED : HttpStatus.OK;
+        return ResponseEntity.status(status).body(ApiResponse.success(response));
     }
 }
 

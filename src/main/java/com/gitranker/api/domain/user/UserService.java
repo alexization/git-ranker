@@ -3,9 +3,9 @@ package com.gitranker.api.domain.user;
 import com.gitranker.api.domain.user.dto.RegisterUserRes;
 import com.gitranker.api.infrastructure.github.GitHubApiClient;
 import com.gitranker.api.infrastructure.github.GitHubUserResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
