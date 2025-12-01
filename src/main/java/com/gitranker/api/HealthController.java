@@ -1,7 +1,6 @@
 package com.gitranker.api;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.gitranker.api.global.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,11 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     @GetMapping
-    public ResponseEntity<String> health() {
+    public ApiResponse<String> health() {
         String result = "Healthy Server";
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
+        return ApiResponse.success(result);
     }
 }
