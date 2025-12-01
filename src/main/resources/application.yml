@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:gitranker
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+    database-platform: org.hibernate.dialect.H2Dialect
+
+github:
+  api:
+    base-url: ${GITHUB_API_BASE_URL:https://api.github.com}

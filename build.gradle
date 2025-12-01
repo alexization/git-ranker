@@ -19,10 +19,16 @@ repositories {
 }
 
 dependencies {
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation 'org.projectlombok:lombok'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	runtimeOnly 'com.h2database:h2'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation 'org.springframework.boot:spring-boot-h2console'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
