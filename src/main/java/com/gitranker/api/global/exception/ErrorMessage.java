@@ -1,5 +1,8 @@
 package com.gitranker.api.global.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorMessage {
     private final String code;
     private final String message;
@@ -19,15 +22,4 @@ public class ErrorMessage {
         this(errorType.getCode().name(), errorType.getMessage(), data);
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Object getData() {
-        return data;
-    }
 }

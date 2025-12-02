@@ -21,8 +21,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<RegisterUserRes>> registerUser(@RequestBody RegisterUserReq request) {
         RegisterUserRes response = userService.registerUser(request.username());
 
-        HttpStatus status = response.isNewUser() ? HttpStatus.CREATED : HttpStatus.OK;
-        return ResponseEntity.status(status).body(ApiResponse.success(response));
+        return ResponseEntity
+                .status(response.isNewUser() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(ApiResponse.success(response));
     }
 }
 

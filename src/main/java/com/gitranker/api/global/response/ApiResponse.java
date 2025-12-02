@@ -2,7 +2,9 @@ package com.gitranker.api.global.response;
 
 import com.gitranker.api.global.exception.ErrorMessage;
 import com.gitranker.api.global.exception.ErrorType;
+import lombok.Getter;
 
+@Getter
 public class ApiResponse<T> {
     private final ResultType result;
     private final T data;
@@ -30,15 +32,4 @@ public class ApiResponse<T> {
         return new ApiResponse<>(ResultType.ERROR, null, new ErrorMessage(error, errorData));
     }
 
-    public ResultType getResult() {
-        return result;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public ErrorMessage getError() {
-        return error;
-    }
 }

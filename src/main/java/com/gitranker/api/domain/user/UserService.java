@@ -17,15 +17,21 @@ public class UserService {
     public RegisterUserRes registerUser(String username) {
         GitHubUserResponse githubUser = gitHubApiClient.getUser(username);
 
-        return userRepository.findByNodeId(githubUser.nodeId()).map(existingUser -> {
-            existingUser.updateUsername(githubUser.login());
-            existingUser.updateProfileImage(githubUser.avatarUrl());
-            return RegisterUserRes.from(existingUser, false);
-        }).orElseGet(() -> {
-            User newUser = User.builder().nodeId(githubUser.nodeId()).username(githubUser.login()).profileImage(githubUser.avatarUrl()).build();
+        return userRepository.findByNodeId(githubUser.nodeId())
+                .map(existingUser -> {
+                    existingUser.updateUsername(githubUser.login());
+                    existingUser.updateProfileImage(githubUser.avatarUrl());
 
-            userRepository.save(newUser);
-            return RegisterUserRes.from(newUser, true);
-        });
+                    return RegisterUserRes.from(existingUser, false);
+                }).orElseGet(() -> {
+                    User newUser = User.builder()
+                            .nodeId(githubUser.nodeId())
+                            .username(githubUser.login())
+                            .profileImage(githubUser.avatarUrl())
+                            .build();
+
+                    userRepository.save(newUser);
+                    return RegisterUserRes.from(newUser, true);
+                });
     }
 }
