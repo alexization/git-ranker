@@ -1,4 +1,4 @@
-package com.gitranker.api.infrastructure.github;
+package com.gitranker.api.infrastructure.github.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

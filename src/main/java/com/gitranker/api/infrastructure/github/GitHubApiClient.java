@@ -2,6 +2,7 @@ package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.infrastructure.github.dto.GitHubUserResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package com.gitranker.api.domain.user;
 
-import com.gitranker.api.domain.user.dto.RegisterUserRes;
+import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.infrastructure.github.GitHubApiClient;
-import com.gitranker.api.infrastructure.github.GitHubUserResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ public class UserService {
     private final GitHubApiClient gitHubApiClient;
 
     @Transactional
-    public RegisterUserRes registerUser(String username) {
+    public RegisterUserResponse registerUser(String username) {
         GitHubUserResponse githubUser = gitHubApiClient.getUser(username);
 
         return userRepository.findByNodeId(githubUser.nodeId())
@@ -22,7 +22,7 @@ public class UserService {
                     existingUser.updateUsername(githubUser.login());
                     existingUser.updateProfileImage(githubUser.avatarUrl());
 
-                    return RegisterUserRes.from(existingUser, false);
+                    return RegisterUserResponse.from(existingUser, false);
                 }).orElseGet(() -> {
                     User newUser = User.builder()
                             .nodeId(githubUser.nodeId())
@@ -31,7 +31,7 @@ public class UserService {
                             .build();
 
                     userRepository.save(newUser);
-                    return RegisterUserRes.from(newUser, true);
+                    return RegisterUserResponse.from(newUser, true);
                 });
     }
 }
