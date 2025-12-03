@@ -63,5 +63,17 @@ public class User {
             this.updatedAt = LocalDateTime.now();
         }
     }
+
+    public void addScore(int score) {
+        this.totalScore += score;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateRankInfo(int ranking, Double percentile, Tier tier) {
+        this.ranking = ranking;
+        this.percentile = percentile;
+        this.tier = tier;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
 
