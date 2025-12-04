@@ -54,7 +54,7 @@ public class UserService {
         GitHubActivitySummary summary = gitHubActivityService.collectAllActivities(githubUser.login());
 
         int totalScore = summary.calculateTotalScore();
-        newUser.addScore(totalScore);
+        newUser.updateScore(totalScore);
 
         RankingInfo rankingInfo = rankingService.calculateRankingForNewUser(totalScore);
         newUser.updateRankInfo(
