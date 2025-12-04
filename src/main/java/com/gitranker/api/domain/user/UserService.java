@@ -1,5 +1,7 @@
 package com.gitranker.api.domain.user;
 
+import com.gitranker.api.domain.ranking.RankingInfo;
+import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubApiClient;
@@ -17,6 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final GitHubApiClient gitHubApiClient;
     private final GitHubActivityService gitHubActivityService;
+    private final RankingService rankingService;
 
     @Transactional
     public RegisterUserResponse registerUser(String username) {
@@ -53,7 +56,14 @@ public class UserService {
         int totalScore = summary.calculateTotalScore();
         newUser.addScore(totalScore);
 
-        log.info("신규 사용자 등록 완료 : {}, 총점 : {}", githubUser.login(), totalScore);
+        RankingInfo rankingInfo = rankingService.calculateRankingForNewUser(totalScore);
+        newUser.updateRankInfo(
+                rankingInfo.ranking(),
+                rankingInfo.percentile(),
+                rankingInfo.tier()
+        );
+
+        log.info("신규 사용자 등록 완료 : {}, 총점 : {}, {}", githubUser.login(), totalScore, rankingInfo);
 
         return RegisterUserResponse.from(newUser, true);
     }
