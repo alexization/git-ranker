@@ -3,6 +3,7 @@ package com.gitranker.api.batch.job;
 import com.gitranker.api.batch.processor.RankingRecalculationProcessor;
 import com.gitranker.api.batch.processor.ScoreRecalculationProcessor;
 import com.gitranker.api.batch.reader.UserItemReader;
+import com.gitranker.api.batch.tasklet.RankingRecalculationTasklet;
 import com.gitranker.api.batch.writer.UserItemWriter;
 import com.gitranker.api.domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class DailyScoreRecalculationJobConfig {
     private final PlatformTransactionManager transactionManager;
     private final UserItemReader userItemReader;
     private final ScoreRecalculationProcessor scoreRecalculationProcessor;
-    private final RankingRecalculationProcessor rankingRecalculationProcessor;
+    private final RankingRecalculationTasklet rankingRecalculationTasklet;
     private final UserItemWriter userItemWriter;
 
     @Bean
@@ -41,7 +42,7 @@ public class DailyScoreRecalculationJobConfig {
         return new StepBuilder("scoreRecalculationStep", jobRepository)
                 .<User, User>chunk(CHUNK_SIZE, transactionManager)
                 .reader(userItemReader.createReader(CHUNK_SIZE))
-                .processor(rankingRecalculationProcessor)
+                .processor(scoreRecalculationProcessor)
                 .writer(userItemWriter)
                 .build();
     }
@@ -49,10 +50,7 @@ public class DailyScoreRecalculationJobConfig {
     @Bean
     public Step rankingRecalculationStep() {
         return new StepBuilder("rankingRecalculationStep", jobRepository)
-                .<User, User>chunk(CHUNK_SIZE, transactionManager)
-                .reader(userItemReader.createReader(CHUNK_SIZE))
-                .processor(scoreRecalculationProcessor)
-                .writer(userItemWriter)
+                .tasklet(rankingRecalculationTasklet, transactionManager)
                 .build();
     }
 }
