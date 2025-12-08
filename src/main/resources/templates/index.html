@@ -4,23 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Git Ranker - 개발자 전투력 측정기</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        /* Hero Section */
-        .hero-section { background: linear-gradient(135deg, #24292e 0%, #2b3137 100%); color: white; padding: 3rem 0; margin-bottom: 2rem; }
-
-        /* Components */
-        .stat-card { transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .tier-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .diff-badge { font-size: 0.75rem; vertical-align: middle; margin-left: 5px; }
-
-        /* Tiers Colors */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #24292e 0%, #2b3137 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .tier-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        /* 티어별 색상 */
         .text-DIAMOND { color: #b9f2ff; text-shadow: 0 0 10px #00d4ff; }
         .text-PLATINUM { color: #00ced1; }
         .text-GOLD { color: #ffd700; }
@@ -28,11 +35,21 @@
         .text-BRONZE { color: #cd7f32; }
         .text-IRON { color: #5f5f5f; }
 
-        /* Loading Overlay */
+        .diff-badge {
+            font-size: 0.75rem;
+            vertical-align: middle; /* 중앙 정렬 */
+            margin-left: 5px;
+        }
         .loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 9999;
-            display: none; flex-direction: column; justify-content: center; align-items: center; color: white;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
         }
     </style>
 </head>
@@ -52,11 +69,11 @@
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 <div class="alert alert-dark border-0 bg-dark bg-opacity-50 text-light text-start" role="alert">
-                    <h5 class="alert-heading fs-6"><i class="fas fa-info-circle"></i> 점수 산정 기준</h5>
+                    <h5 class="alert-heading fs-6"><i class="fas fa-info-circle"></i> 유의사항 및 점수 산정 기준</h5>
                     <ul class="mb-0 small ps-3">
-                        <li>Public Repository의 지난 1년 간 활동 데이터 집계</li>
-                        <li>배점: Commit(1), Issue(2), Review(3), PR Open(5), PR Merged(10)</li>
-                        <li>매일 새벽 자동 갱신</li>
+                        <li>Public Repository의 지난 1년 간 활동 데이터만 집계됩니다.</li>
+                        <li>점수: Commit(1점), Issue(2점), Review(3점), PR Open(5점), PR Merged(10점).</li>
+                        <li>이미 등록된 사용자는 매일 새벽 자동으로 점수가 갱신됩니다.</li>
                     </ul>
                 </div>
             </div>
@@ -69,7 +86,7 @@
         <div class="col-md-6">
             <div class="input-group input-group-lg shadow-sm">
                 <span class="input-group-text bg-white"><i class="fab fa-github"></i></span>
-                <input type="text" id="usernameInput" class="form-control" placeholder="GitHub Username (예: alexization)" aria-label="Username">
+                <input type="text" id="usernameInput" class="form-control" placeholder="GitHub Username 입력 (예: alexization)" aria-label="Username">
                 <button class="btn btn-dark px-4" type="button" onclick="registerUser()">분석하기</button>
             </div>
         </div>
@@ -85,8 +102,8 @@
                             <i id="resTierIcon" class="fas fa-gem tier-icon"></i>
                             <h3 id="resTierText" class="fw-bold mb-1"></h3>
                             <p class="text-muted mb-0">
-                                상위 <span id="resPercentile" class="fw-bold text-dark">0.0</span>%
-                                (<span id="resRanking">0</span>위)
+                                상위 <span id="resPercentile" class="fw-bold text-dark"></span>%
+                                (<span id="resRanking"></span>위)
                             </p>
                         </div>
                     </div>
@@ -94,7 +111,7 @@
                     <div class="col-lg-8">
                         <div class="text-center mb-4">
                             <h5 class="text-muted text-uppercase small ls-1">Total Score</h5>
-                            <h1 class="display-3 fw-bold text-primary" id="resTotalScore">0</h1>
+                            <h1 class="display-3 fw-bold text-primary" id="resTotalScore"></h1>
                             <p class="text-muted small">최종 업데이트: <span id="resUpdatedAt"></span></p>
                         </div>
 
@@ -105,7 +122,7 @@
                                     <div class="small text-muted">Commits</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statCommit">0</span>
-                                        <span id="diffCommit" class="badge rounded-pill bg-success diff-badge">+0</span>
+                                        <span id="diffCommit" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +132,7 @@
                                     <div class="small text-muted">Issues</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statIssue">0</span>
-                                        <span id="diffIssue" class="badge rounded-pill bg-danger diff-badge">0</span>
+                                        <span id="diffIssue" class="badge rounded-pill bg-danger diff-badge" style="display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -125,7 +142,7 @@
                                     <div class="small text-muted">Reviews</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statReview">0</span>
-                                        <span id="diffReview" class="badge rounded-pill bg-success diff-badge">0</span>
+                                        <span id="diffReview" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +152,7 @@
                                     <div class="small text-muted">PR Open</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statPrOpen">0</span>
-                                        <span id="diffPrOpen" class="badge rounded-pill bg-secondary diff-badge">0</span>
+                                        <span id="diffPrOpen" class="badge rounded-pill bg-secondary diff-badge" style="display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +162,7 @@
                                     <div class="small text-muted">PR Merged</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statPrMerged">0</span>
-                                        <span id="diffPrMerged" class="badge rounded-pill bg-success diff-badge">0</span>
+                                        <span id="diffPrMerged" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +173,22 @@
         </div>
     </section>
 
-    <section class="my-5">
+    <section class="row justify-content-center mb-4">
+        <div class="col-md-8 text-center">
+            <div class="alert alert-light border shadow-sm d-inline-block px-5 py-3">
+                <h5 class="mb-2 text-secondary fw-bold">
+                    <i class="fas fa-stopwatch text-primary me-1"></i> 다음 랭킹 갱신까지
+                    <span id="countdownTimer" class="fw-bold text-dark ms-2 text-monospace" style="font-family: monospace;">--분 --초</span>
+                </h5>
+                <p class="mb-0 small text-muted">
+                    <i class="fas fa-sync-alt fa-spin me-1" style="font-size: 0.7rem;"></i>
+                    매 정각마다 전체 순위와 티어가 자동으로 재산정됩니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
         <h3 class="fw-bold mb-4"><i class="fas fa-trophy text-warning"></i> 전체 랭킹 (Top 100)</h3>
         <div class="card shadow-sm">
             <div class="table-responsive">
@@ -173,14 +205,15 @@
                     </thead>
                     <tbody id="rankingTableBody">
                     <tr>
-                        <td colspan="6" class="py-4 text-muted">데이터를 불러오는 중...</td>
+                        <td colspan="6" class="py-4 text-muted">랭킹 데이터를 불러오는 중...</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="card-footer bg-white py-3">
                 <nav>
-                    <ul class="pagination justify-content-center mb-0" id="pagination"></ul>
+                    <ul class="pagination justify-content-center mb-0" id="pagination">
+                    </ul>
                 </nav>
             </div>
         </div>
@@ -190,7 +223,9 @@
 <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
         <p class="mb-1">&copy; 2024 Git Ranker. All rights reserved.</p>
-        <p class="small text-white-50">Designed by <a href="#" class="text-white text-decoration-underline">@alexization</a></p>
+        <p class="small text-white-50">
+            Designed by <a href="https://github.com/alexization" class="text-white text-decoration-underline" target="_blank">@alexization</a>
+        </p>
     </div>
 </footer>
 
@@ -199,15 +234,48 @@
 <script>
     const API_BASE_URL = '/api/v1';
 
+    // 페이지 로드 시 랭킹 조회 및 타이머 시작
     document.addEventListener('DOMContentLoaded', () => {
         loadRankings(0);
+        startCountdownTimer(); // [추가] 타이머 시작
 
+        // 엔터키 입력 이벤트
         document.getElementById('usernameInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') registerUser();
+            if (e.key === 'Enter') {
+                registerUser();
+            }
         });
     });
 
-    // 1. 사용자 분석 요청
+    // [추가] 카운트다운 타이머 로직
+    function startCountdownTimer() {
+        function update() {
+            const now = new Date();
+            // 다음 정각 계산 (현재 시 + 1시간, 분/초는 0)
+            const nextHour = new Date(now);
+            nextHour.setHours(now.getHours() + 1);
+            nextHour.setMinutes(0);
+            nextHour.setSeconds(0);
+            nextHour.setMilliseconds(0);
+
+            const diff = nextHour - now;
+
+            // 남은 분, 초 계산
+            const m = Math.floor(diff / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+
+            // 두 자리 수 포맷팅
+            const mStr = String(m).padStart(2, '0');
+            const sStr = String(s).padStart(2, '0');
+
+            document.getElementById('countdownTimer').innerText = `${mStr}분 ${sStr}초`;
+        }
+
+        update(); // 즉시 실행
+        setInterval(update, 1000); // 1초마다 갱신
+    }
+
+    // 1. 사용자 등록 및 분석 요청
     async function registerUser() {
         const username = document.getElementById('usernameInput').value.trim();
         if (!username) {
@@ -223,11 +291,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: username })
             });
+
             const result = await response.json();
 
             if (result.result === 'SUCCESS') {
                 renderUserResult(result.data);
-                loadRankings(0);
+                loadRankings(0); // 랭킹 갱신
             } else {
                 alert(`오류 발생: ${result.error.message}`);
             }
@@ -239,60 +308,67 @@
         }
     }
 
-    // 2. 결과 렌더링
+    // 2. 결과 카드 렌더링
     function renderUserResult(data) {
         const section = document.getElementById('resultSection');
         section.classList.remove('d-none');
 
-        // 기본 정보 바인딩
+        // 기본 정보
         document.getElementById('resProfileImage').src = data.profileImage;
-        const tierEl = document.getElementById('resTierText');
-        tierEl.innerText = data.tier;
-        tierEl.className = `fw-bold mb-1 text-${data.tier}`;
-
-        document.getElementById('resPercentile').innerText = data.percentile.toFixed(2);
+        document.getElementById('resTierText').innerText = data.tier;
+        document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
+        document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
         document.getElementById('resRanking').innerText = data.ranking;
-        document.getElementById('resTotalScore').innerText = data.totalScore.toLocaleString();
+        document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
         document.getElementById('resUpdatedAt').innerText = new Date().toLocaleDateString();
 
-        // 아이콘 업데이트
-        document.getElementById('resTierIcon').className = `${getTierIconClass(data.tier)} tier-icon text-${data.tier}`;
+        // 상세 스탯 및 Diff 렌더링
+        updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
+        updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
+        updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
+        updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
+        updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
 
-        // 스탯 및 증감 렌더링
-        updateStat('statCommit', 'diffCommit', data.commitCount, data.diffCommitCount);
-        updateStat('statIssue', 'diffIssue', data.issueCount, data.diffIssueCount);
-        updateStat('statReview', 'diffReview', data.reviewCount, data.diffReviewCount);
-        updateStat('statPrOpen', 'diffPrOpen', data.prCount, data.diffPrCount);
-        updateStat('statPrMerged', 'diffPrMerged', data.mergedPrCount, data.diffMergedPrCount);
+        // 티어 아이콘 변경
+        const iconClass = getTierIconClass(data.tier);
+        document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
 
+        // 결과 영역으로 스크롤 이동
         section.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function updateStat(statId, diffId, total, diff) {
-        document.getElementById(statId).innerText = total.toLocaleString();
-        const diffEl = document.getElementById(diffId);
+    // 스탯 + 뱃지 업데이트 헬퍼 함수
+    function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
+        document.getElementById(statId).innerText = totalValue.toLocaleString();
 
-        if (diff !== 0) {
-            diffEl.className = `badge rounded-pill diff-badge ${diff > 0 ? 'bg-success' : 'bg-danger'}`;
-            diffEl.innerText = diff > 0 ? `+${diff}` : diff;
+        const diffEl = document.getElementById(diffId);
+        if (diffValue > 0) {
+            diffEl.className = 'badge rounded-pill bg-success diff-badge';
+            diffEl.innerText = `+${diffValue}`;
+            diffEl.style.display = 'inline-block';
+        } else if (diffValue < 0) {
+            diffEl.className = 'badge rounded-pill bg-danger diff-badge';
+            diffEl.innerText = `${diffValue}`; // - 부호 포함됨
             diffEl.style.display = 'inline-block';
         } else {
-            diffEl.style.display = 'none';
+            diffEl.style.display = 'none'; // 0일 경우 숨김
         }
     }
 
-    // 3. 랭킹 조회
+    // 3. 랭킹 리스트 조회
     async function loadRankings(page) {
         try {
-            // 실제 API 연동 시 주석 해제 및 수정
-            // const response = await fetch(`${API_BASE_URL}/ranks?page=${page}&size=20`);
-            // const result = await response.json();
-            // renderRankingTable(result.data.content, page);
+            // [임시] API 구현 전이라 빈 배열 처리 (실제 연동 시 주석 해제)
+            const users = [];
+            /*
+            const response = await fetch(`${API_BASE_URL}/ranks?page=${page}&size=20`);
+            const result = await response.json();
+            const users = result.data.content;
+            */
+            renderRankingTable(users, page);
 
-            // UI 테스트용 빈 배열
-            renderRankingTable([], page);
         } catch (error) {
-            console.error('Ranking Error:', error);
+            console.error('Ranking Load Error:', error);
             document.getElementById('rankingTableBody').innerHTML =
                 `<tr><td colspan="6" class="text-danger">랭킹 정보를 불러오지 못했습니다.</td></tr>`;
         }
@@ -309,34 +385,41 @@
 
         users.forEach((user, index) => {
             const rank = (currentPage * 20) + index + 1;
-            tbody.innerHTML += `
+            const row = `
                 <tr>
                     <td class="fw-bold">${rank}</td>
                     <td><span class="badge bg-light text-dark border text-${user.tier}">${user.tier}</span></td>
                     <td class="text-start">
                         <img src="${user.profileImage}" class="rounded-circle me-2" width="30" height="30">
-                        <a href="https://github.com/${user.username}" target="_blank" class="text-decoration-none text-dark fw-bold">${user.username}</a>
+                        <a href="https://github.com/${user.username}" target="_blank" class="text-decoration-none text-dark fw-bold">
+                            ${user.username}
+                        </a>
                     </td>
                     <td class="fw-bold text-primary">${user.totalScore.toLocaleString()}</td>
                     <td>${user.totalCommitCount || '-'}</td>
-                    <td><button class="btn btn-sm btn-outline-secondary" onclick="alert('준비 중')">View</button></td>
-                </tr>`;
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="alert('준비 중입니다.')">View</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
         });
     }
 
     function getTierIconClass(tier) {
         switch(tier) {
             case 'DIAMOND': return 'fas fa-gem';
-            case 'PLATINUM':
-            case 'GOLD':
-            case 'SILVER':
+            case 'PLATINUM': return 'fas fa-medal';
+            case 'GOLD': return 'fas fa-medal';
+            case 'SILVER': return 'fas fa-medal';
             case 'BRONZE': return 'fas fa-medal';
-            default: return 'fas fa-shield-alt';
+            default: return 'fas fa-shield-alt'; // IRON
         }
     }
 
     function showLoading(isLoading) {
-        document.getElementById('loadingOverlay').style.display = isLoading ? 'flex' : 'none';
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = isLoading ? 'flex' : 'none';
     }
 </script>
 
