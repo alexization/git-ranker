@@ -24,7 +24,7 @@ public class GitHubActivityService {
             int prOpenCount = response.getPRCount();
             int prMergedCount = response.getMergedPRCount();
             int issueCount = response.getIssueCount();
-            int reviewCount = response.getAccurateReviewCount();
+            int reviewCount = response.getReviewCount();
 
             GitHubActivitySummary summary = new GitHubActivitySummary(
                     commitCount,

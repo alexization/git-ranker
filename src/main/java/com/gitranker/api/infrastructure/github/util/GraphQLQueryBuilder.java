@@ -23,7 +23,6 @@ public class GraphQLQueryBuilder {
         }
 
         queryBuilder.append(buildMergedPRBlock(username));
-        queryBuilder.append(buildReviewDetailsBlock(username));
         queryBuilder.append("}\n");
 
         return queryBuilder.toString();
@@ -47,20 +46,6 @@ public class GraphQLQueryBuilder {
         return String.format("""
                 mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
                   issueCount
-                }
-                """, username);
-    }
-
-    private static String buildReviewDetailsBlock(String username) {
-        return String.format("""
-                reviewedPRs: search(query: "reviewed-by:%s type:pr", type: ISSUE, first: 100) {
-                  nodes {
-                    ... on PullRequest {
-                      reviews(first: 100) {
-                        totalCount
-                      }
-                    }
-                  }
                 }
                 """, username);
     }

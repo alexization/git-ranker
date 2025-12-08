@@ -38,14 +38,9 @@ public record GitHubAllActivitiesResponse(
                 : 0;
     }
 
-    public int getAccurateReviewCount() {
-        if (data.reviewedPRs() == null || data.reviewedPRs().nodes() == null) {
-            return 0;
-        }
-
-        return data.reviewedPRs().nodes().stream()
-                .filter(node -> node.reviews() != null)
-                .mapToInt(node -> node.reviews().totalCount())
+    public int getReviewCount() {
+        return data.getYearDataMap().values().stream()
+                .mapToInt(yearData -> yearData.contributionsCollection().totalPullRequestReviewContributions())
                 .sum();
     }
 
