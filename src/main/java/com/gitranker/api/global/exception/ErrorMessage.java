@@ -19,7 +19,6 @@ public class ErrorMessage {
     }
 
     public ErrorMessage(ErrorType errorType, Object data) {
-        this(errorType.getCode().name(), errorType.getMessage(), data);
+        this(errorType.getCode(), errorType.getMessage(), data);
     }
-
 }

@@ -16,19 +16,20 @@ public class RankingService {
 
     @Transactional(readOnly = true)
     public RankingInfo calculateRankingForNewUser(int userScore) {
-        log.debug("신규 사용자 순위 및 티어 계산 시작 - 점수 : {}", userScore);
-
-        long higherScoreCount = userRepository.countByTotalScoreGreaterThan(userScore);
-        int ranking = (int) higherScoreCount + 1;
-
         long totalUserCount = userRepository.count();
 
+        return calculateRanking(userScore, totalUserCount);
+    }
+
+    @Transactional(readOnly = true)
+    public RankingInfo calculateRanking(int userScore, long totalUserCount) {
+        long higherScoreCount = userRepository.countByTotalScoreGreaterThan(userScore);
+
+        int ranking = (int) higherScoreCount + 1;
         double percentile = (double) ranking / totalUserCount * 100.0;
 
         Tier tier = tierCalculator.calculateTier(percentile);
 
-        RankingInfo rankingInfo = new RankingInfo(ranking, percentile, tier);
-
-        return rankingInfo;
+        return new RankingInfo(ranking, percentile, tier);
     }
 }

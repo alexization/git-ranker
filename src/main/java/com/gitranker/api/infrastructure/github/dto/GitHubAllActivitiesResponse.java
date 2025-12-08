@@ -52,8 +52,10 @@ public record GitHubAllActivitiesResponse(
     public static class Data {
         @Getter
         private final Map<String, YearData> yearDataMap = new HashMap<>();
+
         @JsonProperty("mergedPRs")
         private Search mergedPRs;
+
         @JsonProperty("reviewedPRs")
         private Search reviewedPRs;
 

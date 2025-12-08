@@ -1,6 +1,5 @@
 package com.gitranker.api.batch.job;
 
-import com.gitranker.api.batch.processor.RankingRecalculationProcessor;
 import com.gitranker.api.batch.processor.ScoreRecalculationProcessor;
 import com.gitranker.api.batch.reader.UserItemReader;
 import com.gitranker.api.batch.tasklet.RankingRecalculationTasklet;

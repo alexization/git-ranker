@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -23,6 +23,5 @@ spring:
 
 github:
   api:
-    base-url: ${GITHUB_API_BASE_URL}
     graphql-url: ${GITHUB_API_GRAPHQL_URL}
     token: ${GITHUB_API_TOKEN}

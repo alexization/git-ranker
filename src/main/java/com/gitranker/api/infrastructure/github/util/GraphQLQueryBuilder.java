@@ -67,19 +67,20 @@ public class GraphQLQueryBuilder {
 
     private static String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
         if (year == joinYear) {
-            return githubJoinDate.toString().substring(0, 19) + "Z";
-        } else {
-            return String.format("%d-01-01T00:00:00Z", year);
+            return toISOString(githubJoinDate);
         }
+        return String.format("%d-01-01T00:00:00Z", year);
     }
 
     private static String buildToDate(int year, int currentYear) {
         if (year == currentYear) {
-            LocalDateTime now = LocalDateTime.now();
-            return now.toString().substring(0, 19) + "Z";
-        } else {
-            return String.format("%d-12-31T23:59:59Z", year);
+            return toISOString(LocalDateTime.now());
         }
+        return String.format("%d-12-31T23:59:59Z", year);
+    }
+
+    private static String toISOString(LocalDateTime dateTime) {
+        return dateTime.toString().substring(0, 19) + "Z";
     }
 
     public static String buildUserCreatedAtQuery(String username) {
