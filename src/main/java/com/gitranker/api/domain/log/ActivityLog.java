@@ -32,22 +32,42 @@ public class ActivityLog {
     private int prCount = 0;
 
     @Column(nullable = false)
+    private int mergedPrCount = 0;
+
+    @Column(nullable = false)
     private int issueCount = 0;
 
     @Column(nullable = false)
     private int reviewCount = 0;
 
     @Column(nullable = false)
-    private int dailyScore = 0;
+    private int diffCommitCount = 0;
+
+    @Column(nullable = false)
+    private int diffPrCount = 0;
+
+    @Column(nullable = false)
+    private int diffMergedPrCount = 0;
+
+    @Column(nullable = false)
+    private int diffIssueCount = 0;
+
+    @Column(nullable = false)
+    private int diffReviewCount = 0;
 
     @Builder
-    public ActivityLog(User user, LocalDate activityDate, int commitCount, int prCount, int issueCount, int reviewCount, int dailyScore) {
+    public ActivityLog(User user, LocalDate activityDate, int commitCount, int prCount, int mergedPrCount, int issueCount, int reviewCount, int diffCommitCount, int diffPrCount, int diffMergedPrCount, int diffIssueCount, int diffReviewCount) {
         this.user = user;
         this.activityDate = activityDate;
         this.commitCount = commitCount;
         this.prCount = prCount;
+        this.mergedPrCount = mergedPrCount;
         this.issueCount = issueCount;
         this.reviewCount = reviewCount;
-        this.dailyScore = dailyScore;
+        this.diffCommitCount = diffCommitCount;
+        this.diffPrCount = diffPrCount;
+        this.diffMergedPrCount = diffMergedPrCount;
+        this.diffIssueCount = diffIssueCount;
+        this.diffReviewCount = diffReviewCount;
     }
 }
