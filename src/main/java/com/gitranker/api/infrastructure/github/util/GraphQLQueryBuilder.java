@@ -1,4 +1,4 @@
-package com.gitranker.api.infrastructure.github.graphql.util;
+package com.gitranker.api.infrastructure.github.util;
 
 import lombok.extern.slf4j.Slf4j;
 

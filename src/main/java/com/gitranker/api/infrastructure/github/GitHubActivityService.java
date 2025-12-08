@@ -1,8 +1,7 @@
 package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
-import com.gitranker.api.infrastructure.github.graphql.GitHubGraphQLClient;
-import com.gitranker.api.infrastructure.github.graphql.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

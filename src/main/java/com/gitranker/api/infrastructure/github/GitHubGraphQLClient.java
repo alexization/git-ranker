@@ -1,11 +1,11 @@
-package com.gitranker.api.infrastructure.github.graphql;
+package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
-import com.gitranker.api.infrastructure.github.graphql.dto.GitHubAllActivitiesResponse;
-import com.gitranker.api.infrastructure.github.graphql.dto.GitHubGraphQLRequest;
-import com.gitranker.api.infrastructure.github.graphql.dto.GitHubUserInfoResponse;
-import com.gitranker.api.infrastructure.github.graphql.util.GraphQLQueryBuilder;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
+import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
+import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
