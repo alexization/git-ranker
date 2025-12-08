@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-graphql'
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	annotationProcessor 'org.projectlombok:lombok'
