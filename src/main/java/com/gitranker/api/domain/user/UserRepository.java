@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     ) r ON u.id = r.id
                         SET
                             u.ranking = r.new_rank,
-                                u.percentil = r.new_percentile * 100,
+                                u.percentile = r.new_percentile * 100,
                                     u.tier = CASE
                                         WHEN r.new_percentile <= 0.01 THEN 'DIAMOND'
                                         WHEN r.new_percentile <= 0.05 THEN 'PLATINUM'
