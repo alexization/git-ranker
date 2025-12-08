@@ -30,4 +30,6 @@ spring:
 
 github:
   api:
-    base-url: ${GITHUB_API_BASE_URL:https://api.github.com}
+    base-url: ${GITHUB_API_BASE_URL}
+    graphql-url: ${GITHUB_API_GRAPHQL_URL}
+    token: ${GITHUB_API_TOKEN}

@@ -17,15 +17,15 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
     @Override
     public User process(User user) {
         try {
-            GitHubActivitySummary summary = activityService.collectAllActivities(user.getUsername());
+            GitHubActivitySummary summary =
+                    activityService.collectAllActivities(user.getUsername(), user.getGithubCreatedAt());
 
             int newScore = summary.calculateTotalScore();
             user.updateScore(newScore);
 
             return user;
         } catch (Exception e) {
-            log.error("점수 재계산 실패 - 사용자 : {}, 에러 : {}", user.getUsername(), e.getMessage());
-
+            log.error("점수 재계산 실패 - 사용자: {}, 에러: {}", user.getUsername(), e.getMessage());
             return null;
         }
     }

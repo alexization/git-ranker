@@ -37,6 +37,9 @@ public class User {
 
     private String profileImage;
 
+    @Column(name = "github_created_at")
+    private LocalDateTime githubCreatedAt;
+
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
@@ -44,10 +47,11 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Builder
-    public User(String nodeId, String username, String profileImage) {
+    public User(String nodeId, String username, String profileImage, LocalDateTime githubCreatedAt) {
         this.nodeId = nodeId;
         this.username = username;
         this.profileImage = profileImage;
+        this.githubCreatedAt = githubCreatedAt;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

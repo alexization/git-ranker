@@ -28,7 +28,6 @@ public class RankingService {
         Tier tier = tierCalculator.calculateTier(percentile);
 
         RankingInfo rankingInfo = new RankingInfo(ranking, percentile, tier);
-        log.info("신규 사용자 순위 및 티어 계산 완료 - {}", rankingInfo);
 
         return rankingInfo;
     }

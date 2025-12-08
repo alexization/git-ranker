@@ -1,0 +1,117 @@
+package com.gitranker.api.infrastructure.github.graphql.dto;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+public record GitHubAllActivitiesResponse(
+        @JsonProperty("data")
+        Data data
+) {
+    public int getCommitCount() {
+        return data.getYearDataMap().values().stream()
+                .mapToInt(yearData -> yearData.contributionsCollection().totalCommitContributions())
+                .sum();
+    }
+
+    public int getIssueCount() {
+        return data.getYearDataMap().values().stream()
+                .mapToInt(yearData -> yearData.contributionsCollection().totalIssueContributions())
+                .sum();
+    }
+
+    public int getPRCount() {
+        return data.getYearDataMap().values().stream()
+                .mapToInt(yearData -> yearData.contributionsCollection().totalPullRequestContributions())
+                .sum();
+    }
+
+    public int getMergedPRCount() {
+        return data.mergedPRs() != null && data.mergedPRs().issueCount() != null
+                ? data.mergedPRs().issueCount()
+                : 0;
+    }
+
+    public int getAccurateReviewCount() {
+        if (data.reviewedPRs() == null || data.reviewedPRs().nodes() == null) {
+            return 0;
+        }
+
+        return data.reviewedPRs().nodes().stream()
+                .filter(node -> node.reviews() != null)
+                .mapToInt(node -> node.reviews().totalCount())
+                .sum();
+    }
+
+    public static class Data {
+        @Getter
+        private final Map<String, YearData> yearDataMap = new HashMap<>();
+        @JsonProperty("mergedPRs")
+        private Search mergedPRs;
+        @JsonProperty("reviewedPRs")
+        private Search reviewedPRs;
+
+        @JsonAnySetter
+        public void setYearData(String key, YearData value) {
+            if (key.startsWith("year")) {
+                yearDataMap.put(key, value);
+            }
+        }
+
+        public Search mergedPRs() {
+            return mergedPRs;
+        }
+
+        public Search reviewedPRs() {
+            return reviewedPRs;
+        }
+    }
+
+    public record YearData(
+            @JsonProperty("contributionsCollection")
+            ContributionsCollection contributionsCollection
+    ) {
+    }
+
+    public record ContributionsCollection(
+            @JsonProperty("totalCommitContributions")
+            int totalCommitContributions,
+
+            @JsonProperty("totalIssueContributions")
+            int totalIssueContributions,
+
+            @JsonProperty("totalPullRequestContributions")
+            int totalPullRequestContributions,
+
+            @JsonProperty("totalPullRequestReviewContributions")
+            int totalPullRequestReviewContributions
+    ) {
+    }
+
+    public record Search(
+            @JsonProperty("issueCount")
+            Integer issueCount,
+
+            @JsonProperty("nodes")
+            List<Node> nodes
+    ) {
+    }
+
+    public record Node(
+            @JsonProperty("reviews")
+            Reviews reviews
+    ) {
+    }
+
+    public record Reviews(
+            @JsonProperty("totalCount")
+            int totalCount
+    ) {
+    }
+}
