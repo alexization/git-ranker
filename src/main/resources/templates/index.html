@@ -263,7 +263,7 @@
 
 <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
-        <p class="mb-1">&copy; 2024 Git Ranker. All rights reserved.</p>
+        <p class="mb-1">&copy; 2025 Git Ranker. All rights reserved.</p>
         <p class="small text-white-50">
             Designed by <a href="https://github.com/alexization" class="text-white text-decoration-underline"
                            target="_blank">@alexization</a>
@@ -561,31 +561,74 @@
         section.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 
-    // [추가] 배지 마크다운 복사 기능
+    // [수정] 배지 마크다운 복사 기능 (HTTP/HTTPS 호환성 개선)
     function copyBadgeMarkdown() {
-        const nodeId = document.getElementById('resNodeId').value;
-        const username = document.getElementById('usernameInput').value || 'user'; // fallback
+        const nodeIdInput = document.getElementById('resNodeId');
+        const usernameInput = document.getElementById('usernameInput');
 
-        if (!nodeId) {
-            alert('사용자 정보를 찾을 수 없습니다.');
+        // 요소가 없는 경우 방어 로직
+        if (!nodeIdInput || !usernameInput) {
+            alert('페이지 로딩 중 오류가 발생했습니다. 새로고침 후 다시 시도해주세요.');
             return;
         }
 
-        // 현재 도메인 주소 가져오기 (로컬 테스트 및 배포 환경 대응)
+        const nodeId = nodeIdInput.value;
+        const username = usernameInput.value || 'user';
+
+        if (!nodeId) {
+            alert('사용자 정보를 찾을 수 없습니다. 다시 진단해주세요.');
+            return;
+        }
+
         const origin = window.location.origin;
         const badgeUrl = `${origin}/api/v1/badges/${nodeId}`;
-        const targetLink = `https://github.com/${username}`; // 클릭 시 이동할 링크
-
-        // 마크다운 형식 생성
+        const targetLink = `https://github.com/${username}`;
         const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
 
-        // 클립보드 복사
-        navigator.clipboard.writeText(markdown).then(() => {
-            alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
-        }).catch(err => {
-            console.error('복사 실패:', err);
-            prompt('아래 코드를 복사하세요:', markdown); // 복사 실패 시 fallback
-        });
+        // 1. 최신 Clipboard API 지원 여부 확인 (HTTPS 환경)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(markdown)
+                .then(() => {
+                    alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
+                })
+                .catch(err => {
+                    console.error('Clipboard API 실패:', err);
+                    fallbackCopyTextToClipboard(markdown); // 실패 시 Fallback 시도
+                });
+        } else {
+            // 2. HTTP 환경 등에서 Clipboard API 사용 불가 시 Fallback 처리
+            fallbackCopyTextToClipboard(markdown);
+        }
+    }
+
+    // [추가] Fallback 복사 함수 (textarea 활용 방식)
+    function fallbackCopyTextToClipboard(text) {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // 화면 밖으로 보내서 안 보이게 처리
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
+            } else {
+                throw new Error('execCommand 실패');
+            }
+        } catch (err) {
+            console.error('Fallback 복사 실패:', err);
+            // 최후의 수단: 프롬프트 창 띄우기
+            prompt('자동 복사를 지원하지 않는 환경입니다. 아래 코드를 직접 복사(Ctrl+C)하세요:', text);
+        }
     }
 
     function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
