@@ -265,6 +265,67 @@
     </div>
 </footer>
 
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pb-5 pt-0">
+                <div class="mb-4">
+                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100"
+                         height="100">
+                    <h3 id="modalUsername" class="fw-bold mb-1"></h3>
+                    <div id="modalTierBadge"
+                         class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
+                    <p class="text-muted small mb-0">
+                        전체 <span id="modalRanking" class="fw-bold text-dark"></span>위
+                        (상위 <span id="modalPercentile" class="fw-bold text-dark"></span>%)
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="display-4 fw-bold text-primary mb-0" id="modalTotalScore"></h2>
+                    <span class="text-muted small text-uppercase ls-1">Total Score</span>
+                </div>
+
+                <div class="row g-2 justify-content-center">
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <div class="small text-muted"><i class="fas fa-code-branch"></i> Commits</div>
+                            <div class="fw-bold fs-5" id="modalStatCommit">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <div class="small text-muted"><i class="fas fa-exclamation-circle"></i> Issues</div>
+                            <div class="fw-bold fs-5" id="modalStatIssue">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <div class="small text-muted"><i class="fas fa-glasses"></i> Reviews</div>
+                            <div class="fw-bold fs-5" id="modalStatReview">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded border">
+                            <div class="small text-muted"><i class="fas fa-share-square"></i> PR Open</div>
+                            <div class="fw-bold fs-5" id="modalStatPrOpen">0</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 bg-light rounded border">
+                            <div class="small text-muted"><i class="fas fa-check-double"></i> PR Merged</div>
+                            <div class="fw-bold fs-5" id="modalStatPrMerged">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -306,13 +367,11 @@
         }
     }
 
-    // [수정됨] Commits 컬럼(<td>) 제거
     function renderRankingTable(users) {
         const tbody = document.getElementById('rankingTableBody');
         tbody.innerHTML = '';
 
         if (!users || users.length === 0) {
-            // colspan도 6에서 5로 변경
             tbody.innerHTML = `<tr><td colspan="5" class="py-4">등록된 랭킹 데이터가 없습니다.</td></tr>`;
             return;
         }
@@ -330,12 +389,57 @@
                     </td>
                     <td class="fw-bold text-primary">${user.totalScore.toLocaleString()}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="alert('${user.username}님의 상세 정보 기능은 준비 중입니다.')">View</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="openUserDetail('${user.username}')">View</button>
                     </td>
                 </tr>
             `;
             tbody.innerHTML += row;
         });
+    }
+
+    // [추가] 사용자 상세 정보 Modal 열기
+    async function openUserDetail(username) {
+        // Modal 인스턴스 생성 또는 가져오기
+        const modalElement = document.getElementById('userDetailModal');
+        const modal = new bootstrap.Modal(modalElement);
+
+        try {
+            // API 호출
+            const response = await fetch(`${API_BASE_URL}/users/${username}`);
+            const result = await response.json();
+
+            if (result.result === 'SUCCESS') {
+                const data = result.data;
+
+                // 데이터 바인딩
+                document.getElementById('modalProfileImage').src = data.profileImage;
+                document.getElementById('modalUsername').innerText = data.username;
+
+                // 티어 뱃지 설정
+                const tierEl = document.getElementById('modalTierBadge');
+                tierEl.className = `d-inline-block px-3 py-1 rounded-pill fw-bold border mb-2 text-${data.tier}`;
+                tierEl.innerHTML = `<i class="${getTierIconClass(data.tier)} me-1"></i> ${data.tier}`;
+
+                document.getElementById('modalRanking').innerText = data.ranking;
+                document.getElementById('modalPercentile').innerText = data.percentile.toFixed(2);
+                document.getElementById('modalTotalScore').innerText = data.totalScore.toLocaleString();
+
+                // 상세 스탯 (ActivityLog 데이터가 없을 경우 0 처리)
+                document.getElementById('modalStatCommit').innerText = (data.commitCount || 0).toLocaleString();
+                document.getElementById('modalStatIssue').innerText = (data.issueCount || 0).toLocaleString();
+                document.getElementById('modalStatReview').innerText = (data.reviewCount || 0).toLocaleString();
+                document.getElementById('modalStatPrOpen').innerText = (data.prCount || 0).toLocaleString();
+                document.getElementById('modalStatPrMerged').innerText = (data.mergedPrCount || 0).toLocaleString();
+
+                // Modal 표시
+                modal.show();
+            } else {
+                alert('사용자 정보를 불러올 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('User Detail Error:', error);
+            alert('상세 정보를 불러오는 중 오류가 발생했습니다.');
+        }
     }
 
     // 페이지네이션 렌더링 (이전과 동일)

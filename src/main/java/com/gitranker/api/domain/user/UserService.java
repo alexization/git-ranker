@@ -5,6 +5,8 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
@@ -40,6 +42,16 @@ public class UserService {
         return userRepository.findByNodeId(nodeId)
                 .map(existingUser -> updateExistingUserProfile(existingUser, githubUserInfo))
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
+    }
+
+    @Transactional(readOnly = true)
+    public RegisterUserResponse searchUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+
+        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse createResponseForExistingUser(User user) {
