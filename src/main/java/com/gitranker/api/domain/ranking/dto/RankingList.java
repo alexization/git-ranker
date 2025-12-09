@@ -29,8 +29,7 @@ public record RankingList(
             String profileImage,
             int ranking,
             int totalScore,
-            Tier tier,
-            double percentile
+            Tier tier
     ) {
         public static UserInfo from(User user) {
             return new UserInfo(
@@ -38,8 +37,7 @@ public record RankingList(
                     user.getProfileImage(),
                     user.getRanking(),
                     user.getTotalScore(),
-                    user.getTier(),
-                    user.getPercentile()
+                    user.getTier()
             );
         }
     }
