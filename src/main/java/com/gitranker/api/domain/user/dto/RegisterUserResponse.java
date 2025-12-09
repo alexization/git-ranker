@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public record RegisterUserResponse(
         Long userId,
+        String nodeId,
         String username,
         String profileImage,
         LocalDateTime updatedAt,
@@ -30,6 +31,7 @@ public record RegisterUserResponse(
     public static RegisterUserResponse of(User user, ActivityLog latestLog, boolean isNewUser) {
         return new RegisterUserResponse(
                 user.getId(),
+                user.getNodeId(),
                 user.getUsername(),
                 user.getProfileImage(),
                 user.getUpdatedAt(),
@@ -54,6 +56,7 @@ public record RegisterUserResponse(
     public static RegisterUserResponse register(User user, ActivityLog latestLog, boolean isNewUser) {
         return new RegisterUserResponse(
                 user.getId(),
+                user.getNodeId(),
                 user.getUsername(),
                 user.getProfileImage(),
                 user.getUpdatedAt(),

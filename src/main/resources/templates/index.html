@@ -142,6 +142,12 @@
                             <h5 class="text-muted text-uppercase small ls-1">Total Score</h5>
                             <h1 class="display-3 fw-bold text-primary" id="resTotalScore"></h1>
                             <p class="text-muted small">최종 업데이트: <span id="resUpdatedAt"></span></p>
+
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-outline-dark btn-sm" onclick="copyBadgeMarkdown()">
+                                    <i class="fab fa-markdown"></i> README 배지 복사
+                                </button>
+                                <input type="hidden" id="resNodeId"></div>
                         </div>
 
                         <div class="row g-3 text-center">
@@ -535,6 +541,7 @@
     function renderUserResult(data) {
         const section = document.getElementById('resultSection');
         section.classList.remove('d-none');
+        document.getElementById('resNodeId').value = data.nodeId;
         document.getElementById('resProfileImage').src = data.profileImage;
         document.getElementById('resTierText').innerText = data.tier;
         document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
@@ -552,6 +559,33 @@
         const iconClass = getTierIconClass(data.tier);
         document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
         section.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+
+    // [추가] 배지 마크다운 복사 기능
+    function copyBadgeMarkdown() {
+        const nodeId = document.getElementById('resNodeId').value;
+        const username = document.getElementById('usernameInput').value || 'user'; // fallback
+
+        if (!nodeId) {
+            alert('사용자 정보를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 현재 도메인 주소 가져오기 (로컬 테스트 및 배포 환경 대응)
+        const origin = window.location.origin;
+        const badgeUrl = `${origin}/api/v1/badges/${nodeId}`;
+        const targetLink = `https://github.com/${username}`; // 클릭 시 이동할 링크
+
+        // 마크다운 형식 생성
+        const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
+
+        // 클립보드 복사
+        navigator.clipboard.writeText(markdown).then(() => {
+            alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            prompt('아래 코드를 복사하세요:', markdown); // 복사 실패 시 fallback
+        });
     }
 
     function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
