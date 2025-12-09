@@ -2,7 +2,7 @@ package com.gitranker.api.domain.user;
 
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
-import com.gitranker.api.domain.ranking.RankingInfo;
+import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;

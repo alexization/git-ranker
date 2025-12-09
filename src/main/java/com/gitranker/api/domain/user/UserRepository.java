@@ -1,5 +1,7 @@
 package com.gitranker.api.domain.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -42,4 +44,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                                 u.updated_at = NOW()
             """, nativeQuery = true)
     void bulkUpdateRanking();
+
+    Page<User> findAllByOrderByRankingAsc(Pageable pageable);
 }

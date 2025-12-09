@@ -1,4 +1,4 @@
-package com.gitranker.api.domain.ranking;
+package com.gitranker.api.domain.ranking.dto;
 
 import com.gitranker.api.domain.user.Tier;
 
