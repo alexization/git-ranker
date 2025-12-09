@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNodeId(String nodeId);
 
+    Optional<User> findByUsername(String username);
+
     long countByTotalScoreGreaterThan(int totalScoreIsGreaterThan);
 
     long countByCreatedAtAfter(LocalDateTime dateTime);

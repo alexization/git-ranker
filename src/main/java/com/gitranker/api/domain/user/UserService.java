@@ -31,45 +31,56 @@ public class UserService {
 
     @Transactional
     public RegisterUserResponse registerUser(String username) {
-        GitHubUserInfoResponse userInfo = graphQLClient.getUserInfo(username);
-        if (userInfo.data().user() == null) {
+        User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
+        if (existingUserByUsername != null) {
+            return createResponseForExistingUser(existingUserByUsername);
+        }
+
+        GitHubUserInfoResponse githubUserInfo = graphQLClient.getUserInfo(username);
+        if (githubUserInfo.data().user() == null) {
             throw new BusinessException(ErrorType.USER_NOT_FOUND);
         }
 
-        String nodeId = userInfo.getNodeId();
+        String nodeId = githubUserInfo.getNodeId();
 
         return userRepository.findByNodeId(nodeId)
-                .map(existingUser -> handleExistingUser(existingUser, userInfo))
-                .orElseGet(() -> handleNewUser(userInfo, nodeId));
+                .map(existingUser -> updateExistingUserProfile(existingUser, githubUserInfo))
+                .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
     }
 
-    private RegisterUserResponse handleExistingUser(User existingUser, GitHubUserInfoResponse userInfo) {
+    private RegisterUserResponse createResponseForExistingUser(User user) {
+        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        return RegisterUserResponse.of(user, activityLog, false);
+    }
+
+    private RegisterUserResponse updateExistingUserProfile(User user, GitHubUserInfoResponse userInfo) {
         log.info("기존 사용자 정보 업데이트: {}", userInfo.getLogin());
 
-        existingUser.updateUsername(userInfo.getLogin());
-        existingUser.updateProfileImage(userInfo.getAvatarUrl());
+        user.updateUsername(userInfo.getLogin());
+        user.updateProfileImage(userInfo.getAvatarUrl());
 
-        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(existingUser);
+        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        return RegisterUserResponse.of(existingUser, activityLog, false);
+        return RegisterUserResponse.of(user, activityLog, false);
     }
 
-    private RegisterUserResponse handleNewUser(GitHubUserInfoResponse userInfo, String nodeId) {
-        log.info("신규 사용자 등록 시작: {}", userInfo.getLogin());
+    private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
+        log.info("신규 사용자 등록 시작: {}", githubUserInfo.getLogin());
 
-        LocalDateTime githubCreatedAt = userInfo.getGitHubCreatedAt();
+        LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
 
         User newUser = User.builder()
                 .nodeId(nodeId)
-                .username(userInfo.getLogin())
-                .profileImage(userInfo.getAvatarUrl())
+                .username(githubUserInfo.getLogin())
+                .profileImage(githubUserInfo.getAvatarUrl())
                 .githubCreatedAt(githubCreatedAt)
                 .build();
 
         userRepository.save(newUser);
 
         GitHubActivitySummary summary =
-                gitHubActivityService.collectAllActivities(userInfo.getLogin(), githubCreatedAt);
+                gitHubActivityService.collectAllActivities(githubUserInfo.getLogin(), githubCreatedAt);
 
         int totalScore = summary.calculateTotalScore();
         newUser.updateScore(totalScore);
@@ -83,7 +94,7 @@ public class UserService {
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
 
-        log.info("신규 사용자 등록 완료: {}, 총점: {}, {}", userInfo.getLogin(), totalScore, rankingInfo);
+        log.info("신규 사용자 등록 완료: {}, 총점: {}, {}", githubUserInfo.getLogin(), totalScore, rankingInfo);
 
         return RegisterUserResponse.register(newUser, activityLog, true);
     }
