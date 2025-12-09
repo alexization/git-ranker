@@ -5,6 +5,8 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.ranking.RankingInfo;
 import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
@@ -30,6 +32,9 @@ public class UserService {
     @Transactional
     public RegisterUserResponse registerUser(String username) {
         GitHubUserInfoResponse userInfo = graphQLClient.getUserInfo(username);
+        if (userInfo.data().user() == null) {
+            throw new BusinessException(ErrorType.USER_NOT_FOUND);
+        }
 
         String nodeId = userInfo.getNodeId();
 
