@@ -34,11 +34,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
                             u.ranking = r.new_rank,
                                 u.percentile = r.new_percentile * 100,
                                     u.tier = CASE
-                                        WHEN r.new_percentile <= 0.01 THEN 'DIAMOND'
-                                        WHEN r.new_percentile <= 0.05 THEN 'PLATINUM'
-                                        WHEN r.new_percentile <= 0.10 THEN 'GOLD'
-                                        WHEN r.new_percentile <= 0.25 THEN 'SILVER'
-                                        WHEN r.new_percentile <= 0.50 THEN 'BRONZE'
+                                        WHEN r.new_percentile <= 0.05 THEN 'DIAMOND'
+                                        WHEN r.new_percentile <= 0.10 THEN 'PLATINUM'
+                                        WHEN r.new_percentile <= 0.20 THEN 'GOLD'
+                                        WHEN r.new_percentile <= 0.40 THEN 'SILVER'
+                                        WHEN r.new_percentile <= 0.70 THEN 'BRONZE'
                                         ELSE 'IRON'
                                             END,
                                                 u.updated_at = NOW()
