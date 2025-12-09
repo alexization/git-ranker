@@ -43,7 +43,7 @@ public class GitHubGraphQLClient {
         String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
-        return webClient.post()
+        GitHubUserInfoResponse response = webClient.post()
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, res ->
@@ -55,6 +55,13 @@ public class GitHubGraphQLClient {
                 )
                 .bodyToMono(GitHubUserInfoResponse.class)
                 .block();
+
+        if (response == null || response.data() == null || response.data().user() == null) {
+            log.warn("GitHub 사용자를 찾을 수 없음 : {}", username);
+            throw new BusinessException(ErrorType.USER_NOT_FOUND);
+        }
+
+        return response;
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
