@@ -20,7 +20,8 @@ public class BadgeService {
 
     @Transactional(readOnly = true)
     public String generateBadge(String nodeId) {
-        User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+        User user = userRepository.findByNodeId(nodeId)
+                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
@@ -33,7 +34,7 @@ public class BadgeService {
         String tierShape = getTierShape(tier);
 
         return String.format("""
-                        <svg width="450" height="200" viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="350" height="170" viewBox="0 0 350 170" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 %s
                                 <filter id="shadow" x="-20%%" y="-20%%" width="140%%" height="140%%">
@@ -41,66 +42,77 @@ public class BadgeService {
                                 </filter>
                             </defs>
                         
-                            <rect x="0" y="0" width="450" height="200" rx="15" ry="15" fill="url(#tierGradient)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1"/>
+                            <rect x="0" y="0" width="350" height="170" rx="12" ry="12" fill="url(#tierGradient)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1"/>
                         
-                            <g transform="translate(280, 10) scale(1.2)" opacity="0.1" fill="#ffffff">
+                            <g transform="translate(220, 10) scale(1.0)" opacity="0.1" fill="#ffffff">
                                 %s
                             </g>
                         
                             <style>
-                                .header { font: 600 18px 'Google Sans', 'Segoe UI', Ubuntu, sans-serif; fill: #ffffff; filter: url(#shadow); }
-                                .username { font: 400 14px 'Google Sans', 'Segoe UI', Ubuntu, sans-serif; fill: #f0f6fc; opacity: 0.9; }
-                                .stat-label { font: 600 10px 'Google Sans', 'Segoe UI', sans-serif; fill: #e6edf3; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.8px; }
-                                .stat-value { font: 600 15px 'Google Sans Mono', 'SF Mono', 'Segoe UI Mono', monospace; fill: #ffffff; filter: url(#shadow); }
-                                .tier-text { font: 800 34px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; filter: url(#shadow); letter-spacing: 1px; }
-                                .score-text { font: 700 24px 'Google Sans Mono', monospace; fill: #ffffff; opacity: 0.95; }
-                                .rank-text { font: 500 13px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; opacity: 0.9; }
-                        
-                                .diff-plus { font: 600 11px 'Google Sans Mono', monospace; fill: #3fb950; }
-                                .diff-minus { font: 600 11px 'Google Sans Mono', monospace; fill: #ff7b72; }
+                                .header { font: 600 16px 'Google Sans', 'Segoe UI', Ubuntu, sans-serif; fill: #ffffff; filter: url(#shadow); }
+                                .username { font: 400 12px 'Google Sans', 'Segoe UI', Ubuntu, sans-serif; fill: #f0f6fc; opacity: 0.9; }
+                                .stat-label { font: 600 9px 'Google Sans', 'Segoe UI', sans-serif; fill: #e6edf3; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; }
+                                .stat-value { font: 600 13px 'Google Sans Mono', 'SF Mono', 'Segoe UI Mono', monospace; fill: #ffffff; filter: url(#shadow); }
+                                .tier-text { font: 800 28px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; filter: url(#shadow); letter-spacing: 0.5px; }
+                                .score-text { font: 700 20px 'Google Sans Mono', monospace; fill: #ffffff; opacity: 0.95; }
+                                .rank-text { font: 500 11px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; opacity: 0.9; }
+                                
+                                .diff-plus { font: 600 10px 'Google Sans Mono', monospace; fill: #3fb950; }
+                                .diff-minus { font: 600 10px 'Google Sans Mono', monospace; fill: #ff7b72; }
                             </style>
                         
-                            <text x="30" y="35" class="header">Git Ranker</text>
-                            <text x="420" y="35" text-anchor="end" class="username">@%s</text>
+                            <text x="20" y="28" class="header">Git Ranker</text>
+                            <text x="330" y="28" text-anchor="end" class="username">@%s</text>
+                            
+                            <line x1="20" y1="40" x2="330" y2="40" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
                         
-                            <line x1="30" y1="50" x2="420" y2="50" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
-                        
-                            <g transform="translate(30, 95)">
+                            <g transform="translate(20, 85)">
                                 <text x="0" y="0" class="tier-text">%s</text>
-                                <text x="0" y="35" class="score-text">%d pts</text>
-                                <text x="0" y="60" class="rank-text">Top %.2f%% • Rank %d</text>
+                                <text x="0" y="30" class="score-text">%d pts</text>
+                                <text x="0" y="52" class="rank-text">Top %.2f%% • Rank %d</text>
                             </g>
-                        
-                            <line x1="215" y1="70" x2="215" y2="170" stroke="#ffffff" stroke-width="1" stroke-opacity="0.2"/>
-                        
-                            <g transform="translate(235, 75)">
+                            
+                            <line x1="165" y1="55" x2="165" y2="155" stroke="#ffffff" stroke-width="1" stroke-opacity="0.2"/>
+                            
+                            <g transform="translate(180, 60)">
                                 <g transform="translate(0, 0)">
                                     <text x="0" y="0" class="stat-label">Commits</text>
-                                    <text x="0" y="20" class="stat-value">%s %s</text>
+                                    <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                                <g transform="translate(100, 0)">
+                                <g transform="translate(85, 0)">
                                     <text x="0" y="0" class="stat-label">Issues</text>
-                                    <text x="0" y="20" class="stat-value">%s %s</text>
+                                    <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                        
-                                <g transform="translate(0, 38)">
+                                
+                                <g transform="translate(0, 34)">
                                     <text x="0" y="0" class="stat-label">PR Open</text>
-                                    <text x="0" y="20" class="stat-value">%s %s</text>
+                                    <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                                <g transform="translate(100, 38)">
+                                <g transform="translate(85, 34)">
                                     <text x="0" y="0" class="stat-label">PR Merged</text>
-                                    <text x="0" y="20" class="stat-value">%s %s</text>
+                                    <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                        
-                                <g transform="translate(0, 76)">
+                                
+                                <g transform="translate(0, 68)">
                                     <text x="0" y="0" class="stat-label">Reviews</text>
-                                    <text x="0" y="20" class="stat-value">%s %s</text>
+                                    <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
                             </g>
                         </svg>
-                        """, gradientDefs, tierShape, user.getUsername(), user.getTier().name(), user.getTotalScore(), user.getPercentile(), user.getRanking(),
+                        """,
+                gradientDefs,
+                tierShape,
+                user.getUsername(),
+                user.getTier().name(),
+                user.getTotalScore(),
+                user.getPercentile(), user.getRanking(),
 
-                formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()), formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()), formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()), formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()), formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount()));
+                formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()),
+                formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()),
+                formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()),
+                formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()),
+                formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount())
+        );
     }
 
     private String formatCount(int count) {
@@ -108,9 +120,8 @@ public class BadgeService {
     }
 
     private String formatDiff(int diff) {
-        if (diff > 0) return String.format("<tspan class='diff-plus' dy='-2' font-size='10'>▲%d</tspan>", diff);
-        if (diff < 0)
-            return String.format("<tspan class='diff-minus' dy='-2' font-size='10'>▼%d</tspan>", Math.abs(diff));
+        if (diff > 0) return String.format("<tspan class='diff-plus' dy='-2' font-size='9'>▲%d</tspan>", diff);
+        if (diff < 0) return String.format("<tspan class='diff-minus' dy='-2' font-size='9'>▼%d</tspan>", Math.abs(diff));
         return "";
     }
 
@@ -119,27 +130,27 @@ public class BadgeService {
         String endColor;
 
         switch (tier) {
-            case DIAMOND -> { // Cyan Blue
+            case DIAMOND -> {
                 startColor = "#00B4DB";
                 endColor = "#0083B0";
             }
-            case PLATINUM -> { // Mint/Teal
+            case PLATINUM -> {
                 startColor = "#00C9A7";
                 endColor = "#008E74";
             }
-            case GOLD -> { // Deep Gold
+            case GOLD -> {
                 startColor = "#F1C40F";
                 endColor = "#B7880B";
             }
-            case SILVER -> { // Metallic Gray
+            case SILVER -> {
                 startColor = "#9CA3AF";
                 endColor = "#4B5563";
             }
-            case BRONZE -> { // Earthy Copper
+            case BRONZE -> {
                 startColor = "#D38D5F";
                 endColor = "#8B4513";
             }
-            default -> { // IRON
+            default -> {
                 startColor = "#34495E";
                 endColor = "#2C3E50";
             }
