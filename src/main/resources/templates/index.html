@@ -459,12 +459,20 @@
         const startPage = Math.floor(currentPage / pageSize) * pageSize;
         const endPage = Math.min(startPage + pageSize, totalPages);
 
-        const prevDisabled = pageInfo.first ? 'disabled' : '';
-        pagination.innerHTML += `
-            <li class="page-item ${prevDisabled}">
-                <a class="page-link" href="#" onclick="loadRankings(${currentPage - 1}); return false;">&laquo;</a>
-            </li>
-        `;
+        // [수정] first -> isFirst 로 변경 및 클릭 이벤트 제거
+        if (pageInfo.isFirst) {
+            pagination.innerHTML += `
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+                </li>
+            `;
+        } else {
+            pagination.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadRankings(${currentPage - 1}); return false;">&laquo;</a>
+                </li>
+            `;
+        }
 
         for (let i = startPage; i < endPage; i++) {
             const activeClass = (i === currentPage) ? 'active' : '';
@@ -475,12 +483,20 @@
             `;
         }
 
-        const nextDisabled = pageInfo.last ? 'disabled' : '';
-        pagination.innerHTML += `
-            <li class="page-item ${nextDisabled}">
-                <a class="page-link" href="#" onclick="loadRankings(${currentPage + 1}); return false;">&raquo;</a>
-            </li>
-        `;
+        // [수정] last -> isLast 로 변경 및 클릭 이벤트 제거
+        if (pageInfo.isLast) {
+            pagination.innerHTML += `
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
+                </li>
+            `;
+        } else {
+            pagination.innerHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadRankings(${currentPage + 1}); return false;">&raquo;</a>
+                </li>
+            `;
+        }
     }
 
     // ---------------------------------------------------------
