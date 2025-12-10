@@ -45,5 +45,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """, nativeQuery = true)
     void bulkUpdateRanking();
 
-    Page<User> findAllByOrderByRankingAsc(Pageable pageable);
+    Page<User> findAllByOrderByTotalScoreDesc(Pageable pageable);
 }

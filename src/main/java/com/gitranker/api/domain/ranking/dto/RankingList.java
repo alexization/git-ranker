@@ -27,15 +27,15 @@ public record RankingList(
     public record UserInfo(
             String username,
             String profileImage,
-            int ranking,
+            long ranking,
             int totalScore,
             Tier tier
     ) {
-        public static UserInfo from(User user) {
+        public static UserInfo from(User user, long ranking) {
             return new UserInfo(
                     user.getUsername(),
                     user.getProfileImage(),
-                    user.getRanking(),
+                    ranking,
                     user.getTotalScore(),
                     user.getTier()
             );

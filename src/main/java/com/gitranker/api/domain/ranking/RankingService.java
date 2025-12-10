@@ -8,18 +8,21 @@ import com.gitranker.api.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RankingService {
+    private static final int DEFAULT_PAGE_SIZE = 50;
     private final UserRepository userRepository;
     private final TierCalculator tierCalculator;
-
-    private static final int DEFAULT_PAGE_SIZE = 50;
 
     @Transactional(readOnly = true)
     public RankingInfo calculateRankingForNewUser(int userScore) {
@@ -43,9 +46,16 @@ public class RankingService {
     @Transactional(readOnly = true)
     public RankingList getRankingList(int page) {
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
-        Page<User> userPage = userRepository.findAllByOrderByRankingAsc(pageable);
+        Page<User> userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
 
-        Page<RankingList.UserInfo> rankingPage = userPage.map(RankingList.UserInfo::from);
+        List<User> userList = userPage.getContent();
+        long startRank = pageable.getOffset() + 1;
+
+        List<RankingList.UserInfo> userInfo = IntStream.range(0, userList.size())
+                .mapToObj(i -> RankingList.UserInfo.from(userList.get(i), startRank + i))
+                .toList();
+
+        Page<RankingList.UserInfo> rankingPage = new PageImpl<>(userInfo, pageable, userPage.getTotalElements());
 
         return RankingList.from(rankingPage);
     }
