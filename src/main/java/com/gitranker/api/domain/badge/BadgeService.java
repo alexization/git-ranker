@@ -20,8 +20,7 @@ public class BadgeService {
 
     @Transactional(readOnly = true)
     public String generateBadge(String nodeId) {
-        User user = userRepository.findByNodeId(nodeId)
-                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+        User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
@@ -56,14 +55,14 @@ public class BadgeService {
                                 .tier-text { font: 800 28px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; filter: url(#shadow); letter-spacing: 0.5px; }
                                 .score-text { font: 700 20px 'Google Sans Mono', monospace; fill: #ffffff; opacity: 0.95; }
                                 .rank-text { font: 500 11px 'Google Sans', 'Segoe UI', sans-serif; fill: #ffffff; opacity: 0.9; }
-                                
+                        
                                 .diff-plus { font: 600 10px 'Google Sans Mono', monospace; fill: #3fb950; }
                                 .diff-minus { font: 600 10px 'Google Sans Mono', monospace; fill: #ff7b72; }
                             </style>
                         
                             <text x="20" y="28" class="header">Git Ranker</text>
                             <text x="330" y="28" text-anchor="end" class="username">@%s</text>
-                            
+                        
                             <line x1="20" y1="40" x2="330" y2="40" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
                         
                             <g transform="translate(20, 85)">
@@ -71,9 +70,9 @@ public class BadgeService {
                                 <text x="0" y="30" class="score-text">%d pts</text>
                                 <text x="0" y="52" class="rank-text">Top %.2f%% • Rank %d</text>
                             </g>
-                            
+                        
                             <line x1="165" y1="55" x2="165" y2="155" stroke="#ffffff" stroke-width="1" stroke-opacity="0.2"/>
-                            
+                        
                             <g transform="translate(180, 60)">
                                 <g transform="translate(0, 0)">
                                     <text x="0" y="0" class="stat-label">Commits</text>
@@ -83,7 +82,7 @@ public class BadgeService {
                                     <text x="0" y="0" class="stat-label">Issues</text>
                                     <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                                
+                        
                                 <g transform="translate(0, 34)">
                                     <text x="0" y="0" class="stat-label">PR Open</text>
                                     <text x="0" y="18" class="stat-value">%s %s</text>
@@ -92,27 +91,16 @@ public class BadgeService {
                                     <text x="0" y="0" class="stat-label">PR Merged</text>
                                     <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
-                                
+                        
                                 <g transform="translate(0, 68)">
                                     <text x="0" y="0" class="stat-label">Reviews</text>
                                     <text x="0" y="18" class="stat-value">%s %s</text>
                                 </g>
                             </g>
                         </svg>
-                        """,
-                gradientDefs,
-                tierShape,
-                user.getUsername(),
-                user.getTier().name(),
-                user.getTotalScore(),
-                user.getPercentile(), user.getRanking(),
+                        """, gradientDefs, tierShape, user.getUsername(), user.getTier().name(), user.getTotalScore(), user.getPercentile(), user.getRanking(),
 
-                formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()),
-                formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()),
-                formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()),
-                formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()),
-                formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount())
-        );
+                formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()), formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()), formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()), formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()), formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount()));
     }
 
     private String formatCount(int count) {
@@ -121,7 +109,8 @@ public class BadgeService {
 
     private String formatDiff(int diff) {
         if (diff > 0) return String.format("<tspan class='diff-plus' dy='-2' font-size='9'>▲%d</tspan>", diff);
-        if (diff < 0) return String.format("<tspan class='diff-minus' dy='-2' font-size='9'>▼%d</tspan>", Math.abs(diff));
+        if (diff < 0)
+            return String.format("<tspan class='diff-minus' dy='-2' font-size='9'>▼%d</tspan>", Math.abs(diff));
         return "";
     }
 
