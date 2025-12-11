@@ -13,10 +13,12 @@
 
     <link rel="icon" type="image/x-icon" href="https://www.git-ranker.com/favicon.ico">
 
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" as="style" crossorigin
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -65,12 +67,29 @@
         }
 
         /* 티어별 색상 정의 */
-        .text-DIAMOND { color: #005C97 !important; }
-        .text-PLATINUM { color: #00897B !important; }
-        .text-GOLD { color: #B8860B !important; }
-        .text-SILVER { color: #5D6D7E !important; }
-        .text-BRONZE { color: #D35400 !important; }
-        .text-IRON { color: #505050 !important; }
+        .text-DIAMOND {
+            color: #005C97 !important;
+        }
+
+        .text-PLATINUM {
+            color: #00897B !important;
+        }
+
+        .text-GOLD {
+            color: #B8860B !important;
+        }
+
+        .text-SILVER {
+            color: #5D6D7E !important;
+        }
+
+        .text-BRONZE {
+            color: #D35400 !important;
+        }
+
+        .text-IRON {
+            color: #505050 !important;
+        }
 
         .tier-badge {
             background-color: #ffffff;
@@ -108,6 +127,7 @@
             color: #6c757d;
             transition: color 0.2s;
         }
+
         .info-icon:hover {
             color: #0d6efd;
         }
@@ -127,7 +147,8 @@
         <p class="lead">단순 커밋 수가 아닌, <strong>코드의 품질과 기여도</strong>로 당신의 티어를 확인하세요.</p>
 
         <div class="mt-4">
-            <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn btn-outline-light px-4 py-2 rounded-pill">
+            <a href="https://github.com/alexization/git-ranker" target="_blank"
+               class="btn btn-outline-light px-4 py-2 rounded-pill">
                 <i class="fas fa-file-lines me-2"></i>Git Ranker 사용 가이드
             </a>
         </div>
@@ -160,6 +181,12 @@
                                 상위 <span id="resPercentile" class="fw-bold text-dark font-code"></span>%
                                 (<span id="resRanking" class="font-code"></span>위)
                             </p>
+                        </div>
+
+                        <div class="mt-4">
+                            <a id="resGithubLink" href="#" target="_blank" class="btn btn-dark rounded-pill px-4">
+                                <i class="fab fa-github me-2"></i>GitHub
+                            </a>
                         </div>
                     </div>
 
@@ -325,9 +352,11 @@
             </div>
             <div class="modal-body text-center pb-5 pt-0">
                 <div class="mb-4">
-                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100" height="100">
+                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100"
+                         height="100">
                     <h3 id="modalUsername" class="fw-bold mb-1"></h3>
-                    <div id="modalTierBadge" class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
+                    <div id="modalTierBadge"
+                         class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
                     <p class="text-muted small mb-0">
                         전체 <span id="modalRanking" class="fw-bold text-dark font-code"></span>위
                         (상위 <span id="modalPercentile" class="fw-bold text-dark font-code"></span>%)
@@ -530,15 +559,19 @@
             const mStr = String(m).padStart(2, '0');
             const sStr = String(s).padStart(2, '0');
             const timerEl = document.getElementById('countdownTimer');
-            if (timerEl) timerEl.innerText = `${mStr}분 ${sStr}초`;
+            if (timerEl) timerEl.innerText = `${mStr}:${sStr}`;
         }
+
         update();
         setInterval(update, 1000);
     }
 
     async function registerUser() {
         const username = document.getElementById('usernameInput').value.trim();
-        if (!username) { alert('GitHub Username을 입력해주세요.'); return; }
+        if (!username) {
+            alert('GitHub Username을 입력해주세요.');
+            return;
+        }
         showLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/users`, {
@@ -566,6 +599,10 @@
         section.classList.remove('d-none');
         document.getElementById('resNodeId').value = data.nodeId;
         document.getElementById('resProfileImage').src = data.profileImage;
+
+        const githubLink = document.getElementById('resGithubLink');
+        githubLink.href = `https://github.com/${data.username}`;
+
         document.getElementById('resTierText').innerText = data.tier;
         document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
         document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
@@ -585,16 +622,27 @@
     function copyBadgeMarkdown() {
         const nodeIdInput = document.getElementById('resNodeId');
         const usernameInput = document.getElementById('usernameInput');
-        if (!nodeIdInput || !usernameInput) { alert('페이지 로딩 중 오류가 발생했습니다.'); return; }
+        if (!nodeIdInput || !usernameInput) {
+            alert('페이지 로딩 중 오류가 발생했습니다.');
+            return;
+        }
         const nodeId = nodeIdInput.value;
-        if (!nodeId) { alert('사용자 정보를 찾을 수 없습니다.'); return; }
+        if (!nodeId) {
+            alert('사용자 정보를 찾을 수 없습니다.');
+            return;
+        }
         const origin = window.location.origin;
         const badgeUrl = `${origin}/api/v1/badges/${nodeId}`;
         const targetLink = `https://www.git-ranker.com`;
         const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(markdown).then(() => { alert('README.md 코드가 복사되었습니다!'); })
-                .catch(err => { console.error('Clipboard API 실패:', err); alert('복사에 실패했습니다.'); });
+            navigator.clipboard.writeText(markdown).then(() => {
+                alert('README.md 코드가 복사되었습니다!');
+            })
+                .catch(err => {
+                    console.error('Clipboard API 실패:', err);
+                    alert('복사에 실패했습니다.');
+                });
         } else {
             alert('이 브라우저에서는 자동 복사를 지원하지 않습니다.');
         }
@@ -618,12 +666,18 @@
 
     function getTierIconClass(tier) {
         switch (tier) {
-            case 'DIAMOND': return 'fas fa-gem';
-            case 'PLATINUM': return 'fas fa-medal';
-            case 'GOLD': return 'fas fa-medal';
-            case 'SILVER': return 'fas fa-medal';
-            case 'BRONZE': return 'fas fa-medal';
-            default: return 'fas fa-shield-alt';
+            case 'DIAMOND':
+                return 'fas fa-gem';
+            case 'PLATINUM':
+                return 'fas fa-medal';
+            case 'GOLD':
+                return 'fas fa-medal';
+            case 'SILVER':
+                return 'fas fa-medal';
+            case 'BRONZE':
+                return 'fas fa-medal';
+            default:
+                return 'fas fa-shield-alt';
         }
     }
 
