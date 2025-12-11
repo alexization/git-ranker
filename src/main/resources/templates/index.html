@@ -9,16 +9,35 @@
     <meta property="og:url" content="https://www.git-ranker.com">
     <meta property="og:title" content="Git Ranker - 개발자 전투력 측정기">
     <meta property="og:description" content="단순 커밋 수가 아닌, 코드의 품질과 기여도로 당신의 티어를 확인하세요.">
-    <meta property="og:image" content="/og-image.png">
+    <meta property="og:image" content="https://www.git-ranker.com/og-image.png">
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        .font-code,
+        #resTotalScore,
+        #modalTotalScore,
+        #countdownTimer,
+        .stat-card .fs-5,
+        .modal-body .fs-5,
+        #rankingTableBody td.fw-bold.text-primary,
+        #rankingTableBody td.fw-bold:first-child,
+        .diff-badge {
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            letter-spacing: -0.03em;
         }
 
         .hero-section {
@@ -41,35 +60,43 @@
             margin-bottom: 0.5rem;
         }
 
-        /* 티어별 색상 */
+        /* 티어별 색상 정의 (BadgeService와 통일) */
         .text-DIAMOND {
-            color: #b9f2ff;
-            text-shadow: 0 0 10px #00d4ff;
+            color: #005C97 !important; /* Deep Royal Blue */
         }
 
         .text-PLATINUM {
-            color: #00ced1;
+            color: #00897B !important;
         }
 
         .text-GOLD {
-            color: #ffd700;
+            color: #B8860B !important;
         }
 
         .text-SILVER {
-            color: #c0c0c0;
+            color: #5D6D7E !important;
         }
 
         .text-BRONZE {
-            color: #cd7f32;
+            color: #D35400 !important;
         }
 
         .text-IRON {
-            color: #5f5f5f;
+            color: #505050 !important;
+        }
+
+        /* 랭킹 리스트 내 티어 배지 스타일 */
+        .tier-badge {
+            background-color: #ffffff;
+            border: 1px solid currentColor;
+            font-weight: 700;
+            padding-top: 0.35em; /* 폰트 변경에 따른 수직 정렬 미세 조정 */
+            padding-bottom: 0.35em;
         }
 
         .diff-badge {
             font-size: 0.75rem;
-            vertical-align: middle; /* 중앙 정렬 */
+            vertical-align: middle;
             margin-left: 5px;
         }
 
@@ -140,8 +167,8 @@
                             <i id="resTierIcon" class="fas fa-gem tier-icon"></i>
                             <h3 id="resTierText" class="fw-bold mb-1"></h3>
                             <p class="text-muted mb-0">
-                                상위 <span id="resPercentile" class="fw-bold text-dark"></span>%
-                                (<span id="resRanking"></span>위)
+                                상위 <span id="resPercentile" class="fw-bold text-dark font-code"></span>%
+                                (<span id="resRanking" class="font-code"></span>위)
                             </p>
                         </div>
                     </div>
@@ -228,8 +255,7 @@
             <div class="alert alert-light border shadow-sm d-inline-block px-5 py-3">
                 <h5 class="mb-2 text-secondary fw-bold">
                     <i class="fas fa-stopwatch text-primary me-1"></i> 다음 랭킹 갱신까지
-                    <span id="countdownTimer" class="fw-bold text-dark ms-2 text-monospace"
-                          style="font-family: monospace;">--분 --초</span>
+                    <span id="countdownTimer" class="fw-bold text-dark ms-2">--분 --초</span>
                 </h5>
                 <p class="mb-0 small text-muted">
                     <i class="fas fa-sync-alt fa-spin me-1" style="font-size: 0.7rem;"></i>
@@ -294,8 +320,8 @@
                     <div id="modalTierBadge"
                          class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
                     <p class="text-muted small mb-0">
-                        전체 <span id="modalRanking" class="fw-bold text-dark"></span>위
-                        (상위 <span id="modalPercentile" class="fw-bold text-dark"></span>%)
+                        전체 <span id="modalRanking" class="fw-bold text-dark font-code"></span>위
+                        (상위 <span id="modalPercentile" class="fw-bold text-dark font-code"></span>%)
                     </p>
                 </div>
 
@@ -395,7 +421,7 @@
             const row = `
                 <tr>
                     <td class="fw-bold">${user.ranking}</td>
-                    <td><span class="badge bg-light text-dark border text-${user.tier}">${user.tier}</span></td>
+                    <td><span class="badge tier-badge text-${user.tier}">${user.tier}</span></td>
                     <td class="text-start">
                         <img src="${user.profileImage}" class="rounded-circle me-2" width="30" height="30" alt="profile">
                         <a href="https://github.com/${user.username}" target="_blank" class="text-decoration-none text-dark fw-bold">
@@ -412,41 +438,35 @@
         });
     }
 
-    // [추가] 사용자 상세 정보 Modal 열기
+    // 사용자 상세 정보 Modal 열기
     async function openUserDetail(username) {
-        // Modal 인스턴스 생성 또는 가져오기
         const modalElement = document.getElementById('userDetailModal');
         const modal = new bootstrap.Modal(modalElement);
 
         try {
-            // API 호출
             const response = await fetch(`${API_BASE_URL}/users/${username}`);
             const result = await response.json();
 
             if (result.result === 'SUCCESS') {
                 const data = result.data;
 
-                // 데이터 바인딩
                 document.getElementById('modalProfileImage').src = data.profileImage;
                 document.getElementById('modalUsername').innerText = data.username;
 
-                // 티어 뱃지 설정
                 const tierEl = document.getElementById('modalTierBadge');
-                tierEl.className = `d-inline-block px-3 py-1 rounded-pill fw-bold border mb-2 text-${data.tier}`;
+                tierEl.className = `d-inline-block px-3 py-1 rounded-pill fw-bold border mb-2 tier-badge text-${data.tier}`;
                 tierEl.innerHTML = `<i class="${getTierIconClass(data.tier)} me-1"></i> ${data.tier}`;
 
                 document.getElementById('modalRanking').innerText = data.ranking;
                 document.getElementById('modalPercentile').innerText = data.percentile.toFixed(2);
                 document.getElementById('modalTotalScore').innerText = data.totalScore.toLocaleString();
 
-                // 상세 스탯 (ActivityLog 데이터가 없을 경우 0 처리)
                 document.getElementById('modalStatCommit').innerText = (data.commitCount || 0).toLocaleString();
                 document.getElementById('modalStatIssue').innerText = (data.issueCount || 0).toLocaleString();
                 document.getElementById('modalStatReview').innerText = (data.reviewCount || 0).toLocaleString();
                 document.getElementById('modalStatPrOpen').innerText = (data.prCount || 0).toLocaleString();
                 document.getElementById('modalStatPrMerged').innerText = (data.mergedPrCount || 0).toLocaleString();
 
-                // Modal 표시
                 modal.show();
             } else {
                 alert('사용자 정보를 불러올 수 없습니다.');
@@ -457,7 +477,6 @@
         }
     }
 
-    // 페이지네이션 렌더링 (이전과 동일)
     function renderPagination(pageInfo) {
         const pagination = document.getElementById('pagination');
         pagination.innerHTML = '';
@@ -468,7 +487,6 @@
         const startPage = Math.floor(currentPage / pageSize) * pageSize;
         const endPage = Math.min(startPage + pageSize, totalPages);
 
-        // [수정] first -> isFirst 로 변경 및 클릭 이벤트 제거
         if (pageInfo.isFirst) {
             pagination.innerHTML += `
                 <li class="page-item disabled">
@@ -492,7 +510,6 @@
             `;
         }
 
-        // [수정] last -> isLast 로 변경 및 클릭 이벤트 제거
         if (pageInfo.isLast) {
             pagination.innerHTML += `
                 <li class="page-item disabled">
@@ -509,7 +526,7 @@
     }
 
     // ---------------------------------------------------------
-    // 기타 기능 (타이머, 사용자 등록, 결과 카드) - 이전과 동일
+    // 기타 기능
     // ---------------------------------------------------------
     function startCountdownTimer() {
         function update() {
@@ -586,20 +603,15 @@
         section.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 
-    // [수정] 배지 마크다운 복사 기능 (HTTP/HTTPS 호환성 개선)
     function copyBadgeMarkdown() {
         const nodeIdInput = document.getElementById('resNodeId');
-        const usernameInput = document.getElementById('usernameInput');
 
-        // 요소가 없는 경우 방어 로직
-        if (!nodeIdInput || !usernameInput) {
+        if (!nodeIdInput) {
             alert('페이지 로딩 중 오류가 발생했습니다. 새로고침 후 다시 시도해주세요.');
             return;
         }
 
         const nodeId = nodeIdInput.value;
-        const username = usernameInput.value || 'user';
-
         if (!nodeId) {
             alert('사용자 정보를 찾을 수 없습니다. 다시 진단해주세요.');
             return;
@@ -610,7 +622,6 @@
         const targetLink = `https://www.git-ranker.com`;
         const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
 
-        // 1. 최신 Clipboard API 지원 여부 확인 (HTTPS 환경)
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(markdown)
                 .then(() => {
@@ -618,41 +629,10 @@
                 })
                 .catch(err => {
                     console.error('Clipboard API 실패:', err);
-                    fallbackCopyTextToClipboard(markdown); // 실패 시 Fallback 시도
+                    alert('복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
                 });
         } else {
-            // 2. HTTP 환경 등에서 Clipboard API 사용 불가 시 Fallback 처리
-            fallbackCopyTextToClipboard(markdown);
-        }
-    }
-
-    // [추가] Fallback 복사 함수 (textarea 활용 방식)
-    function fallbackCopyTextToClipboard(text) {
-        try {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-
-            // 화면 밖으로 보내서 안 보이게 처리
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            textArea.style.top = "0";
-
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-
-            if (successful) {
-                alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
-            } else {
-                throw new Error('execCommand 실패');
-            }
-        } catch (err) {
-            console.error('Fallback 복사 실패:', err);
-            // 최후의 수단: 프롬프트 창 띄우기
-            prompt('자동 복사를 지원하지 않는 환경입니다. 아래 코드를 직접 복사(Ctrl+C)하세요:', text);
+            alert('이 브라우저에서는 자동 복사를 지원하지 않습니다.\n(HTTPS 환경에서만 동작합니다)');
         }
     }
 
