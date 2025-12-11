@@ -67,29 +67,54 @@
         }
 
         /* 티어별 색상 정의 */
+        .text-CHALLENGER {
+            background: linear-gradient(135deg, #1E90FF 0%, #F4D03F 100%); /* Blue to Gold */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800 !important; /* 그라데이션 효과 극대화를 위해 더 굵게 */
+        }
+
+        /* Electric Blue */
+        .text-MASTER {
+            color: #C633F2 !important;
+        }
+
+        /* Vivid Magenta */
         .text-DIAMOND {
-            color: #005C97 !important;
+            color: #3375FF !important;
         }
 
+        /* Sapphire Blue */
         .text-PLATINUM {
-            color: #00897B !important;
+            color: #00BCD4 !important;
         }
 
+        /* Cyan / Teal */
+        .text-EMERALD {
+            color: #2ECC71 !important;
+        }
+
+        /* Vivid Emerald */
         .text-GOLD {
-            color: #B8860B !important;
+            color: #F1C40F !important;
         }
 
+        /* Radiant Gold */
         .text-SILVER {
-            color: #5D6D7E !important;
+            color: #95A5A6 !important;
         }
 
+        /* Cool Silver */
         .text-BRONZE {
             color: #D35400 !important;
         }
 
+        /* Deep Bronze */
         .text-IRON {
-            color: #505050 !important;
+            color: #607D8B !important;
         }
+
+        /* Blue Grey */
 
         .tier-badge {
             background-color: #ffffff;
@@ -666,16 +691,18 @@
 
     function getTierIconClass(tier) {
         switch (tier) {
-            case 'DIAMOND':
-                return 'fas fa-gem';
-            case 'PLATINUM':
-                return 'fas fa-medal';
+            case 'CHALLENGER':
+                return 'fas fa-crown'; // 챌린저: 왕관 (Crown)
+            case 'MASTER':
+                return 'fas fa-star';  // 마스터: 별 (Star) - ★ 변경됨
+            case 'EMERALD':
             case 'GOLD':
-                return 'fas fa-medal';
             case 'SILVER':
-                return 'fas fa-medal';
             case 'BRONZE':
-                return 'fas fa-medal';
+            case 'PLATINUM':
+                return 'fas fa-medal'; // 에메랄드~브론즈: 메달 (Medal)
+            case 'DIAMOND':
+                return 'fas fa-gem';   // 다이아/플래티넘: 보석 (Gem)
             default:
                 return 'fas fa-shield-alt';
         }

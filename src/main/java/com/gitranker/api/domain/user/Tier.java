@@ -1,5 +1,5 @@
 package com.gitranker.api.domain.user;
 
 public enum Tier {
-    DIAMOND, PLATINUM, GOLD, SILVER, BRONZE, IRON
+    CHALLENGER, MASTER, DIAMOND, EMERALD, PLATINUM, GOLD, SILVER, BRONZE, IRON
 }

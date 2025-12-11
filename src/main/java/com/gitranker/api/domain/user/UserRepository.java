@@ -22,26 +22,29 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying(clearAutomatically = true)
     @Query(value = """
-            UPDATE users u
-                JOIN(
-                    SELECT
-                        id,
-                            RANK() OVER (ORDER BY total_score DESC) as new_rank,
-                                CUME_DIST() OVER (ORDER BY total_score DESC) as new_percentile
-                                    FROM users
-                    ) r ON u.id = r.id
-                        SET
-                            u.ranking = r.new_rank,
-                                u.percentile = r.new_percentile * 100,
-                                    u.tier = CASE
-                                        WHEN r.new_percentile <= 0.05 THEN 'DIAMOND'
-                                        WHEN r.new_percentile <= 0.10 THEN 'PLATINUM'
-                                        WHEN r.new_percentile <= 0.20 THEN 'GOLD'
-                                        WHEN r.new_percentile <= 0.40 THEN 'SILVER'
-                                        WHEN r.new_percentile <= 0.70 THEN 'BRONZE'
-                                        ELSE 'IRON'
-                                            END,
-                                                u.updated_at = NOW()
+                        UPDATE users u
+                            JOIN(
+                                SELECT
+                                    id,
+                                        RANK() OVER (ORDER BY total_score DESC) as new_rank,
+                                            CUME_DIST() OVER (ORDER BY total_score DESC) as new_percentile
+                                                FROM users
+                                ) r ON u.id = r.id
+                                    SET
+                                        u.ranking = r.new_rank,
+                                            u.percentile = r.new_percentile * 100,
+                                                u.tier = CASE
+                                                    WHEN r.new_percentile <= 0.01 THEN 'CHALLENGER'
+                                                            WHEN r.new_percentile <= 0.05 THEN 'MASTER'
+                                                            WHEN r.new_percentile <= 0.1 THEN 'DIAMOND'
+                                                            WHEN r.new_percentile <= 0.25 THEN 'PLATINUM'
+                                                            WHEN r.new_percentile <= 0.40 THEN 'EMERALD'
+                                                            WHEN r.new_percentile <= 0.55 THEN 'GOLD'
+                                                            WHEN r.new_percentile <= 0.7 THEN 'SILVER'
+                                                            WHEN r.new_percentile <= 0.9 THEN 'BRONZE'
+                                                            ELSE 'IRON'
+                                                        END,
+                                                            u.updated_at = NOW()
             """, nativeQuery = true)
     void bulkUpdateRanking();
 

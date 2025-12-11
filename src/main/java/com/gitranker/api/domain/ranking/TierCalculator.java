@@ -5,25 +5,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TierCalculator {
-    private static final double DIAMOND_THRESHOLD = 1.0;
-    private static final double PLATINUM_THRESHOLD = 5.0;
-    private static final double GOLD_THRESHOLD = 10.0;
-    private static final double SILVER_THRESHOLD = 25.0;
-    private static final double BRONZE_THRESHOLD = 50.0;
+    private static final double CHALLENGER_THRESHOLD = 1.0;
+    private static final double MASTER_THRESHOLD = 5.0;
+    private static final double DIAMOND_THRESHOLD = 10.0;
+    private static final double EMERALD_THRESHOLD = 25.0;
+    private static final double PLATINUM_THRESHOLD = 40.0;
+    private static final double GOLD_THRESHOLD = 55.0;
+    private static final double SILVER_THRESHOLD = 70.0;
+    private static final double BRONZE_THRESHOLD = 90.0;
 
     public Tier calculateTier(double percentile) {
-        if (percentile <= DIAMOND_THRESHOLD) {
-            return Tier.DIAMOND;
-        } else if (percentile <= PLATINUM_THRESHOLD) {
-            return Tier.PLATINUM;
-        } else if (percentile <= GOLD_THRESHOLD) {
-            return Tier.GOLD;
-        } else if (percentile <= SILVER_THRESHOLD) {
-            return Tier.SILVER;
-        } else if (percentile <= BRONZE_THRESHOLD) {
-            return Tier.BRONZE;
-        } else {
-            return Tier.IRON;
-        }
+        if (percentile <= CHALLENGER_THRESHOLD) return Tier.CHALLENGER;
+        if (percentile <= MASTER_THRESHOLD) return Tier.MASTER;
+        if (percentile <= DIAMOND_THRESHOLD) return Tier.DIAMOND;
+        if (percentile <= EMERALD_THRESHOLD) return Tier.EMERALD;
+        if (percentile <= PLATINUM_THRESHOLD) return Tier.PLATINUM;
+        if (percentile <= GOLD_THRESHOLD) return Tier.GOLD;
+        if (percentile <= SILVER_THRESHOLD) return Tier.SILVER;
+        if (percentile <= BRONZE_THRESHOLD) return Tier.BRONZE;
+        return Tier.IRON;
     }
 }
