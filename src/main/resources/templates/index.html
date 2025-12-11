@@ -11,22 +11,24 @@
     <meta property="og:description" content="단순 커밋 수가 아닌, 코드의 품질과 기여도로 당신의 티어를 확인하세요.">
     <meta property="og:image" content="https://www.git-ranker.com/og-image.png">
 
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://www.git-ranker.com/favicon.ico">
 
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* 메인 폰트 설정 */
         body {
             background-color: #f8f9fa;
-            font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            letter-spacing: -0.01em;
+            font-family: 'Plus Jakarta Sans', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            letter-spacing: -0.015em;
         }
 
+        /* 코드/데이터 폰트 설정 */
         .font-code,
         #resTotalScore,
         #modalTotalScore,
@@ -35,7 +37,9 @@
         .modal-body .fs-5,
         #rankingTableBody td.fw-bold.text-primary,
         #rankingTableBody td.fw-bold:first-child,
-        .diff-badge {
+        .diff-badge,
+        .popover-body /* 팝오버 내용도 가독성을 위해 코드 폰트 느낌 살짝 섞거나 깔끔하게 */
+        {
             font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
             letter-spacing: -0.03em;
         }
@@ -60,44 +64,26 @@
             margin-bottom: 0.5rem;
         }
 
-        /* 티어별 색상 정의 (BadgeService와 통일) */
-        .text-DIAMOND {
-            color: #005C97 !important; /* Deep Royal Blue */
-        }
+        /* 티어별 색상 정의 */
+        .text-DIAMOND { color: #005C97 !important; }
+        .text-PLATINUM { color: #00897B !important; }
+        .text-GOLD { color: #B8860B !important; }
+        .text-SILVER { color: #5D6D7E !important; }
+        .text-BRONZE { color: #D35400 !important; }
+        .text-IRON { color: #505050 !important; }
 
-        .text-PLATINUM {
-            color: #00897B !important;
-        }
-
-        .text-GOLD {
-            color: #B8860B !important;
-        }
-
-        .text-SILVER {
-            color: #5D6D7E !important;
-        }
-
-        .text-BRONZE {
-            color: #D35400 !important;
-        }
-
-        .text-IRON {
-            color: #505050 !important;
-        }
-
-        /* 랭킹 리스트 내 티어 배지 스타일 */
         .tier-badge {
             background-color: #ffffff;
             border: 1px solid currentColor;
             font-weight: 700;
-            padding-top: 0.35em; /* 폰트 변경에 따른 수직 정렬 미세 조정 */
+            padding-top: 0.35em;
             padding-bottom: 0.35em;
         }
 
         .diff-badge {
             font-size: 0.75rem;
             vertical-align: middle;
-            margin-left: 5px;
+            margin-left: -3px;
         }
 
         .loading-overlay {
@@ -114,6 +100,17 @@
             align-items: center;
             color: white;
         }
+
+        /* [추가] 정보 아이콘 스타일 */
+        .info-icon {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #6c757d;
+            transition: color 0.2s;
+        }
+        .info-icon:hover {
+            color: #0d6efd;
+        }
     </style>
 </head>
 <body>
@@ -129,17 +126,10 @@
         <h1 class="display-4 fw-bold"><i class="fab fa-github"></i> Git Ranker</h1>
         <p class="lead">단순 커밋 수가 아닌, <strong>코드의 품질과 기여도</strong>로 당신의 티어를 확인하세요.</p>
 
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <div class="alert alert-dark border-0 bg-dark bg-opacity-50 text-light text-start" role="alert">
-                    <h5 class="alert-heading fs-6"><i class="fas fa-info-circle"></i> 유의사항 및 점수 산정 기준</h5>
-                    <ul class="mb-0 small ps-3">
-                        <li>Public Repository의 활동 데이터만 집계됩니다.</li>
-                        <li>점수: Commit(1점), Issue(2점), Review(3점), PR Open(5점), PR Merged(10점)</li>
-                        <li>이미 등록된 사용자는 매일 새벽 자동으로 점수가 갱신됩니다.</li>
-                    </ul>
-                </div>
-            </div>
+        <div class="mt-4">
+            <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn btn-outline-light px-4 py-2 rounded-pill">
+                <i class="fas fa-file-lines me-2"></i>Git Ranker 사용 가이드
+            </a>
         </div>
     </div>
 </header>
@@ -175,7 +165,28 @@
 
                     <div class="col-lg-8">
                         <div class="text-center mb-4">
-                            <h5 class="text-muted text-uppercase small ls-1">Total Score</h5>
+                            <h5 class="text-muted text-uppercase small ls-1 d-flex align-items-center justify-content-center gap-2">
+                                Total Score
+                                <i class="fas fa-info-circle info-icon"
+                                   tabindex="0"
+                                   data-bs-toggle="popover"
+                                   data-bs-trigger="hover focus"
+                                   data-bs-title="점수 산정 기준"
+                                   data-bs-html="true"
+                                   data-bs-content="
+                                     <ul class='mb-0 small ps-3 text-start'>
+                                        <li><strong>PR Merged</strong>: 10점</li>
+                                        <li><strong>PR Open</strong>: 5점</li>
+                                        <li><strong>Review</strong>: 3점</li>
+                                        <li><strong>Issue</strong>: 2점</li>
+                                        <li><strong>Commit</strong>: 1점</li>
+                                        <hr class='my-2'>
+                                        <li class='text-muted' style='font-size:0.85em'>Public 데이터만 집계되며, 매일 새벽 자동 갱신됩니다.</li>
+                                     </ul>
+                                   ">
+                                </i>
+                            </h5>
+
                             <h1 class="display-3 fw-bold text-primary" id="resTotalScore"></h1>
                             <p class="text-muted small">최종 업데이트: <span id="resUpdatedAt"></span></p>
 
@@ -314,11 +325,9 @@
             </div>
             <div class="modal-body text-center pb-5 pt-0">
                 <div class="mb-4">
-                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100"
-                         height="100">
+                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100" height="100">
                     <h3 id="modalUsername" class="fw-bold mb-1"></h3>
-                    <div id="modalTierBadge"
-                         class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
+                    <div id="modalTierBadge" class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
                     <p class="text-muted small mb-0">
                         전체 <span id="modalRanking" class="fw-bold text-dark font-code"></span>위
                         (상위 <span id="modalPercentile" class="fw-bold text-dark font-code"></span>%)
@@ -373,6 +382,10 @@
     const API_BASE_URL = '/api/v1';
 
     document.addEventListener('DOMContentLoaded', () => {
+        // [변경 3] Bootstrap Popover 초기화 (Tooltip 기능 활성화)
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
         loadRankings(0);
         startCountdownTimer();
 
@@ -383,9 +396,10 @@
         });
     });
 
-    // ---------------------------------------------------------
-    // 랭킹 리스트 조회 및 렌더링
-    // ---------------------------------------------------------
+    // ... (이하 자바스크립트 함수들은 기존과 동일) ...
+    // loadRankings, renderRankingTable, openUserDetail, renderPagination,
+    // startCountdownTimer, registerUser, renderUserResult, copyBadgeMarkdown 등 유지
+
     async function loadRankings(page) {
         try {
             const response = await fetch(`${API_BASE_URL}/ranking?page=${page}`);
@@ -438,7 +452,6 @@
         });
     }
 
-    // 사용자 상세 정보 Modal 열기
     async function openUserDetail(username) {
         const modalElement = document.getElementById('userDetailModal');
         const modal = new bootstrap.Modal(modalElement);
@@ -449,7 +462,6 @@
 
             if (result.result === 'SUCCESS') {
                 const data = result.data;
-
                 document.getElementById('modalProfileImage').src = data.profileImage;
                 document.getElementById('modalUsername').innerText = data.username;
 
@@ -480,7 +492,6 @@
     function renderPagination(pageInfo) {
         const pagination = document.getElementById('pagination');
         pagination.innerHTML = '';
-
         const currentPage = pageInfo.currentPage;
         const totalPages = pageInfo.totalPages;
         const pageSize = 5;
@@ -488,46 +499,23 @@
         const endPage = Math.min(startPage + pageSize, totalPages);
 
         if (pageInfo.isFirst) {
-            pagination.innerHTML += `
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
-                </li>
-            `;
+            pagination.innerHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a></li>`;
         } else {
-            pagination.innerHTML += `
-                <li class="page-item">
-                    <a class="page-link" href="#" onclick="loadRankings(${currentPage - 1}); return false;">&laquo;</a>
-                </li>
-            `;
+            pagination.innerHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadRankings(${currentPage - 1}); return false;">&laquo;</a></li>`;
         }
 
         for (let i = startPage; i < endPage; i++) {
             const activeClass = (i === currentPage) ? 'active' : '';
-            pagination.innerHTML += `
-                <li class="page-item ${activeClass}">
-                    <a class="page-link" href="#" onclick="loadRankings(${i}); return false;">${i + 1}</a>
-                </li>
-            `;
+            pagination.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="loadRankings(${i}); return false;">${i + 1}</a></li>`;
         }
 
         if (pageInfo.isLast) {
-            pagination.innerHTML += `
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a>
-                </li>
-            `;
+            pagination.innerHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a></li>`;
         } else {
-            pagination.innerHTML += `
-                <li class="page-item">
-                    <a class="page-link" href="#" onclick="loadRankings(${currentPage + 1}); return false;">&raquo;</a>
-                </li>
-            `;
+            pagination.innerHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadRankings(${currentPage + 1}); return false;">&raquo;</a></li>`;
         }
     }
 
-    // ---------------------------------------------------------
-    // 기타 기능
-    // ---------------------------------------------------------
     function startCountdownTimer() {
         function update() {
             const now = new Date();
@@ -536,28 +524,21 @@
             nextHour.setMinutes(0);
             nextHour.setSeconds(0);
             nextHour.setMilliseconds(0);
-
             const diff = nextHour - now;
             const m = Math.floor(diff / 60000);
             const s = Math.floor((diff % 60000) / 1000);
-
             const mStr = String(m).padStart(2, '0');
             const sStr = String(s).padStart(2, '0');
-
             const timerEl = document.getElementById('countdownTimer');
             if (timerEl) timerEl.innerText = `${mStr}분 ${sStr}초`;
         }
-
         update();
         setInterval(update, 1000);
     }
 
     async function registerUser() {
         const username = document.getElementById('usernameInput').value.trim();
-        if (!username) {
-            alert('GitHub Username을 입력해주세요.');
-            return;
-        }
+        if (!username) { alert('GitHub Username을 입력해주세요.'); return; }
         showLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/users`, {
@@ -591,13 +572,11 @@
         document.getElementById('resRanking').innerText = data.ranking;
         document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
         document.getElementById('resUpdatedAt').innerText = new Date().toLocaleDateString();
-
         updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
         updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
         updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
         updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
         updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
-
         const iconClass = getTierIconClass(data.tier);
         document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
         section.scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -605,34 +584,19 @@
 
     function copyBadgeMarkdown() {
         const nodeIdInput = document.getElementById('resNodeId');
-
-        if (!nodeIdInput) {
-            alert('페이지 로딩 중 오류가 발생했습니다. 새로고침 후 다시 시도해주세요.');
-            return;
-        }
-
+        const usernameInput = document.getElementById('usernameInput');
+        if (!nodeIdInput || !usernameInput) { alert('페이지 로딩 중 오류가 발생했습니다.'); return; }
         const nodeId = nodeIdInput.value;
-        if (!nodeId) {
-            alert('사용자 정보를 찾을 수 없습니다. 다시 진단해주세요.');
-            return;
-        }
-
+        if (!nodeId) { alert('사용자 정보를 찾을 수 없습니다.'); return; }
         const origin = window.location.origin;
         const badgeUrl = `${origin}/api/v1/badges/${nodeId}`;
         const targetLink = `https://www.git-ranker.com`;
         const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
-
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(markdown)
-                .then(() => {
-                    alert('README.md에 붙여넣을 수 있는 코드가 복사되었습니다!');
-                })
-                .catch(err => {
-                    console.error('Clipboard API 실패:', err);
-                    alert('복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
-                });
+            navigator.clipboard.writeText(markdown).then(() => { alert('README.md 코드가 복사되었습니다!'); })
+                .catch(err => { console.error('Clipboard API 실패:', err); alert('복사에 실패했습니다.'); });
         } else {
-            alert('이 브라우저에서는 자동 복사를 지원하지 않습니다.\n(HTTPS 환경에서만 동작합니다)');
+            alert('이 브라우저에서는 자동 복사를 지원하지 않습니다.');
         }
     }
 
@@ -654,18 +618,12 @@
 
     function getTierIconClass(tier) {
         switch (tier) {
-            case 'DIAMOND':
-                return 'fas fa-gem';
-            case 'PLATINUM':
-                return 'fas fa-medal';
-            case 'GOLD':
-                return 'fas fa-medal';
-            case 'SILVER':
-                return 'fas fa-medal';
-            case 'BRONZE':
-                return 'fas fa-medal';
-            default:
-                return 'fas fa-shield-alt';
+            case 'DIAMOND': return 'fas fa-gem';
+            case 'PLATINUM': return 'fas fa-medal';
+            case 'GOLD': return 'fas fa-medal';
+            case 'SILVER': return 'fas fa-medal';
+            case 'BRONZE': return 'fas fa-medal';
+            default: return 'fas fa-shield-alt';
         }
     }
 
