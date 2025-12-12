@@ -8,9 +8,11 @@ import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BadgeService {
@@ -26,6 +28,7 @@ public class BadgeService {
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
+        log.info("사용자 배지 생성 완료: {}", user.getUsername());
         return createSvgContent(user, activityLog);
     }
 
