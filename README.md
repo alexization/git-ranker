@@ -3,7 +3,7 @@
   <a href="https://www.git-ranker.com/">
     <h3>Git Ranker 바로가기</h3>
   </a>
-  <h3> 1. GitHub Username 입력 후 분석하기 버튼 클릭 </h3>
+  <h3> 1. GitHub Username 입력 후 [분석하기] 버튼 클릭 </h3>
   <img width="712" height="367" alt="image" src="https://github.com/user-attachments/assets/1e256486-0031-4d14-be2d-2f4e3f3823b1" />
 
   <h3> 2. [README 배지 복사] 버튼 클릭 </h3>
@@ -35,13 +35,18 @@ Git Ranker는 GitHub 활동을 분석하여 **개발자의 기여도를 점수�
 
 ### 2. 실시간 티어 시스템 (Tier System)
 > 전체 사용자 중 나의 위치(Percentile)를 기반으로 6단계 티어가 부여됩니다.
+>
+> _(티어 시스템은 아직 확정이 아니며, 추후 변경될 수 있습니다.)_
 
-- 💎 DIAMOND (상위 5%)
-- 💿 PLATINUM (상위 10%)
-- 🥇 GOLD (상위 20%)
-- 🥈 SILVER (상위 40%)
-- 🥉 BRONZE (상위 70%)
-- 🛡️ IRON (기본)
+1. **👑 CHALLENGER (상위 1.0%)**
+2. **✨ MASTER (상위 5.0%)**
+3. **💎 DIAMOND (상위 10.0%)**
+4. **❇️ EMERALD (상위 25.0%)**
+5. **💠 PLATINUM (상위 40.0%) **
+6. **🥇 GOLD (상위 55.0%)**
+7. **🥈 SILVER (상위 70.0%)**
+8. **🥉 BRONZE (상위 90.0%)**
+9. **🛡️ IRON (기본)**
 
 ### 3. README 배지 지원
 > 자신의 티어를 GitHub 프로필에 자랑할 수 있도록 실시간 SVG 배지를 제공합니다.
@@ -61,5 +66,5 @@ Git Ranker는 GitHub 활동을 분석하여 **개발자의 기여도를 점수�
 ```
 
 ---
-### 2025.12.11 기준
+### ver_2025.12.11
 > 매우 초기 버전이며, 가중치 테이블/티어 시스템/배지 디자인/서비스 안정화/README.md 등등 지금까지도 계속해서 업데이트 중에 있습니다 :) 
