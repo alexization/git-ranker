@@ -40,8 +40,7 @@
         #rankingTableBody td.fw-bold.text-primary,
         #rankingTableBody td.fw-bold:first-child,
         .diff-badge,
-        .popover-body /* 팝오버 내용도 가독성을 위해 코드 폰트 느낌 살짝 섞거나 깔끔하게 */
-        {
+        .popover-body {
             font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
             letter-spacing: -0.03em;
         }
@@ -66,55 +65,44 @@
             margin-bottom: 0.5rem;
         }
 
-        /* 티어별 색상 정의 */
         .text-CHALLENGER {
-            background: linear-gradient(135deg, #1E90FF 0%, #F4D03F 100%); /* Blue to Gold */
+            background: linear-gradient(135deg, #1E90FF 0%, #F4D03F 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800 !important; /* 그라데이션 효과 극대화를 위해 더 굵게 */
+            font-weight: 800 !important;
         }
 
-        /* Electric Blue */
         .text-MASTER {
             color: #C633F2 !important;
         }
 
-        /* Vivid Magenta */
         .text-DIAMOND {
             color: #3375FF !important;
         }
 
-        /* Sapphire Blue */
         .text-PLATINUM {
             color: #00BCD4 !important;
         }
 
-        /* Cyan / Teal */
         .text-EMERALD {
             color: #2ECC71 !important;
         }
 
-        /* Vivid Emerald */
         .text-GOLD {
-            color: #F1C40F !important;
+            color: #d2a803 !important;
         }
 
-        /* Radiant Gold */
         .text-SILVER {
             color: #95A5A6 !important;
         }
 
-        /* Cool Silver */
         .text-BRONZE {
             color: #D35400 !important;
         }
 
-        /* Deep Bronze */
         .text-IRON {
             color: #607D8B !important;
         }
-
-        /* Blue Grey */
 
         .tier-badge {
             background-color: #ffffff;
@@ -145,10 +133,9 @@
             color: white;
         }
 
-        /* [추가] 정보 아이콘 스타일 */
         .info-icon {
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #6c757d;
             transition: color 0.2s;
         }
@@ -252,7 +239,7 @@
                         <div class="row g-3 text-center">
                             <div class="col-4 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
-                                    <div class="fs-4 text-secondary mb-1"><i class="fas fa-code-branch"></i></div>
+                                    <div class="fs-4 text-secondary mb-1"><i class="fas fa-code-commit"></i></div>
                                     <div class="small text-muted">Commits</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statCommit">0</span>
@@ -274,7 +261,7 @@
                             </div>
                             <div class="col-4 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
-                                    <div class="fs-4 text-info mb-1"><i class="fas fa-glasses"></i></div>
+                                    <div class="fs-4 text-info mb-1"><i class="far fa-message"></i></div>
                                     <div class="small text-muted">Reviews</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statReview">0</span>
@@ -285,7 +272,7 @@
                             </div>
                             <div class="col-6 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
-                                    <div class="fs-4 text-success mb-1"><i class="fas fa-share-square"></i></div>
+                                    <div class="fs-4 text-success mb-1"><i class="fas fa-code-pull-request"></i></div>
                                     <div class="small text-muted">PR Open</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statPrOpen">0</span>
@@ -297,7 +284,7 @@
                             <div class="col-6 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
                                     <div class="fs-4 text-purple mb-1" style="color: #6f42c1;"><i
-                                            class="fas fa-check-double"></i></div>
+                                            class="fas fa-code-merge"></i></div>
                                     <div class="small text-muted">PR Merged</div>
                                     <div class="fw-bold fs-5">
                                         <span id="statPrMerged">0</span>
@@ -318,7 +305,7 @@
             <div class="alert alert-light border shadow-sm d-inline-block px-5 py-3">
                 <h5 class="mb-2 text-secondary fw-bold">
                     <i class="fas fa-stopwatch text-primary me-1"></i> 다음 랭킹 갱신까지
-                    <span id="countdownTimer" class="fw-bold text-dark ms-2">--분 --초</span>
+                    <span id="countdownTimer" class="fw-bold text-dark ms-2">--:--</span>
                 </h5>
                 <p class="mb-0 small text-muted">
                     <i class="fas fa-sync-alt fa-spin me-1" style="font-size: 0.7rem;"></i>
@@ -396,7 +383,7 @@
                 <div class="row g-2 justify-content-center">
                     <div class="col-4">
                         <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-code-branch"></i> Commits</div>
+                            <div class="small text-muted"><i class="fas fa-code-commit"></i> Commits</div>
                             <div class="fw-bold fs-5" id="modalStatCommit">0</div>
                         </div>
                     </div>
@@ -408,19 +395,19 @@
                     </div>
                     <div class="col-4">
                         <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-glasses"></i> Reviews</div>
+                            <div class="small text-muted"><i class="far fa-message"></i> Reviews</div>
                             <div class="fw-bold fs-5" id="modalStatReview">0</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-share-square"></i> PR Open</div>
+                            <div class="small text-muted"><i class="fas fa-code-pull-request"></i> PR Open</div>
                             <div class="fw-bold fs-5" id="modalStatPrOpen">0</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-check-double"></i> PR Merged</div>
+                            <div class="small text-muted"><i class="fas fa-code-merge"></i> PR Merged</div>
                             <div class="fw-bold fs-5" id="modalStatPrMerged">0</div>
                         </div>
                     </div>
@@ -436,7 +423,6 @@
     const API_BASE_URL = '/api/v1';
 
     document.addEventListener('DOMContentLoaded', () => {
-        // [변경 3] Bootstrap Popover 초기화 (Tooltip 기능 활성화)
         const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
         const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
 
@@ -449,10 +435,6 @@
             }
         });
     });
-
-    // ... (이하 자바스크립트 함수들은 기존과 동일) ...
-    // loadRankings, renderRankingTable, openUserDetail, renderPagination,
-    // startCountdownTimer, registerUser, renderUserResult, copyBadgeMarkdown 등 유지
 
     async function loadRankings(page) {
         try {
@@ -491,14 +473,18 @@
                     <td class="fw-bold">${user.ranking}</td>
                     <td><span class="badge tier-badge text-${user.tier}">${user.tier}</span></td>
                     <td class="text-start">
-                        <img src="${user.profileImage}" class="rounded-circle me-2" width="30" height="30" alt="profile">
-                        <a href="https://github.com/${user.username}" target="_blank" class="text-decoration-none text-dark fw-bold">
+                        <img src="${user.profileImage}" class="rounded-circle me-2" width="30" height="30"
+                             alt="profile">
+                        <a href="https://github.com/${user.username}" target="_blank"
+                           class="text-decoration-none text-dark fw-bold">
                             ${user.username}
                         </a>
                     </td>
                     <td class="fw-bold text-primary">${user.totalScore.toLocaleString()}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="openUserDetail('${user.username}')">View</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="openUserDetail('${user.username}')">
+                            View
+                        </button>
                     </td>
                 </tr>
             `;
@@ -634,13 +620,16 @@
         document.getElementById('resRanking').innerText = data.ranking;
         document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
         document.getElementById('resUpdatedAt').innerText = new Date().toLocaleDateString();
+
         updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
         updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
         updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
         updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
         updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
+
         const iconClass = getTierIconClass(data.tier);
         document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
+
         section.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 
@@ -657,9 +646,8 @@
             return;
         }
         const origin = window.location.origin;
-        const badgeUrl = `${origin}/api/v1/badges/${nodeId}`;
-        const targetLink = `https://www.git-ranker.com`;
-        const markdown = `[![Git Ranker](${badgeUrl})](${targetLink})`;
+        const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
+
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(markdown).then(() => {
                 alert('README.md 코드가 복사되었습니다!');
@@ -692,17 +680,17 @@
     function getTierIconClass(tier) {
         switch (tier) {
             case 'CHALLENGER':
-                return 'fas fa-crown'; // 챌린저: 왕관 (Crown)
+                return 'fas fa-crown';
             case 'MASTER':
-                return 'fas fa-star';  // 마스터: 별 (Star) - ★ 변경됨
+                return 'fas fa-star';
             case 'EMERALD':
             case 'GOLD':
             case 'SILVER':
             case 'BRONZE':
             case 'PLATINUM':
-                return 'fas fa-medal'; // 에메랄드~브론즈: 메달 (Medal)
+                return 'fas fa-medal';
             case 'DIAMOND':
-                return 'fas fa-gem';   // 다이아/플래티넘: 보석 (Gem)
+                return 'fas fa-gem';
             default:
                 return 'fas fa-shield-alt';
         }
