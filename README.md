@@ -1,3 +1,21 @@
+<div align=center>
+  <h2>Git Ranker 사용 가이드</h3>
+  <a href="https://www.git-ranker.com/">
+    <h3>Git Ranker 바로가기</h3>
+  </a>
+  <h3> 1. GitHub Username 입력 후 분석하기 버튼 클릭 </h3>
+  <img width="712" height="367" alt="image" src="https://github.com/user-attachments/assets/1e256486-0031-4d14-be2d-2f4e3f3823b1" />
+
+  <h3> 2. [README 배지 복사] 버튼 클릭 </h3>
+  <img width="1286" height="367" alt="image" src="https://github.com/user-attachments/assets/da59d6d8-8925-4a5c-9f39-2311e5220524" />
+
+  <h3> 3. 복사 후 제공받은 마크다운을 README에 등록</h3>
+</div>
+
+```Markdown
+[![Git Ranker](https://git-ranker.com/api/v1/badges/{your_node_id})](https://git-ranker.com)
+```
+
 # ⚔️ Git Ranker - 개발자 전투력 측정기
 > "단순 커밋 수는 의미 없다. 코드의 품질과 기여도로 당신의 진짜 티어를 증명하세요."
 
