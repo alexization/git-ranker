@@ -15,7 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(adminAuthorizationInterceptor)
-                .addPathPatterns("/**")
+                .addPathPatterns("/api/batch/**")
                 .excludePathPatterns(
                         "/error"
                 );
