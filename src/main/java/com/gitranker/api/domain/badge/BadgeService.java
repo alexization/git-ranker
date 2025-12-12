@@ -24,7 +24,6 @@ public class BadgeService {
     @Transactional(readOnly = true)
     public String generateBadge(String nodeId) {
         User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
-
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
         log.info("사용자 배지 생성 완료: {}", user.getUsername());
@@ -37,9 +36,9 @@ public class BadgeService {
 
         int tierFontSize = 28;
         if (tier.name().length() > 9) {
-            tierFontSize = 20;
+            tierFontSize = 18;
         } else if (tier.name().length() > 6) {
-            tierFontSize = 26;
+            tierFontSize = 24;
         }
 
         String animationStyle = """
@@ -57,9 +56,6 @@ public class BadgeService {
                 <svg width="350" height="170" viewBox="0 0 350 170" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         %s
-                        <filter id="text-shadow" x="-20%%" y="-20%%" width="140%%" height="140%%">
-                            <feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity="0.6"/>
-                        </filter>
                         <clipPath id="card-clip">
                             <rect x="0" y="0" width="350" height="170" rx="12" ry="12"/>
                         </clipPath>
@@ -82,61 +78,74 @@ public class BadgeService {
                         </g>
                 
                         <rect x="0" y="0" width="350" height="85" fill="url(#static-gloss)" />
-                
                         <rect class="shine-bar" x="0" y="-30" width="200" height="230" fill="url(#soft-shine-gradient)" />
                     </g>
                 
                     <rect x="1" y="1" width="348" height="168" rx="11" ry="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.5"/>
                 
                 <style>
-                    .header { font: 600 16px 'Arial', sans-serif; fill: #ffffff; filter: url(#text-shadow); }
-                    .username { font: 400 12px 'Arial', sans-serif; fill: #f0f6fc; opacity: 0.95; filter: url(#text-shadow); }
-                    .stat-label { font: 600 9px 'Arial', sans-serif; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; filter: url(#text-shadow); }
-                    .stat-value { font: 600 13px 'Consolas', monospace; fill: #ffffff; filter: url(#text-shadow); }
-
+                    /* 폰트 스택 개선: 시스템 폰트를 최우선으로 적용하여 모바일 호환성 확보 */
+                    .base-text { font-family: -apple-system, Arial, 'Segoe UI', Roboto, Helvetica, sans-serif; }
+                    .mono-text { font-family: 'Monaco', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Andale Mono', 'Ubuntu Mono', monospace; }
+                
+                    /* SVG Filter 대신 CSS text-shadow 사용 (모바일 렌더링 품질 개선) */
+                    .text-shadow { text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4); }
+                    .text-shadow-strong { text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); }
+                
+                    .header { font-weight: 600; font-size: 16px; fill: #ffffff; }
+                    .username { font-weight: 400; font-size: 12px; fill: #f0f6fc; opacity: 0.95; }
+                
+                    /* 작은 텍스트는 그림자를 제거하거나 약하게 주어 가독성 확보 */
+                    .stat-label { font-weight: 600; font-size: 9px; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+                    .stat-value { font-weight: 600; font-size: 13px; fill: #ffffff; }
+                
                     .tier-text {
-                        font: 900 %dpx 'Arial', 'Verdana', sans-serif;
+                        font-weight: 700;
+                        font-size: %dpx;
                         fill: #ffffff;
-                        filter: url(#text-shadow);
                     }
-
-                    .score-text { font: 700 20px 'Consolas', monospace; fill: #ffffff; opacity: 1; filter: url(#text-shadow); }
-                    .rank-text { font: 500 11px 'Arial', sans-serif; fill: #ffffff; opacity: 0.95; filter: url(#text-shadow); }
-                    .diff-plus { font: 600 12px 'Consolas', monospace; fill: #00ff00;}
-                    .diff-minus { font: 600 12px 'Consolas', monospace; fill: #ff0000;}
+                
+                    .score-text { font-weight: 700; font-size: 20px; fill: #ffffff; opacity: 1; }
+                    .rank-text { font-weight: 500; font-size: 11px; fill: #ffffff; opacity: 0.95; }
+                
+                    .diff-plus { font-weight: 600; font-size: 12px; fill: #4ADE80; text-shadow: none; }
+                    .diff-minus { font-weight: 600; font-size: 12px; fill: #F87171; text-shadow: none; }
                 
                     %s
                 </style>
                 
-                    <text x="20" y="28" class="header">Git Ranker</text>
-                    <text x="330" y="28" text-anchor="end" class="username">@%s</text>
+                    <text x="20" y="28" class="base-text header text-shadow">Git Ranker</text>
+                    <text x="330" y="28" text-anchor="end" class="base-text username text-shadow">@%s</text>
                     <line x1="20" y1="40" x2="330" y2="40" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4"/>
+                
                     <g transform="translate(20, 85)">
-                        <text x="0" y="0" class="tier-text">%s</text>
-                        <text x="0" y="30" class="score-text">%d pts</text>
-                        <text x="0" y="52" class="rank-text">Top %.2f%% • Rank %d</text>
+                        <text x="0" y="0" class="base-text tier-text text-shadow-strong">%s</text>
+                        <text x="0" y="30" class="mono-text score-text text-shadow">%d pts</text>
+                        <text x="0" y="52" class="base-text rank-text text-shadow">Top %.2f%% • Rank %d</text>
                     </g>
+                
                     <line x1="165" y1="55" x2="165" y2="155" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
+                
                     <g transform="translate(180, 60)">
                         <g transform="translate(0, 0)">
-                            <text x="0" y="0" class="stat-label">Commits</text>
-                            <text x="0" y="18" class="stat-value">%s %s</text>
+                            <text x="0" y="0" class="base-text stat-label">Commits</text>
+                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
                         </g>
                         <g transform="translate(85, 0)">
-                            <text x="0" y="0" class="stat-label">Issues</text>
-                            <text x="0" y="18" class="stat-value">%s %s</text>
+                            <text x="0" y="0" class="base-text stat-label">Issues</text>
+                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
                         </g>
                         <g transform="translate(0, 34)">
-                            <text x="0" y="0" class="stat-label">PR Open</text>
-                            <text x="0" y="18" class="stat-value">%s %s</text>
+                            <text x="0" y="0" class="base-text stat-label">PR Open</text>
+                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
                         </g>
                         <g transform="translate(85, 34)">
-                            <text x="0" y="0" class="stat-label">PR Merged</text>
-                            <text x="0" y="18" class="stat-value">%s %s</text>
+                            <text x="0" y="0" class="base-text stat-label">PR Merged</text>
+                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
                         </g>
                         <g transform="translate(0, 68)">
-                            <text x="0" y="0" class="stat-label">Reviews</text>
-                            <text x="0" y="18" class="stat-value">%s %s</text>
+                            <text x="0" y="0" class="base-text stat-label">Reviews</text>
+                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
                         </g>
                     </g>
                 </svg>
@@ -149,68 +158,72 @@ public class BadgeService {
 
     private String formatDiff(int diff) {
         if (diff > 0) return String.format("<tspan class='diff-plus' dy='-1'>+%d</tspan>", diff);
-        if (diff < 0)
-            return String.format("<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
+        if (diff < 0) return String.format("<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
         return "";
     }
 
     private String getTierGradientDefs(Tier tier) {
-        if (tier == Tier.CHALLENGER) {
-            return """
-                    <linearGradient id="tierGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#09203F;stop-opacity:1" /> <stop offset="50%" style="stop-color:#1E90FF;stop-opacity:1" /> <stop offset="100%" style="stop-color:#F4D03F;stop-opacity:1" /> </linearGradient>
-                    """;
-        } else if (tier == Tier.MASTER) {
-            return """
-                    <linearGradient id="tierGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#E066FF;stop-opacity:1" /> <stop offset="50%" style="stop-color:#C633F2;stop-opacity:1" /> <stop offset="100%" style="stop-color:#3B0B59;stop-opacity:1" /> </linearGradient>
-                    """;
-        } else if (tier == Tier.DIAMOND) {
-            return """
-                    <linearGradient id="tierGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#63A4FF;stop-opacity:1" /> <stop offset="50%" style="stop-color:#3375FF;stop-opacity:1" /> <stop offset="100%" style="stop-color:#081549;stop-opacity:1" /> </linearGradient>
-                    """;
-        }
-
-        String startColor;
-        String endColor;
+        String color1, color2, color3;
 
         switch (tier) {
+            case CHALLENGER -> {
+                color1 = "#09203F"; // Deep Blue
+                color2 = "#1E90FF"; // Bright Blue
+                color3 = "#F4D03F"; // Gold
+            }
+            case MASTER -> {
+                color1 = "#3B0B59"; // Deep Purple
+                color2 = "#C633F2"; // Vivid Purple
+                color3 = "#E066FF"; // Light Purple
+            }
+            case DIAMOND -> {
+                color1 = "#081549"; // Deep Navy
+                color2 = "#3375FF"; // Diamond Blue
+                color3 = "#63A4FF"; // Light Blue
+            }
             case EMERALD -> {
-                startColor = "#4ADE80";
-                endColor = "#064E3B";
+                color1 = "#064E3B"; // Dark Green
+                color2 = "#10B981"; // Emerald Green
+                color3 = "#4ADE80"; // Light Lime
             }
             case PLATINUM -> {
-                startColor = "#5FFBF1";
-                endColor = "#0F5963";
+                color1 = "#0F5963"; // Dark Teal
+                color2 = "#00BCD4"; // Cyan
+                color3 = "#5FFBF1"; // Bright Mint
             }
             case GOLD -> {
-                startColor = "#F4D03F";
-                endColor = "#8E6310";
+                color1 = "#8E6310"; // Dark Gold
+                color2 = "#C2971F"; // Pure Gold
+                color3 = "#F4D03F"; // Bright Yellow
             }
             case SILVER -> {
-                startColor = "#C0C0C0";
-                endColor = "#5F6A6A";
+                color1 = "#5F6A6A"; // Dark Silver
+                color2 = "#95A5A6"; // Silver
+                color3 = "#C0C0C0"; // Light Silver
             }
             case BRONZE -> {
-                startColor = "#E6A57E";
-                endColor = "#6E2C00";
+                color1 = "#6E2C00"; // Dark Bronze
+                color2 = "#A0522D"; // Bronze
+                color3 = "#E6A57E"; // Light Copper
             }
             case IRON -> {
-                startColor = "#8D99AE";
-                endColor = "#2B2D42";
+                color1 = "#2B2D42"; // Gunmetal
+                color2 = "#4F5D75"; // Steel
+                color3 = "#8D99AE"; // Light Steel
             }
             default -> {
-                startColor = "#232526";
-                endColor = "#414345";
+                color1 = "#232526";
+                color2 = "#414345";
+                color3 = "#7B7D7E";
             }
         }
 
         return String.format("""
                 <linearGradient id="tierGradient" x1="0%%" y1="0%%" x2="100%%" y2="100%%">
                     <stop offset="0%%" style="stop-color:%s;stop-opacity:1" />
+                    <stop offset="50%%" style="stop-color:%s;stop-opacity:1" />
                     <stop offset="100%%" style="stop-color:%s;stop-opacity:1" />
                 </linearGradient>
-                """, startColor, endColor);
+                """, color1, color2, color3);
     }
 }
