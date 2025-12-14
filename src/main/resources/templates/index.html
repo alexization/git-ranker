@@ -384,31 +384,46 @@
                     <div class="col-4">
                         <div class="p-2 bg-light rounded border">
                             <div class="small text-muted"><i class="fas fa-code-commit"></i> Commits</div>
-                            <div class="fw-bold fs-5" id="modalStatCommit">0</div>
+                            <div class="fw-bold fs-5">
+                                <span id="modalStatCommit">0</span>
+                                <span id="modalDiffCommit" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="p-2 bg-light rounded border">
                             <div class="small text-muted"><i class="fas fa-exclamation-circle"></i> Issues</div>
-                            <div class="fw-bold fs-5" id="modalStatIssue">0</div>
+                            <div class="fw-bold fs-5">
+                                <span id="modalStatIssue">0</span>
+                                <span id="modalDiffIssue" class="badge rounded-pill bg-danger diff-badge" style="display: none;"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="p-2 bg-light rounded border">
                             <div class="small text-muted"><i class="far fa-message"></i> Reviews</div>
-                            <div class="fw-bold fs-5" id="modalStatReview">0</div>
+                            <div class="fw-bold fs-5">
+                                <span id="modalStatReview">0</span>
+                                <span id="modalDiffReview" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-2 bg-light rounded border">
                             <div class="small text-muted"><i class="fas fa-code-pull-request"></i> PR Open</div>
-                            <div class="fw-bold fs-5" id="modalStatPrOpen">0</div>
+                            <div class="fw-bold fs-5">
+                                <span id="modalStatPrOpen">0</span>
+                                <span id="modalDiffPrOpen" class="badge rounded-pill bg-secondary diff-badge" style="display: none;"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-2 bg-light rounded border">
                             <div class="small text-muted"><i class="fas fa-code-merge"></i> PR Merged</div>
-                            <div class="fw-bold fs-5" id="modalStatPrMerged">0</div>
+                            <div class="fw-bold fs-5">
+                                <span id="modalStatPrMerged">0</span>
+                                <span id="modalDiffPrMerged" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -513,11 +528,12 @@
                 document.getElementById('modalPercentile').innerText = data.percentile.toFixed(2);
                 document.getElementById('modalTotalScore').innerText = data.totalScore.toLocaleString();
 
-                document.getElementById('modalStatCommit').innerText = (data.commitCount || 0).toLocaleString();
-                document.getElementById('modalStatIssue').innerText = (data.issueCount || 0).toLocaleString();
-                document.getElementById('modalStatReview').innerText = (data.reviewCount || 0).toLocaleString();
-                document.getElementById('modalStatPrOpen').innerText = (data.prCount || 0).toLocaleString();
-                document.getElementById('modalStatPrMerged').innerText = (data.mergedPrCount || 0).toLocaleString();
+                // [수정된 부분] 단순 텍스트 할당에서 updateStatWithDiff 함수 사용으로 변경
+                updateStatWithDiff('modalStatCommit', 'modalDiffCommit', data.commitCount || 0, data.diffCommitCount || 0);
+                updateStatWithDiff('modalStatIssue', 'modalDiffIssue', data.issueCount || 0, data.diffIssueCount || 0);
+                updateStatWithDiff('modalStatReview', 'modalDiffReview', data.reviewCount || 0, data.diffReviewCount || 0);
+                updateStatWithDiff('modalStatPrOpen', 'modalDiffPrOpen', data.prCount || 0, data.diffPrCount || 0);
+                updateStatWithDiff('modalStatPrMerged', 'modalDiffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
 
                 modal.show();
             } else {
