@@ -609,7 +609,6 @@
             const result = await response.json();
             if (result.result === 'SUCCESS') {
                 renderUserResult(result.data);
-                loadRankings(0);
             } else {
                 alert(`오류 발생: ${result.error.message}`);
             }
