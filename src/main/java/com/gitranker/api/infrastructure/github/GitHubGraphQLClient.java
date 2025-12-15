@@ -26,7 +26,6 @@ public class GitHubGraphQLClient {
             @Value("${github.api.token}") String token
     ) {
         if (token == null || token.isBlank()) {
-            log.error("GitHub Token이 필수입니다. GraphQL API는 Token 없이 사용할 수 없습니다.");
             throw new IllegalArgumentException("GitHub Token is required for GraphQL API");
         }
 
@@ -38,7 +37,7 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubUserInfoResponse getUserInfo(String username) {
-        log.info("사용자 기본 정보 조회 시작 - 사용자: {}", username);
+        long start = System.currentTimeMillis();
 
         String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
@@ -48,8 +47,7 @@ public class GitHubGraphQLClient {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, res ->
                         res.bodyToMono(String.class).flatMap(body -> {
-                            log.error("사용자 정보 조회 실패 - 사용자: {}, 응답: {}", username, body);
-
+                            log.error("[GitHub API Fail] getUserInfo | User: {} | Response: {}", username, body);
                             return Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR));
                         })
                 )
@@ -57,30 +55,38 @@ public class GitHubGraphQLClient {
                 .block();
 
         if (response == null || response.data() == null || response.data().user() == null) {
-            log.warn("GitHub 사용자를 찾을 수 없음 : {}", username);
+            log.warn("[GitHub API] User Not Found | User: {}", username);
             throw new BusinessException(ErrorType.USER_NOT_FOUND);
         }
+
+        long end = System.currentTimeMillis();
+        log.info("[GitHub API] getUserInfo | User: {} | Latency: {}ms", username, end - start);
 
         return response;
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
-        log.info("전체 활동 데이터 조회 시작 - 사용자: {}, 가입일: {}", username, githubJoinDate);
+        long start = System.currentTimeMillis();
 
         String query = GraphQLQueryBuilder.buildAllActivitiesQuery(username, githubJoinDate);
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
-        return webClient.post()
+        GitHubAllActivitiesResponse response = webClient.post()
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, res ->
                         res.bodyToMono(String.class).flatMap(body -> {
-                            log.error("활동 데이터 조회 실패 - 사용자: {}, 응답: {}", username, body);
+                            log.error("[GitHub API Fail] getAllActivities | User: {} | Response: {}", username, body);
 
                             return Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR));
                         })
                 )
                 .bodyToMono(GitHubAllActivitiesResponse.class)
                 .block();
+
+        long end = System.currentTimeMillis();
+        log.info("[GitHub API] getAllActivities | User: {} | Latency: {}ms", username, end - start);
+
+        return response;
     }
 }

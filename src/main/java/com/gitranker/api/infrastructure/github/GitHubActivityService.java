@@ -15,8 +15,6 @@ public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
     public GitHubActivitySummary collectAllActivities(String username, LocalDateTime githubJoinDate) {
-        log.info("GitHub 활동 수집 시작 - 사용자: {}", username);
-
         try {
             GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
 
@@ -34,11 +32,13 @@ public class GitHubActivityService {
                     reviewCount
             );
 
-            log.info("GitHub 활동 수집 완료 - 사용자: {}, 총점: {}, 상세: {}", username, summary.calculateTotalScore(), summary);
+            log.info("[Data Collected] User: {} | Score: {} | Commits: {} | PrOpen: {} | PrMerged: {} | Issues: {} | Reviews: {}",
+                    username, summary.calculateTotalScore(), commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
+
             return summary;
 
         } catch (Exception e) {
-            log.error("GitHub 활동 수집 실패 - 사용자: {}, 에러: {}", username, e.getMessage(), e);
+            log.error("[Data Collection Failed] User: {} | Msg: {}", username, e.getMessage());
             throw e;
         }
     }

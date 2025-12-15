@@ -61,19 +61,17 @@ public class UserService {
     }
 
     private RegisterUserResponse updateExistingUserProfile(User user, GitHubUserInfoResponse userInfo) {
-        log.info("기존 사용자 정보 업데이트: {}", userInfo.getLogin());
-
         user.updateUsername(userInfo.getLogin());
         user.updateProfileImage(userInfo.getAvatarUrl());
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
+        log.info("[Business] UserUpdated | User: {}", userInfo.getLogin());
+
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
-        log.info("신규 사용자 등록 시작: {}", githubUserInfo.getLogin());
-
         LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
 
         User newUser = User.builder()
@@ -100,7 +98,8 @@ public class UserService {
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
 
-        log.info("신규 사용자 등록 완료: {}, 총점: {}, {}", githubUserInfo.getLogin(), totalScore, rankingInfo);
+        log.info("[Business] UserRegistered | User: {} | Score: {} | Tier: {}",
+                githubUserInfo.getLogin(), totalScore, rankingInfo.tier());
 
         return RegisterUserResponse.register(newUser, activityLog, true);
     }

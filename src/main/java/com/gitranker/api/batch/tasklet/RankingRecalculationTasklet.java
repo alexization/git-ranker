@@ -18,11 +18,7 @@ public class RankingRecalculationTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("===== 전체 순위 및 티어 재산정 시작 =====");
-
         userRepository.bulkUpdateRanking();
-
-        log.info("===== 전체 순위 및 티어 재산정 완료 =====");
 
         return RepeatStatus.FINISHED;
     }

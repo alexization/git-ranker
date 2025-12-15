@@ -26,7 +26,6 @@ public class BadgeService {
         User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        log.info("사용자 배지 생성 완료: {}", user.getUsername());
         return createSvgContent(user, activityLog);
     }
 

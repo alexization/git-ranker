@@ -23,7 +23,8 @@ public class AdminAuthorizationInterceptor implements HandlerInterceptor {
         String requestApiKey = request.getHeader("X-API-KEY");
 
         if (requestApiKey == null || !requestApiKey.equals(adminApiKey)) {
-            log.info("미승인 API 요청, IP: {}, URI: {}", request.getRemoteAddr(), request.getRequestURI());
+            log.warn("[Security] Unauthorized Access | Ip: {} | URI: {}",
+                    request.getRemoteAddr(), request.getRequestURI());
 
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Access");
             return false;

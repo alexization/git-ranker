@@ -14,19 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
-        String logLevelName = e.getErrorType().getLogLevel().name();
-
-        switch (logLevelName) {
-            case "ERROR":
-                logger.error("Business Exception: {} - {}", e.getErrorType().getCode(), e.getMessage(), e);
-                break;
-            case "WARN":
-                logger.warn("Business Exception: {} - {}", e.getErrorType().getCode(), e.getMessage());
-                break;
-            default:
-                logger.info("Business Exception: {} - {}", e.getErrorType().getCode(), e.getMessage());
-                break;
-        }
+        logger.warn("[Business Exception] Code: {} | Msg: {}", e.getErrorType().getCode(), e.getMessage());
 
         ApiResponse<Object> response = ApiResponse.error(e.getErrorType(), e.getData());
         return ResponseEntity.status(e.getErrorType().getStatus()).body(response);
@@ -34,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
-        logger.error("Unexpected Exception: {}", e.getMessage(), e);
+        logger.error("[Unexpected Exception] Msg: {}", e.getMessage());
 
         ApiResponse<Object> response = ApiResponse.error(ErrorType.DEFAULT_ERROR);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

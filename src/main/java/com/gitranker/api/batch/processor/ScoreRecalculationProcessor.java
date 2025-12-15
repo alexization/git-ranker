@@ -33,7 +33,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
             return user;
         } catch (Exception e) {
-            log.error("점수 재계산 실패 - 사용자: {}, 에러: {}", user.getUsername(), e.getMessage());
+            log.error("[Batch Process Failed User: {} | Msg: {}]", user.getUsername(), e.getMessage());
             return null;
         }
     }

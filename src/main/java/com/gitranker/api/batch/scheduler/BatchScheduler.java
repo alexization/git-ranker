@@ -25,32 +25,38 @@ public class BatchScheduler {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
     public void runDailyScoreRecalculationJob() {
-        try {
-            log.info("===== 점수 재계산 배치 시작 =====");
+        long start = System.currentTimeMillis();
+        log.info("[Batch Start] DailyScoreRecalculation");
 
+        try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
                     .toJobParameters();
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
-            log.info("===== 점수 재계산 배치 완료 =====");
+            long end = System.currentTimeMillis();
+            log.info("[Batch End] DailyScoreRecalculation | Latency: {}ms", end - start);
         } catch (Exception e) {
-            log.error("배치 실행 실패 : {}", e.getMessage());
+            log.error("[Batch Failed] DailyScoreRecalculation | Msg: {}", e.getMessage());
         }
     }
 
     @Scheduled(cron = "0 0 * * * *", zone = "UTC")
     public void runHourlyRankingRecalculation() {
+        long start = System.currentTimeMillis();
+
         try {
-            log.info("===== Hourly 순위 재조정 배치 시작 =====");
 
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             long newUserCount = userRepository.countByCreatedAtAfter(oneHourAgo);
 
             if (newUserCount == 0) {
+                log.info("[Batch Skip] HourlyRankingRecalculation | No new users");
                 return;
             }
+
+            log.info("[Batch Start] HourlyRankingRecalculation");
 
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
@@ -58,9 +64,10 @@ public class BatchScheduler {
 
             jobLauncher.run(hourlyRankingJob, jobParameters);
 
-            log.info("===== Hourly 순위 재조정 배치 완료 =====");
+            long end = System.currentTimeMillis();
+            log.info("[Batch End] HourlyRankingRecalculation | Latency: {}ms", end - start);
         } catch (Exception e) {
-            log.error("Hourly 배치 실행 실패", e);
+            log.error("[Batch Failed] HourlyRankingRecalculation | Msg: {}", e.getMessage());
         }
     }
 }
