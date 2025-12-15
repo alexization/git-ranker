@@ -2,13 +2,24 @@
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-40.40logger{39}) - %msg%n</pattern>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-40.40logger{39}) - %msg %green(%replace(%mdc){'(.+)', '--> [$1]'}) %n
+            </pattern>
         </encoder>
     </appender>
 
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
+            <includeMdcKeyName>client_ip</includeMdcKeyName>
+            <includeMdcKeyName>username</includeMdcKeyName>
+            <includeMdcKeyName>node_id</includeMdcKeyName>
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>job_name</includeMdcKeyName>
+            <includeMdcKeyName>method</includeMdcKeyName>
+            <includeMdcKeyName>uri</includeMdcKeyName>
+            <includeMdcKeyName>latency_ms</includeMdcKeyName>
+            <includeMdcKeyName>error_code</includeMdcKeyName>
         </encoder>
     </appender>
 

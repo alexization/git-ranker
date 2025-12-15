@@ -7,6 +7,7 @@ import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,9 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
     @Override
     public User process(User user) {
+        MDC.put("username", user.getUsername());
+        MDC.put("node_id", user.getNodeId());
+
         try {
             GitHubActivitySummary summary =
                     activityService.collectAllActivities(user.getUsername(), user.getGithubCreatedAt());
@@ -33,8 +37,11 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
             return user;
         } catch (Exception e) {
-            log.error("[Batch Process Failed User: {} | Msg: {}]", user.getUsername(), e.getMessage());
+            log.error("ScoreRecalculationProcessor Failed - Msg: {}", e.getMessage());
             return null;
+        } finally {
+            MDC.remove("username");
+            MDC.remove("node_id");
         }
     }
 

@@ -17,7 +17,5 @@ public class UserItemWriter implements ItemWriter<User> {
     @Override
     public void write(Chunk<? extends User> chunk) throws Exception {
         userRepository.saveAll(chunk.getItems());
-
-        log.info("[Batch Write] Updated {} users", chunk.size());
     }
 }

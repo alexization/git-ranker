@@ -13,6 +13,7 @@ import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,11 +52,17 @@ public class UserService {
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
+        MDC.put("username", username);
+        MDC.put("node_id", user.getNodeId());
+
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse createResponseForExistingUser(User user) {
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        MDC.put("username", user.getUsername());
+        MDC.put("node_id", user.getNodeId());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
@@ -64,9 +71,13 @@ public class UserService {
         user.updateUsername(userInfo.getLogin());
         user.updateProfileImage(userInfo.getAvatarUrl());
 
+        userRepository.save(user);
+
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        log.info("[Business] UserUpdated | User: {}", userInfo.getLogin());
+        MDC.put("username", user.getUsername());
+        MDC.put("node_id", user.getNodeId());
+        log.info("기존 사용자 정보 업데이트");
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
@@ -98,8 +109,8 @@ public class UserService {
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
 
-        log.info("[Business] UserRegistered | User: {} | Score: {} | Tier: {}",
-                githubUserInfo.getLogin(), totalScore, rankingInfo.tier());
+        MDC.put("node_id", githubUserInfo.getNodeId());
+        log.info("신규 회원 등록 완료 - Tier: {}, Score: {}", totalScore, rankingInfo.tier());
 
         return RegisterUserResponse.register(newUser, activityLog, true);
     }

@@ -15,31 +15,25 @@ public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
     public GitHubActivitySummary collectAllActivities(String username, LocalDateTime githubJoinDate) {
-        try {
-            GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
+        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
 
-            int commitCount = response.getCommitCount();
-            int prOpenCount = response.getPRCount();
-            int prMergedCount = response.getMergedPRCount();
-            int issueCount = response.getIssueCount();
-            int reviewCount = response.getReviewCount();
+        int commitCount = response.getCommitCount();
+        int prOpenCount = response.getPRCount();
+        int prMergedCount = response.getMergedPRCount();
+        int issueCount = response.getIssueCount();
+        int reviewCount = response.getReviewCount();
 
-            GitHubActivitySummary summary = new GitHubActivitySummary(
-                    commitCount,
-                    prOpenCount,
-                    prMergedCount,
-                    issueCount,
-                    reviewCount
-            );
+        GitHubActivitySummary summary = new GitHubActivitySummary(
+                commitCount,
+                prOpenCount,
+                prMergedCount,
+                issueCount,
+                reviewCount
+        );
 
-            log.info("[Data Collected] User: {} | Score: {} | Commits: {} | PrOpen: {} | PrMerged: {} | Issues: {} | Reviews: {}",
-                    username, summary.calculateTotalScore(), commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
+        log.info("사용자 전체 점수 - Score: {}, Commits: {}, PrOpen: {}, PrMerged: {}, Issues: {}, Reviews: {}",
+                summary.calculateTotalScore(), commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
 
-            return summary;
-
-        } catch (Exception e) {
-            log.error("[Data Collection Failed] User: {} | Msg: {}", username, e.getMessage());
-            throw e;
-        }
+        return summary;
     }
 }

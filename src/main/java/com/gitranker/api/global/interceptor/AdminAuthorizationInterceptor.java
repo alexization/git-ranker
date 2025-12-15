@@ -1,5 +1,7 @@
 package com.gitranker.api.global.interceptor;
 
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +25,8 @@ public class AdminAuthorizationInterceptor implements HandlerInterceptor {
         String requestApiKey = request.getHeader("X-API-KEY");
 
         if (requestApiKey == null || !requestApiKey.equals(adminApiKey)) {
-            log.warn("[Security] Unauthorized Access | Ip: {} | URI: {}",
-                    request.getRemoteAddr(), request.getRequestURI());
-
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Access");
-            return false;
+            throw new BusinessException(ErrorType.UNAUTHORIZED_ACCESS);
         }
-
         return true;
     }
 }

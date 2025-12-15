@@ -7,6 +7,7 @@ import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -38,55 +39,65 @@ public class GitHubGraphQLClient {
 
     public GitHubUserInfoResponse getUserInfo(String username) {
         long start = System.currentTimeMillis();
+        MDC.put("username", username);
 
-        String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
-        GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
+        try {
+            String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
+            GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
-        GitHubUserInfoResponse response = webClient.post()
-                .bodyValue(request)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, res ->
-                        res.bodyToMono(String.class).flatMap(body -> {
-                            log.error("[GitHub API Fail] getUserInfo | User: {} | Response: {}", username, body);
-                            return Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR));
-                        })
-                )
-                .bodyToMono(GitHubUserInfoResponse.class)
-                .block();
+            GitHubUserInfoResponse response = webClient.post()
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, res ->
+                            res.bodyToMono(String.class).flatMap(body ->
+                                    Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR)))
+                    )
+                    .bodyToMono(GitHubUserInfoResponse.class)
+                    .block();
 
-        if (response == null || response.data() == null || response.data().user() == null) {
-            log.warn("[GitHub API] User Not Found | User: {}", username);
-            throw new BusinessException(ErrorType.USER_NOT_FOUND);
+            if (response == null || response.data() == null || response.data().user() == null) {
+                throw new BusinessException(ErrorType.GITHUB_USER_NOT_FOUND);
+            }
+
+            long end = System.currentTimeMillis();
+            MDC.put("latency_ms", String.valueOf(end - start));
+            log.info("GitHub 사용자 정보 조회");
+
+            return response;
+        } finally {
+            MDC.remove("latency_ms");
         }
-
-        long end = System.currentTimeMillis();
-        log.info("[GitHub API] getUserInfo | User: {} | Latency: {}ms", username, end - start);
-
-        return response;
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
         long start = System.currentTimeMillis();
+        MDC.put("username", username);
 
-        String query = GraphQLQueryBuilder.buildAllActivitiesQuery(username, githubJoinDate);
-        GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
+        try {
+            String query = GraphQLQueryBuilder.buildAllActivitiesQuery(username, githubJoinDate);
+            GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
-        GitHubAllActivitiesResponse response = webClient.post()
-                .bodyValue(request)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, res ->
-                        res.bodyToMono(String.class).flatMap(body -> {
-                            log.error("[GitHub API Fail] getAllActivities | User: {} | Response: {}", username, body);
+            GitHubAllActivitiesResponse response = webClient.post()
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, res ->
+                            res.bodyToMono(String.class).flatMap(body ->
+                                    Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR)))
+                    )
+                    .bodyToMono(GitHubAllActivitiesResponse.class)
+                    .block();
 
-                            return Mono.error(new BusinessException(ErrorType.GITHUB_API_ERROR));
-                        })
-                )
-                .bodyToMono(GitHubAllActivitiesResponse.class)
-                .block();
+            if (response == null || response.data() == null || response.data().getYearDataMap() == null) {
+                throw new BusinessException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
+            }
 
-        long end = System.currentTimeMillis();
-        log.info("[GitHub API] getAllActivities | User: {} | Latency: {}ms", username, end - start);
+            long end = System.currentTimeMillis();
+            MDC.put("latency_ms", String.valueOf(end - start));
+            log.info("GitHub 사용자 전체 활동 정보 조회");
 
-        return response;
+            return response;
+        } finally {
+            MDC.remove("latency_ms");
+        }
     }
 }
