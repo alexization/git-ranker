@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -27,6 +28,17 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Object> response = ApiResponse.error(e.getErrorType(), e.getData());
         return ResponseEntity.status(e.getErrorType().getStatus()).body(response);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
+        MDC.put("error_code", "E404");
+
+        String requestedResource = e.getResourcePath();
+        log.warn("Resource Not Found: {}", requestedResource);
+
+        ApiResponse<Object> response = ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(Exception.class)

@@ -14,7 +14,8 @@ public enum ErrorType {
     DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E500", "알 수 없는 오류가 발생했습니다.", LogLevel.ERROR),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "E400", "요청이 올바르지 않습니다.", LogLevel.INFO),
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "E401", "인증되지 않은 접근입니다.", LogLevel.WARN),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "존재하지 않는 사용자 입니다.", LogLevel.INFO);
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "존재하지 않는 사용자 입니다.", LogLevel.INFO),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "요청한 리소스를 찾을 수 없습니다.", LogLevel.WARN);
 
     private final HttpStatus status;
     private final String code;
