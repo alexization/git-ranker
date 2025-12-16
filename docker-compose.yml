@@ -1,0 +1,48 @@
+services:
+  git-ranker-api:
+    build: .
+    container_name: git-ranker-api
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: ${DB_DOCKER_URL}
+      DB_USERNAME: ${DB_DOCKER_USERNAME}
+      DB_PASSWORD: ${DB_DOCKER_PASSWORD}
+      GITHUB_API_GRAPHQL_URL: ${GITHUB_API_GRAPHQL_URL}
+      GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
+      TZ: Asia/Seoul
+    depends_on:
+      git-ranker-db:
+        condition: service_healthy
+    networks:
+      - git-ranker-net
+
+  git-ranker-db:
+    image: mysql:8.0
+    container_name: git-ranker-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DOCKER_NAME}
+      MYSQL_USER: ${DB_DOCKER_USERNAME}
+      MYSQL_PASSWORD: ${DB_DOCKER_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_DOCKER_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - git-ranker-net
+
+networks:
+  git-ranker-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
