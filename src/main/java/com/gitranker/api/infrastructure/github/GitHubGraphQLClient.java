@@ -87,6 +87,10 @@ public class GitHubGraphQLClient {
                     .bodyToMono(GitHubAllActivitiesResponse.class)
                     .block();
 
+            if (response != null && response.hasErrors()) {
+                throw new BusinessException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED, "GitHub GraphQL Partial Error");
+            }
+
             if (response == null || response.data() == null || response.data().getYearDataMap() == null) {
                 throw new BusinessException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
             }

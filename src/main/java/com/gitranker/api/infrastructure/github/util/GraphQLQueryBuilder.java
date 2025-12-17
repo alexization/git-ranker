@@ -4,13 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Slf4j
 public class GraphQLQueryBuilder {
 
     public static String buildAllActivitiesQuery(String username, LocalDateTime githubJoinDate) {
         int joinYear = githubJoinDate.getYear();
-        int currentYear = LocalDate.now().getYear();
+        int currentYear = LocalDate.now(ZoneId.of("UTC")).getYear();
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("{\n");
@@ -59,7 +60,7 @@ public class GraphQLQueryBuilder {
 
     private static String buildToDate(int year, int currentYear) {
         if (year == currentYear) {
-            return toISOString(LocalDateTime.now());
+            return toISOString(LocalDateTime.now(ZoneId.of("UTC")));
         }
         return String.format("%d-12-31T23:59:59Z", year);
     }

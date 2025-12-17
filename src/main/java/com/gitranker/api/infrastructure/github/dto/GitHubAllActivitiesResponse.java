@@ -12,27 +12,41 @@ import java.util.Map;
 @Slf4j
 public record GitHubAllActivitiesResponse(
         @JsonProperty("data")
-        Data data
+        Data data,
+        @JsonProperty("errors")
+        List<Object> errors
 ) {
+    public boolean hasErrors() {
+        return errors != null && !errors.isEmpty();
+    }
+
     public int getCommitCount() {
+        if (data == null || data.getYearDataMap() == null) return 0;
+
         return data.getYearDataMap().values().stream()
                 .mapToInt(yearData -> yearData.contributionsCollection().totalCommitContributions())
                 .sum();
     }
 
     public int getIssueCount() {
+        if (data == null || data.getYearDataMap() == null) return 0;
+
         return data.getYearDataMap().values().stream()
                 .mapToInt(yearData -> yearData.contributionsCollection().totalIssueContributions())
                 .sum();
     }
 
     public int getPRCount() {
+        if (data == null || data.getYearDataMap() == null) return 0;
+
         return data.getYearDataMap().values().stream()
                 .mapToInt(yearData -> yearData.contributionsCollection().totalPullRequestContributions())
                 .sum();
     }
 
     public int getMergedPRCount() {
+        if (data == null || data.getYearDataMap() == null) return 0;
+
         return data.mergedPRs() != null && data.mergedPRs().issueCount() != null
                 ? data.mergedPRs().issueCount()
                 : 0;
