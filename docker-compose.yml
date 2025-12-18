@@ -40,9 +40,27 @@ services:
     networks:
       - git-ranker-net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: git-ranker-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+    depends_on:
+      - git-ranker-api
+    networks:
+      - git-ranker-net
+
 networks:
   git-ranker-net:
     driver: bridge
 
 volumes:
   mysql_data:
+  prometheus_data:
