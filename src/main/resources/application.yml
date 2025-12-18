@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: git-ranker-api
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -19,6 +22,18 @@ spring:
       initialize-schema: always
     job:
       enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 github:
   api:
