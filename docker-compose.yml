@@ -57,6 +57,33 @@ services:
     networks:
       - git-ranker-net
 
+  loki:
+    image: grafana/loki:latest
+    container_name: git-ranker-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+    networks:
+      - git-ranker-net
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: git-ranker-promtail
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command:
+      - -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - git-ranker-net
+
 networks:
   git-ranker-net:
     driver: bridge
@@ -64,3 +91,4 @@ networks:
 volumes:
   mysql_data:
   prometheus_data:
+  loki_data:
