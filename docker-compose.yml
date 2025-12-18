@@ -5,6 +5,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       DB_URL: ${DB_DOCKER_URL}
       DB_USERNAME: ${DB_DOCKER_USERNAME}
       DB_PASSWORD: ${DB_DOCKER_PASSWORD}
@@ -84,6 +85,23 @@ services:
     networks:
       - git-ranker-net
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: git-ranker-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - git-ranker-net
+
 networks:
   git-ranker-net:
     driver: bridge
@@ -92,3 +110,4 @@ volumes:
   mysql_data:
   prometheus_data:
   loki_data:
+  grafana_data:
