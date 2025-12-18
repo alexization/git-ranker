@@ -31,12 +31,14 @@ dependencies {
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	annotationProcessor 'org.projectlombok:lombok'
 
 	testImplementation 'org.springframework.batch:spring-batch-test'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
