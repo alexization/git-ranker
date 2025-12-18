@@ -24,6 +24,8 @@ spring:
       enabled: false
 
 management:
+  server:
+    port: 9090
   endpoints:
     web:
       exposure:
