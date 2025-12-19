@@ -52,7 +52,6 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
     depends_on:
       - git-ranker-api
     networks:
@@ -64,10 +63,10 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - ./loki-config.yml:/etc/loki/local-config.yml
       - loki_data:/loki
     command:
-      - -config.file=/etc/loki/local-config.yaml
+      - -config.file=/etc/loki/local-config.yml
     networks:
       - git-ranker-net
 
@@ -75,7 +74,7 @@ services:
     image: grafana/promtail:latest
     container_name: git-ranker-promtail
     volumes:
-      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command:
