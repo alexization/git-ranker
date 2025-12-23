@@ -1,6 +1,8 @@
 package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +45,7 @@ public class BatchScheduler {
             log.info("Daily 배치 작업 완료");
 
         } catch (Exception e) {
-            long latency = System.currentTimeMillis() - start;
-            MdcUtils.setLatency(latency);
-            log.error("Daily 배치 작업 실패: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
             MdcUtils.clear();
         }
@@ -79,9 +79,7 @@ public class BatchScheduler {
             log.info("Hourly 배치 작업 종료");
 
         } catch (Exception e) {
-            long latency = System.currentTimeMillis();
-            MdcUtils.setLatency(latency);
-            log.error("Hourly 배치 실패: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
             MdcUtils.clear();
         }

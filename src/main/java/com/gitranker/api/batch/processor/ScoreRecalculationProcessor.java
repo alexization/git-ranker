@@ -3,6 +3,8 @@ package com.gitranker.api.batch.processor;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
@@ -40,11 +42,9 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
             return user;
         } catch (Exception e) {
-            log.error("사용자 점수 재계산 실패: {}", e.getMessage());
-            return null;
+            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + user.getUsername());
         } finally {
-            MdcUtils.remove(MdcKey.USERNAME);
-            MdcUtils.remove(MdcKey.NODE_ID);
+            MdcUtils.clear();
         }
     }
 

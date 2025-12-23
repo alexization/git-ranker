@@ -18,11 +18,11 @@ public class GlobalExceptionHandler {
         ErrorType errorType = e.getErrorType();
 
         if (e.getErrorType().getLogLevel() == LogLevel.ERROR) {
-            log.error("Business Exception: {}", e.getMessage(), e);
+            log.error("[장애 발생]: {}", e.getMessage(), e);
         } else if (e.getErrorType().getLogLevel() == LogLevel.WARN) {
-            log.warn("Business Exception: {}", e.getMessage());
+            log.warn("[경고 발생]: {}", e.getMessage());
         } else {
-            log.info("Business Exception: {}", e.getMessage());
+            log.info("[예외 발생]: {}", e.getMessage());
         }
 
         return ResponseEntity
