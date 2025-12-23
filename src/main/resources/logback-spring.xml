@@ -33,6 +33,14 @@
             <includeContext>true</includeContext>
             <includeCallerData>false</includeCallerData>
             <stackTraceHashStrategy>LEGACY</stackTraceHashStrategy>
+
+            <fieldNames>
+                <version>[ignore]</version>
+                <logger>[ignore]</logger>
+                <thread>[ignore]</thread>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+
         </encoder>
     </appender>
 
