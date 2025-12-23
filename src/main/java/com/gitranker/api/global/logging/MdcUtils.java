@@ -21,10 +21,17 @@ public final class MdcUtils {
     }
 
     public static void setUserContext(String username, String nodeId) {
+        setUsername(username);
+        setNodeId(nodeId);
+    }
+
+    public static void setUsername(String username) {
         if (StringUtils.hasText(username)) {
             MDC.put(MdcKey.USERNAME, username);
         }
+    }
 
+    public static void setNodeId(String nodeId) {
         if (StringUtils.hasText(nodeId)) {
             MDC.put(MdcKey.NODE_ID, nodeId);
         }
@@ -72,6 +79,10 @@ public final class MdcUtils {
         if (exception != null) {
             MDC.put(MdcKey.ERROR_MESSAGE, exception.getMessage());
         }
+    }
+
+    public static void remove(String key) {
+        MDC.remove(key);
     }
 
     public static void clear() {

@@ -5,6 +5,7 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
+import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcKey;
@@ -34,65 +35,51 @@ public class UserService {
     private final RankingService rankingService;
 
     @Transactional
+    @LogExecutionTime
     public RegisterUserResponse registerUser(String username) {
-        log.info("[분석 프로세스 시작] 사용자: {}", username);
-        if (StringUtils.hasText(username)) {
-            MDC.put(MdcKey.USERNAME, username);
-        }
+        MdcUtils.setUsername(username);
 
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
-            log.info("[분석 프로세스 중단] 기존 사용자 발견");
+            log.info("[UserService] 기존 사용자 발견 - Username: {}", username);
             return createResponseForExistingUser(existingUserByUsername);
         }
 
         GitHubUserInfoResponse githubUserInfo = graphQLClient.getUserInfo(username);
         String nodeId = githubUserInfo.getNodeId();
 
-        if (StringUtils.hasText(nodeId)) {
-            MDC.put(MdcKey.NODE_ID, nodeId);
-        }
+        MdcUtils.setNodeId(nodeId);
 
         return userRepository.findByNodeId(nodeId)
                 .map(existingUser -> {
-                    log.info("기존 사용자 발견 - nodeId 로 조회");
+                    log.info("[UserService] 기존 사용자 발견 (닉네임 변경 감지)");
                     return updateExistingUserProfile(existingUser, githubUserInfo);
                 })
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
     }
 
     @Transactional(readOnly = true)
+    @LogExecutionTime
     public RegisterUserResponse searchUser(String username) {
-        log.debug("사용자 조회");
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
         MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
-        log.info("사용자 조회 완료 - Ranking: {}, Tier: {}", user.getRanking(), user.getTier());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse createResponseForExistingUser(User user) {
-        log.debug("기존 사용자 응답 수행");
-
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        String nodeId = user.getNodeId();
-        if (StringUtils.hasText(nodeId)) {
-            MDC.put(MdcKey.NODE_ID, nodeId);
-        }
-        log.info("기존 사용자 응답 반환");
+        MdcUtils.setNodeId(user.getNodeId());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse updateExistingUserProfile(User user, GitHubUserInfoResponse userInfo) {
-        log.debug("기존 사용자 프로필 업데이트 수행");
-
         user.updateUsername(userInfo.getLogin());
         user.updateProfileImage(userInfo.getAvatarUrl());
 
@@ -100,13 +87,11 @@ public class UserService {
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        log.info("기존 사용자 프로필 업데이트 완료");
-
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
-        log.debug("신규 사용자 등록 시작");
+        log.debug("[UserService] 신규 사용자 등록 시작 - Username: {}", githubUserInfo.getLogin());
 
         LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
 
@@ -133,8 +118,6 @@ public class UserService {
         );
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
-
-        log.info("신규 사용자 등록 완료");
 
         return RegisterUserResponse.register(newUser, activityLog, true);
     }

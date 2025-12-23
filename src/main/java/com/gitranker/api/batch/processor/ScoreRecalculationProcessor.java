@@ -3,6 +3,7 @@ package com.gitranker.api.batch.processor;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcKey;
@@ -24,9 +25,9 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
     private final ActivityLogRepository activityLogRepository;
 
     @Override
+    @LogExecutionTime
     public User process(User user) {
         MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
-        log.info("사용자 점수 재계산 시작");
 
         try {
             GitHubActivitySummary summary =
@@ -38,13 +39,14 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             saveNewActivityLog(user, summary, lastLog);
 
-            log.info("사용자 점수 재계산 완료");
-
             return user;
         } catch (Exception e) {
             throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + user.getUsername());
         } finally {
-            MdcUtils.clear();
+            MdcUtils.remove(MdcKey.USERNAME);
+            MdcUtils.remove(MdcKey.NODE_ID);
+            MdcUtils.remove(MdcKey.ERROR_CODE);
+            MdcUtils.remove(MdcKey.ERROR_MESSAGE);
         }
     }
 

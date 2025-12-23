@@ -1,5 +1,6 @@
 package com.gitranker.api.infrastructure.github;
 
+import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +15,8 @@ import java.time.LocalDateTime;
 public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
+    @LogExecutionTime
     public GitHubActivitySummary collectAllActivities(String username, LocalDateTime githubJoinDate) {
-        log.info("GitHub 활동 정보 수집 시작");
-
         GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
 
         int commitCount = response.getCommitCount();
@@ -25,17 +25,12 @@ public class GitHubActivityService {
         int issueCount = response.getIssueCount();
         int reviewCount = response.getReviewCount();
 
-        GitHubActivitySummary summary = new GitHubActivitySummary(
+        return new GitHubActivitySummary(
                 commitCount,
                 prOpenCount,
                 prMergedCount,
                 issueCount,
                 reviewCount
         );
-
-        log.info("GitHub 활동 정보 수집 완료 - Score: {}, Commits: {}, PrOpen: {}, PrMerged: {}, Issues: {}, Reviews: {}",
-                summary.calculateTotalScore(), commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
-
-        return summary;
     }
 }

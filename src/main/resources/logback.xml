@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
+
+    <logger name="org.springframework.batch" level="WARN"/>
+    <logger name="org.springframework.jdbc" level="WARN"/>
+
     <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>

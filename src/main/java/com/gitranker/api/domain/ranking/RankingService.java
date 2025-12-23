@@ -5,6 +5,7 @@ import com.gitranker.api.domain.ranking.dto.RankingList;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.aop.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,23 +26,15 @@ public class RankingService {
     private final TierCalculator tierCalculator;
 
     @Transactional(readOnly = true)
+    @LogExecutionTime
     public RankingInfo calculateRankingForNewUser(int userScore) {
-        log.info("신규 사용자 순위 계산 - Score: {}", userScore);
-
         long totalUserCount = userRepository.count();
 
-        RankingInfo rankingInfo = calculateRanking(userScore, totalUserCount);
-
-        log.info("순위 계산 완료 - Ranking: {}, Percentile: {}, Tier: {}",
-                rankingInfo.ranking(), String.format("%.2f%%", rankingInfo.percentile()),  rankingInfo.tier());
-
-        return rankingInfo;
+        return calculateRanking(userScore, totalUserCount);
     }
 
     @Transactional(readOnly = true)
     public RankingInfo calculateRanking(int userScore, long totalUserCount) {
-        log.info("랭킹 계산 수행");
-
         long higherScoreCount = userRepository.countByTotalScoreGreaterThan(userScore);
 
         int ranking = (int) higherScoreCount + 1;
@@ -53,9 +46,8 @@ public class RankingService {
     }
 
     @Transactional(readOnly = true)
+    @LogExecutionTime
     public RankingList getRankingList(int page) {
-        log.info("순위 목록 조회 - Page: {}", page);
-
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
         Page<User> userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
 
@@ -67,8 +59,6 @@ public class RankingService {
                 .toList();
 
         Page<RankingList.UserInfo> rankingPage = new PageImpl<>(userInfo, pageable, userPage.getTotalElements());
-
-        log.info("순위 목록 조회 완료 - Page: {}/{}", page + 1, userPage.getTotalPages());
 
         return RankingList.from(rankingPage);
     }

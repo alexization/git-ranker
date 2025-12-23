@@ -2,19 +2,16 @@ package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
-import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -41,13 +38,6 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubUserInfoResponse getUserInfo(String username) {
-        if (StringUtils.hasText(username)) {
-            MDC.put(MdcKey.USERNAME, username);
-        }
-        log.info("GitHub API 호출 - getUserInfo");
-
-        long start = System.currentTimeMillis();
-
         String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
@@ -65,24 +55,12 @@ public class GitHubGraphQLClient {
             throw new BusinessException(ErrorType.GITHUB_USER_NOT_FOUND);
         }
 
-        long latency = System.currentTimeMillis() - start;
-        MdcUtils.setGithubApiCallTime(latency);
         MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
-
-        log.info("GitHub API 호출 완료 - getUserInfo, limit: {}, cost: {}, remaining: {}, resetAt: {}",
-                response.data().rateLimit().limit(), response.data().rateLimit().cost(), response.data().rateLimit().remaining(), response.data().rateLimit().resetAt());
 
         return response;
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
-        if (StringUtils.hasText(username)) {
-            MDC.put(MdcKey.USERNAME, username);
-        }
-        log.info("GitHub API 호출 - getAllActivities");
-
-        long start = System.currentTimeMillis();
-
         String query = GraphQLQueryBuilder.buildAllActivitiesQuery(username, githubJoinDate);
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
@@ -104,12 +82,7 @@ public class GitHubGraphQLClient {
             throw new BusinessException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
         }
 
-        long latency = System.currentTimeMillis() - start;
-        MdcUtils.setGithubApiCallTime(latency);
         MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
-
-        log.info("GitHub API 호출 성공 - getAllActivities, limit: {}, cost: {}, remaining: {}, resetAt: {}",
-                response.data().rateLimit().limit(), response.data().rateLimit().cost(), response.data().rateLimit().remaining(), response.data().rateLimit().resetAt());
 
         return response;
     }

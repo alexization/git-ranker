@@ -5,6 +5,7 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -23,19 +24,14 @@ public class BadgeService {
     private final ActivityLogRepository activityLogRepository;
 
     @Transactional(readOnly = true)
+    @LogExecutionTime
     public String generateBadge(String nodeId) {
-        log.info("배지 생성 시작");
-
         User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
         MdcUtils.setUserContext(user.getUsername(), nodeId);
 
-        String svg = createSvgContent(user, activityLog);
-
-        log.info("배지 생성 완료 - SvgSize: {}bytes", svg.length());
-
-        return svg;
+        return createSvgContent(user, activityLog);
     }
 
     private String createSvgContent(User user, ActivityLog activityLog) {

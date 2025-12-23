@@ -1,6 +1,7 @@
 package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -27,11 +28,10 @@ public class BatchScheduler {
     private final Job hourlyRankingJob;
 
     @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
+    @LogExecutionTime
     public void runDailyScoreRecalculationJob() {
         MdcUtils.setupBatchJobContext("DailyScoreRecalculation");
-        log.info("Daily 배치 작업 시작");
-
-        long start = System.currentTimeMillis();
+        log.info("[Batch Job] Daily 배치 작업 시작");
 
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -39,10 +39,6 @@ public class BatchScheduler {
                     .toJobParameters();
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
-
-            long latency = System.currentTimeMillis() - start;
-            MdcUtils.setLatency(latency);
-            log.info("Daily 배치 작업 완료");
 
         } catch (Exception e) {
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
@@ -52,31 +48,26 @@ public class BatchScheduler {
     }
 
     @Scheduled(cron = "0 0 * * * *", zone = "UTC")
+    @LogExecutionTime
     public void runHourlyRankingRecalculation() {
         MdcUtils.setupBatchJobContext("HourlyRankingRecalculation");
-
-        long start = System.currentTimeMillis();
 
         try {
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             long newUserCount = userRepository.countByCreatedAtAfter(oneHourAgo);
 
             if (newUserCount == 0) {
-                log.info("배치 작업 패스");
+                log.info("[Batch Job] 신규 사용자가 없어 작업을 건너뜁니다.");
                 return;
             }
 
-            log.info("Hourly 배치 작업 시작");
+            log.info("[Batch Job] Hourly 배치 작업 시작");
 
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
                     .toJobParameters();
 
             jobLauncher.run(hourlyRankingJob, jobParameters);
-
-            long latency = System.currentTimeMillis() - start;
-            MdcUtils.setLatency(latency);
-            log.info("Hourly 배치 작업 종료");
 
         } catch (Exception e) {
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());

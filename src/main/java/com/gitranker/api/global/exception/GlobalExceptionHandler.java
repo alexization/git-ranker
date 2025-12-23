@@ -1,5 +1,6 @@
 package com.gitranker.api.global.exception;
 
+import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.logging.LogLevel;
@@ -17,12 +18,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
         ErrorType errorType = e.getErrorType();
 
+        MdcUtils.setError(errorType.name(), e.getMessage());
+
         if (e.getErrorType().getLogLevel() == LogLevel.ERROR) {
-            log.error("[장애 발생]: {}", e.getMessage(), e);
+            log.error("[Business Error] {}", e.getMessage(), e);
         } else if (e.getErrorType().getLogLevel() == LogLevel.WARN) {
-            log.warn("[경고 발생]: {}", e.getMessage());
+            log.warn("[Business Warning]: {}", e.getMessage());
         } else {
-            log.info("[예외 발생]: {}", e.getMessage());
+            log.info("[Business Info]: {}", e.getMessage());
         }
 
         return ResponseEntity
@@ -32,7 +35,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
-        log.warn("Resource Not Found: {}", e.getResourcePath());
+        MdcUtils.setError("RESOURCE_NOT_FOUND", e.getMessage());
+        log.warn("[Resource Not Found] {}", e.getResourcePath());
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -41,7 +45,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
-        log.error("Unexpected Error: {}", e.getMessage(), e);
+        MdcUtils.setError("INTERNAL_SERVER_ERROR", e.getMessage());
+        log.error("[Unexpected Error] {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
