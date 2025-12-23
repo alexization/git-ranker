@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
-        MDC.put("error_code", e.getErrorType().getCode());
+        ErrorType errorType = e.getErrorType();
 
         if (e.getErrorType().getLogLevel() == LogLevel.ERROR) {
             log.error("Business Exception: {}", e.getMessage(), e);
@@ -26,27 +26,26 @@ public class GlobalExceptionHandler {
             log.warn("Business Exception: {}", e.getMessage());
         }
 
-        ApiResponse<Object> response = ApiResponse.error(e.getErrorType(), e.getData());
-        return ResponseEntity.status(e.getErrorType().getStatus()).body(response);
+        return ResponseEntity
+                .status(errorType.getStatus())
+                .body(ApiResponse.error(errorType, e.getData()));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
-        MDC.put("error_code", "E404");
+        log.warn("Resource Not Found: {}", e.getResourcePath());
 
-        String requestedResource = e.getResourcePath();
-        log.warn("Resource Not Found: {}", requestedResource);
-
-        ApiResponse<Object> response = ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
-        MDC.put("error_code", "E500");
         log.error("Unexpected Error: {}", e.getMessage(), e);
 
-        ApiResponse<Object> response = ApiResponse.error(ErrorType.DEFAULT_ERROR);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(ErrorType.DEFAULT_ERROR));
     }
 }
