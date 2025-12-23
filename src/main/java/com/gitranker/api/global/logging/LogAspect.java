@@ -1,4 +1,4 @@
-package com.gitranker.api.global.log;
+package com.gitranker.api.global.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -1,37 +1,124 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <property name="LOG_PATH" value="./logs"/>
+    <property name="LOG_FILE_NAME" value="git-ranker-api"/>
+    <property name="MAX_HISTORY" value="7"/>
+    <property name="MAX_FILE_SIZE" value="50MB"/>
+    <property name="TOTAL_SIZE_CAP" value="500MB"/>
+
+    <property name="LOCAL_CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg %green(%replace(%mdc){'(.+)', '--> [$1]'}) %n"/>
+
+    <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>
-                %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-40.40logger{39}) - %msg %green(%replace(%mdc){'(.+)', '--> [$1]'}) %n
-            </pattern>
+            <pattern>${LOCAL_CONSOLE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="PROD_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
-            <includeMdcKeyName>client_ip</includeMdcKeyName>
+            <customFields>{"application":"git-ranker-api", "environment":"production"}</customFields>
+
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
             <includeMdcKeyName>username</includeMdcKeyName>
             <includeMdcKeyName>node_id</includeMdcKeyName>
-            <includeMdcKeyName>trace_id</includeMdcKeyName>
-            <includeMdcKeyName>job_name</includeMdcKeyName>
+            <includeMdcKeyName>client_ip</includeMdcKeyName>
             <includeMdcKeyName>method</includeMdcKeyName>
             <includeMdcKeyName>uri</includeMdcKeyName>
+            <includeMdcKeyName>http_status</includeMdcKeyName>
             <includeMdcKeyName>latency_ms</includeMdcKeyName>
+            <includeMdcKeyName>db_query_time_ms</includeMdcKeyName>
+            <includeMdcKeyName>github_api_call_time_ms</includeMdcKeyName>
+            <includeMdcKeyName>job_name</includeMdcKeyName>
+            <includeMdcKeyName>job_id</includeMdcKeyName>
+            <includeMdcKeyName>step_name</includeMdcKeyName>
+            <includeMdcKeyName>chunk_number</includeMdcKeyName>
             <includeMdcKeyName>error_code</includeMdcKeyName>
+            <includeMdcKeyName>error_message</includeMdcKeyName>
+            <includeMdcKeyName>error_hash</includeMdcKeyName>
+
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+
+            <includeContext>true</includeContext>
+            <includeCallerData>false</includeCallerData>
+            <stackTraceHashStrategy>LEGACY</stackTraceHashStrategy>
         </encoder>
     </appender>
 
-    <springProfile name="!prod">
-        <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
+    <logger name="com.gitranker.api" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="org.hibernate.orm.jdbc.bind" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="org.springframework" level="WARN" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="org.springframework.web" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="org.springframework.batch" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+        <appender-ref ref="LOCAL_CONSOLE"/>
+    </logger>
+
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+            <appender-ref ref="ASYNC_LOCAL_FILE"/>
         </root>
+
+        <logger name="com.gitranker.api" level="DEBUG" additivity="false">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+            <appender-ref ref="ASYNC_LOCAL_FILE"/>
+        </logger>
+
+        <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+            <appender-ref ref="ASYNC_LOCAL_FILE"/>
+        </logger>
+
+        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+            <appender-ref ref="ASYNC_LOCAL_FILE"/>
+        </logger>
+
+        <logger name="org.hibernate.stat" level="DEBUG" additivity="false">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+        </logger>
     </springProfile>
 
     <springProfile name="prod">
         <root level="INFO">
-            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="PROD_JSON_CONSOLE"/>
         </root>
+
+        <logger name="com.gitranker.api" level="INFO" additivity="false">
+            <appender-ref ref="PROD_JSON_CONSOLE"/>
+        </logger>
+
+        <logger name="org.hibernate.SQL" level="WARN" additivity="false">
+            <appender-ref ref="PROD_JSON_CONSOLE"/>
+        </logger>
+
+        <logger name="org.hibernate.stat" level="WARN" additivity="false">
+            <appender-ref ref="PROD_JSON_CONSOLE"/>
+        </logger>
+
+        <logger name="org.springframework" level="ERROR" additivity="false">
+            <appender-ref ref="PROD_JSON_CONSOLE"/>
+        </logger>
     </springProfile>
+
 </configuration>

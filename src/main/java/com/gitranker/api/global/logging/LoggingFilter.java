@@ -1,4 +1,4 @@
-package com.gitranker.api.global.log;
+package com.gitranker.api.global.logging;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
