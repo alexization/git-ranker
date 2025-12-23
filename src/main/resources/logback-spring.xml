@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
-    <property name="LOG_PATH" value="./logs"/>
-    <property name="LOG_FILE_NAME" value="git-ranker-api"/>
-    <property name="MAX_HISTORY" value="7"/>
-    <property name="MAX_FILE_SIZE" value="50MB"/>
-    <property name="TOTAL_SIZE_CAP" value="500MB"/>
-
-    <property name="LOCAL_CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg %green(%replace(%mdc){'(.+)', '--> [$1]'}) %n"/>
-
     <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${LOCAL_CONSOLE_PATTERN}</pattern>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg %green(%replace(%mdc){'(.+)', '--> [$1]'}) %n
+            </pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -45,80 +39,16 @@
         </encoder>
     </appender>
 
-    <logger name="com.gitranker.api" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="org.hibernate.SQL" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="org.hibernate.orm.jdbc.bind" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="org.springframework" level="WARN" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="org.springframework.web" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="org.springframework.batch" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
-        <appender-ref ref="LOCAL_CONSOLE"/>
-    </logger>
-
-    <springProfile name="local">
-        <root level="DEBUG">
+    <springProfile name="!prod">
+        <root level="INFO">
             <appender-ref ref="LOCAL_CONSOLE"/>
-            <appender-ref ref="ASYNC_LOCAL_FILE"/>
         </root>
-
-        <logger name="com.gitranker.api" level="DEBUG" additivity="false">
-            <appender-ref ref="LOCAL_CONSOLE"/>
-            <appender-ref ref="ASYNC_LOCAL_FILE"/>
-        </logger>
-
-        <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-            <appender-ref ref="LOCAL_CONSOLE"/>
-            <appender-ref ref="ASYNC_LOCAL_FILE"/>
-        </logger>
-
-        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
-            <appender-ref ref="LOCAL_CONSOLE"/>
-            <appender-ref ref="ASYNC_LOCAL_FILE"/>
-        </logger>
-
-        <logger name="org.hibernate.stat" level="DEBUG" additivity="false">
-            <appender-ref ref="LOCAL_CONSOLE"/>
-        </logger>
     </springProfile>
 
     <springProfile name="prod">
         <root level="INFO">
             <appender-ref ref="PROD_JSON_CONSOLE"/>
         </root>
-
-        <logger name="com.gitranker.api" level="INFO" additivity="false">
-            <appender-ref ref="PROD_JSON_CONSOLE"/>
-        </logger>
-
-        <logger name="org.hibernate.SQL" level="WARN" additivity="false">
-            <appender-ref ref="PROD_JSON_CONSOLE"/>
-        </logger>
-
-        <logger name="org.hibernate.stat" level="WARN" additivity="false">
-            <appender-ref ref="PROD_JSON_CONSOLE"/>
-        </logger>
-
-        <logger name="org.springframework" level="ERROR" additivity="false">
-            <appender-ref ref="PROD_JSON_CONSOLE"/>
-        </logger>
     </springProfile>
 
 </configuration>
