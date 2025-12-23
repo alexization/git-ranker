@@ -4,9 +4,12 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 
@@ -17,24 +20,35 @@ public class LoggingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        ContentCachingRequestWrapper httpRequest = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        ContentCachingResponseWrapper httpResponse = new ContentCachingResponseWrapper((HttpServletResponse) response);
+
+        MdcUtils.setupHttpRequestContext(httpRequest);
+
+        long start = System.currentTimeMillis();
+
+        log.info("[HTTP Request] {} {}", httpRequest.getMethod(), httpRequest.getRequestURI());
 
         try {
-            MdcUtils.setupHttpRequestContext(httpRequest);
-
-            log.info("{} 요청 시작", httpRequest.getMethod());
-
-            long start = System.currentTimeMillis();
             chain.doFilter(request, response);
+
+            httpResponse.copyBodyToResponse();
+
+        } finally {
             long latency = System.currentTimeMillis() - start;
+            int status = httpResponse.getStatus();
 
             MdcUtils.setLatency(latency);
-            int status = httpResponse.getStatus();
             MdcUtils.setHttpStatus(status);
 
-            log.info("{} 요청 완료", httpRequest.getMethod());
-        } finally {
+            if (latency > 10_000) {
+                log.warn("[HTTP Response] {} {} - Status: {}, Latency: {}ms",
+                        httpRequest.getMethod(), httpRequest.getRequestURI(), status, latency);
+            } else {
+                log.info("[HTTP Response] {} {} - Status: {}, Latency: {}ms",
+                        httpRequest.getMethod(), httpRequest.getRequestURI(), status, latency);
+            }
+
             MdcUtils.clear();
         }
     }

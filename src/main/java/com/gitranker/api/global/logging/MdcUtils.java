@@ -11,66 +11,39 @@ public final class MdcUtils {
         throw new AssertionError("유틸 클래스는 인스턴스화 할 수 없습니다.");
     }
 
-    public static String generateAndSetTraceId() {
+    public static void setupHttpRequestContext(HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString().substring(0, 8);
-        MDC.put(MdcKey.TRACE_ID, traceId);
-
-        return traceId;
-    }
-
-    public static String getTraceId() {
-        return MDC.get(MdcKey.TRACE_ID);
-    }
-
-    public static String setupHttpRequestContext(HttpServletRequest request) {
-        String traceId = generateAndSetTraceId();
-        String clientIp = extractClientIp(request);
 
         MDC.put(MdcKey.TRACE_ID, traceId);
-        MDC.put(MdcKey.CLIENT_IP, clientIp);
-        MDC.put(MdcKey.URI, request.getRequestURI());
-
-        return traceId;
+        MDC.put(MdcKey.REQUEST_URI, request.getRequestURI());
+        MDC.put(MdcKey.CLIENT_IP, extractClientIp(request));
+        MDC.put(MdcKey.REQUEST_URI, request.getRequestURI());
     }
 
-    private static String extractClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-
-        if (StringUtils.hasText(ip)) {
-            return ip.split(",")[0].trim();
+    public static void setUserContext(String username, String nodeId) {
+        if (StringUtils.hasText(username)) {
+            MDC.put(MdcKey.USERNAME, username);
         }
 
-        ip = request.getHeader("X-Real-IP");
-        if (StringUtils.hasText(ip)) {
-            return ip;
+        if (StringUtils.hasText(nodeId)) {
+            MDC.put(MdcKey.NODE_ID, nodeId);
         }
+    }
 
-        return request.getRemoteAddr();
+    public static void setLatency(long latencyMs) {
+        MDC.put(MdcKey.LATENCY_MS, String.valueOf(latencyMs));
     }
 
     public static void setHttpStatus(int statusCode) {
         MDC.put(MdcKey.HTTP_STATUS, String.valueOf(statusCode));
     }
 
-    public static void setUsername(String username) {
-        if (StringUtils.hasText(username)) {
-            MDC.put(MdcKey.USERNAME, username);
-        }
-    }
+    public static void setupBatchJobContext(String jobName) {
+        String traceId = UUID.randomUUID().toString().substring(0, 8);
 
-    public static void setNodeId(String nodeId) {
-        if (StringUtils.hasText(nodeId)) {
-            MDC.put(MdcKey.NODE_ID, nodeId);
-        }
-    }
-
-    public static void setUserContext(String username, String nodeId) {
-        setUsername(username);
-        setNodeId(nodeId);
-    }
-
-    public static void setLatency(long latencyMs) {
-        MDC.put(MdcKey.LATENCY_MS, String.valueOf(latencyMs));
+        MDC.put(MdcKey.TRACE_ID, traceId);
+        MDC.put(MdcKey.JOB_NAME, jobName);
+        MDC.put(MdcKey.CLIENT_IP, "SYSTEM");
     }
 
     public static void setDBQueryTime(long queryTimeMs) {
@@ -83,23 +56,6 @@ public final class MdcUtils {
 
     public static void setGithubApiCost(int cost) {
         MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
-    }
-
-    public static void setupBatchJobContext(String jobName) {
-        generateAndSetTraceId();
-
-        MDC.put(MdcKey.JOB_NAME, jobName);
-        MDC.put(MdcKey.CLIENT_IP, "SYSTEM");
-    }
-
-    public static void setStepName(String stepName) {
-        if (StringUtils.hasText(stepName)) {
-            MDC.put(MdcKey.STEP_NAME, stepName);
-        }
-    }
-
-    public static void setChunkNumber(int chunkNumber) {
-        MDC.put(MdcKey.CHUNK_NUMBER, String.valueOf(chunkNumber));
     }
 
     public static void setError(String errorCode, String errorMessage) {
@@ -118,11 +74,22 @@ public final class MdcUtils {
         }
     }
 
-    public static void remove(String key) {
-        MDC.remove(key);
-    }
-
     public static void clear() {
         MDC.clear();
+    }
+
+    private static String extractClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (StringUtils.hasText(ip)) {
+            return ip.split(",")[0].trim();
+        }
+
+        ip = request.getHeader("X-Real-IP");
+        if (StringUtils.hasText(ip)) {
+            return ip;
+        }
+
+        return request.getRemoteAddr();
     }
 }

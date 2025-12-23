@@ -5,8 +5,8 @@ public class MdcKey {
     /* HTTP 요청 관련 */
     public static final String TRACE_ID = "trace_id";
     public static final String CLIENT_IP = "client_ip";
-    public static final String METHOD = "method";
-    public static final String URI = "uri";
+    public static final String HTTP_METHOD = "http_method";
+    public static final String REQUEST_URI = "request_uri";
     public static final String HTTP_STATUS = "http_status";
     public static final String LATENCY_MS = "latency_ms";
 

@@ -15,8 +15,8 @@
             <includeMdcKeyName>username</includeMdcKeyName>
             <includeMdcKeyName>node_id</includeMdcKeyName>
             <includeMdcKeyName>client_ip</includeMdcKeyName>
-            <includeMdcKeyName>method</includeMdcKeyName>
-            <includeMdcKeyName>uri</includeMdcKeyName>
+            <includeMdcKeyName>http_method</includeMdcKeyName>
+            <includeMdcKeyName>request_uri</includeMdcKeyName>
             <includeMdcKeyName>http_status</includeMdcKeyName>
             <includeMdcKeyName>latency_ms</includeMdcKeyName>
             <includeMdcKeyName>db_query_time_ms</includeMdcKeyName>

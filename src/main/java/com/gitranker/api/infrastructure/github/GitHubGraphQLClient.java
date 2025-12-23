@@ -2,16 +2,19 @@ package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -38,7 +41,9 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubUserInfoResponse getUserInfo(String username) {
-        MdcUtils.setUsername(username);
+        if (StringUtils.hasText(username)) {
+            MDC.put(MdcKey.USERNAME, username);
+        }
         log.info("GitHub API 호출 - getUserInfo");
 
         long start = System.currentTimeMillis();
@@ -71,7 +76,9 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
-        MdcUtils.setUsername(username);
+        if (StringUtils.hasText(username)) {
+            MDC.put(MdcKey.USERNAME, username);
+        }
         log.info("GitHub API 호출 - getAllActivities");
 
         long start = System.currentTimeMillis();

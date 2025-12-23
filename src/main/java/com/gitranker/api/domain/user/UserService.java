@@ -7,6 +7,7 @@ import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
@@ -14,8 +15,10 @@ import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,7 +36,9 @@ public class UserService {
     @Transactional
     public RegisterUserResponse registerUser(String username) {
         log.info("[분석 프로세스 시작] 사용자: {}", username);
-        MdcUtils.setUsername(username);
+        if (StringUtils.hasText(username)) {
+            MDC.put(MdcKey.USERNAME, username);
+        }
 
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
@@ -44,7 +49,9 @@ public class UserService {
         GitHubUserInfoResponse githubUserInfo = graphQLClient.getUserInfo(username);
         String nodeId = githubUserInfo.getNodeId();
 
-        MdcUtils.setNodeId(nodeId);
+        if (StringUtils.hasText(nodeId)) {
+            MDC.put(MdcKey.NODE_ID, nodeId);
+        }
 
         return userRepository.findByNodeId(nodeId)
                 .map(existingUser -> {
@@ -74,7 +81,10 @@ public class UserService {
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        MdcUtils.setNodeId(user.getNodeId());
+        String nodeId = user.getNodeId();
+        if (StringUtils.hasText(nodeId)) {
+            MDC.put(MdcKey.NODE_ID, nodeId);
+        }
         log.info("기존 사용자 응답 반환");
 
         return RegisterUserResponse.of(user, activityLog, false);
