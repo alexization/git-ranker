@@ -21,12 +21,12 @@ public class MdcKey {
 
     /* 인프라 및 외부 API 관련 */
     public static final String DB_QUERY_TIME_MS = "db_query_time_ms";
-    public static final String Github_API_CALL_TIME_MS = "github_api_call_time_ms";
+    public static final String GITHUB_API_CALL_TIME_MS = "github_api_call_time_ms";
+    public static final String GITHUB_API_COST =  "github_api_cost";
 
     /* 에러 관련 */
     public static final String ERROR_CODE = "error_code";
     public static final String ERROR_MESSAGE = "error_message";
-    public static final String ERROR_HASH = "error_hash";
 
     private MdcKey() {
         throw new AssertionError("유틸 클래스는 인스턴스화 할 수 없습니다.");

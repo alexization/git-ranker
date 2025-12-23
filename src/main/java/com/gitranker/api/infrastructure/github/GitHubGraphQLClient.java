@@ -62,6 +62,7 @@ public class GitHubGraphQLClient {
 
         long latency = System.currentTimeMillis() - start;
         MdcUtils.setGithubApiCallTime(latency);
+        MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
 
         log.info("GitHub API 호출 완료 - getUserInfo");
 
@@ -97,8 +98,10 @@ public class GitHubGraphQLClient {
 
         long latency = System.currentTimeMillis() - start;
         MdcUtils.setGithubApiCallTime(latency);
+        MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
 
-        log.info("GitHub API 호출 성공 - getAllActivities");
+        log.info("GitHub API 호출 성공 - getAllActivities, limit: {}, cost: {}, remaining: {}, resetAt: {}",
+                response.data().rateLimit().limit(), response.data().rateLimit().cost(), response.data().rateLimit().remaining(), response.data().rateLimit().resetAt());
 
         return response;
     }

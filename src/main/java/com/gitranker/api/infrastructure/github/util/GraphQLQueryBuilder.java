@@ -15,6 +15,12 @@ public class GraphQLQueryBuilder {
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("{\n");
+        queryBuilder.append("    rateLimit {\n" +
+                            "      limit\n" +
+                            "      remaining\n" +
+                            "      resetAt\n" +
+                            "      cost\n" +
+                            "    }\n");
 
         for (int year = joinYear; year <= currentYear; year++) {
             String fromDate = buildFromDate(year, joinYear, githubJoinDate);
@@ -72,6 +78,12 @@ public class GraphQLQueryBuilder {
     public static String buildUserCreatedAtQuery(String username) {
         return String.format("""
                 {
+                  rateLimit {
+                    limit
+                    remaining
+                    resetAt
+                    cost
+                  }
                   user(login: "%s") {
                     id
                     createdAt

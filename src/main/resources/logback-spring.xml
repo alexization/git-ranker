@@ -21,12 +21,12 @@
             <includeMdcKeyName>latency_ms</includeMdcKeyName>
             <includeMdcKeyName>db_query_time_ms</includeMdcKeyName>
             <includeMdcKeyName>github_api_call_time_ms</includeMdcKeyName>
+            <includeMdcKeyName>github_api_cost</includeMdcKeyName>
             <includeMdcKeyName>job_name</includeMdcKeyName>
             <includeMdcKeyName>step_name</includeMdcKeyName>
             <includeMdcKeyName>chunk_number</includeMdcKeyName>
             <includeMdcKeyName>error_code</includeMdcKeyName>
             <includeMdcKeyName>error_message</includeMdcKeyName>
-            <includeMdcKeyName>error_hash</includeMdcKeyName>
 
             <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSS</timestampPattern>
 

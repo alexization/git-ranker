@@ -5,16 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public record GitHubAllActivitiesResponse(
-        @JsonProperty("data")
-        Data data,
-        @JsonProperty("errors")
-        List<Object> errors
+        @JsonProperty("data") Data data,
+        @JsonProperty("errors") List<Object> errors
 ) {
     public boolean hasErrors() {
         return errors != null && !errors.isEmpty();
@@ -58,6 +57,13 @@ public record GitHubAllActivitiesResponse(
                 .sum();
     }
 
+    public record RateLimit(
+            int limit,
+            int cost,
+            int remaining,
+            LocalDateTime resetAt
+    ) {}
+
     public static class Data {
         @Getter
         private final Map<String, YearData> yearDataMap = new HashMap<>();
@@ -67,6 +73,8 @@ public record GitHubAllActivitiesResponse(
 
         @JsonProperty("reviewedPRs")
         private Search reviewedPRs;
+
+        @JsonProperty("rateLimit") RateLimit rateLimit;
 
         @JsonAnySetter
         public void setYearData(String key, YearData value) {
@@ -81,6 +89,10 @@ public record GitHubAllActivitiesResponse(
 
         public Search reviewedPRs() {
             return reviewedPRs;
+        }
+
+        public RateLimit rateLimit() {
+            return rateLimit;
         }
     }
 

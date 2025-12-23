@@ -78,7 +78,11 @@ public final class MdcUtils {
     }
 
     public static void setGithubApiCallTime(long githubApiCallTimeMs) {
-        MDC.put(MdcKey.Github_API_CALL_TIME_MS, String.valueOf(githubApiCallTimeMs));
+        MDC.put(MdcKey.GITHUB_API_CALL_TIME_MS, String.valueOf(githubApiCallTimeMs));
+    }
+
+    public static void setGithubApiCost(int cost) {
+        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
     }
 
     public static void setupBatchJobContext(String jobName) {
@@ -111,22 +115,7 @@ public final class MdcUtils {
     public static void setException(Exception exception) {
         if (exception != null) {
             MDC.put(MdcKey.ERROR_MESSAGE, exception.getMessage());
-
-            String errorHash = generateErrorHash(exception);
-            MDC.put(MdcKey.ERROR_HASH, errorHash);
         }
-    }
-
-    private static String generateErrorHash(Exception exception) {
-        StackTraceElement[] stackTrace = exception.getStackTrace();
-        if (stackTrace.length == 0) {
-            return "unknown";
-        }
-
-        StackTraceElement firstFrame = stackTrace[0];
-        String key = firstFrame.getClassName() + ":" + firstFrame.getLineNumber();
-
-        return Integer.toHexString(key.hashCode());
     }
 
     public static void remove(String key) {

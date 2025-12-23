@@ -28,8 +28,8 @@ public record GitHubUserInfoResponse(
     }
 
     public record Data(
-            @JsonProperty("user")
-            User user
+            @JsonProperty("user") User user,
+            @JsonProperty("rateLimit") RateLimit rateLimit
     ) {
     }
 
@@ -45,6 +45,14 @@ public record GitHubUserInfoResponse(
 
             @JsonProperty("avatarUrl")
             String avatarUrl
+    ) {
+    }
+
+    public record RateLimit(
+            int limit,
+            int cost,
+            int remaining,
+            LocalDateTime resetAt
     ) {
     }
 }

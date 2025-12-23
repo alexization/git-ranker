@@ -32,12 +32,12 @@ public class UserService {
 
     @Transactional
     public RegisterUserResponse registerUser(String username) {
+        log.info("[분석 프로세스 시작] 사용자: {}", username);
         MdcUtils.setUsername(username);
-        log.info("사용자 분석하기 요청");
 
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
-            log.info("기존 사용자 발견 - username 으로 조회");
+            log.info("[분석 프로세스 중단] 기존 사용자 발견");
             return createResponseForExistingUser(existingUserByUsername);
         }
 
