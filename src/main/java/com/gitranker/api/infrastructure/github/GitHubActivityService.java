@@ -15,6 +15,8 @@ public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
     public GitHubActivitySummary collectAllActivities(String username, LocalDateTime githubJoinDate) {
+        log.info("GitHub 활동 정보 수집 시작");
+
         GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
 
         int commitCount = response.getCommitCount();
@@ -31,7 +33,7 @@ public class GitHubActivityService {
                 reviewCount
         );
 
-        log.info("사용자 전체 점수 - Score: {}, Commits: {}, PrOpen: {}, PrMerged: {}, Issues: {}, Reviews: {}",
+        log.info("GitHub 활동 정보 수집 완료 - Score: {}, Commits: {}, PrOpen: {}, PrMerged: {}, Issues: {}, Reviews: {}",
                 summary.calculateTotalScore(), commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
 
         return summary;

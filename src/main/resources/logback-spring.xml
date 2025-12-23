@@ -11,8 +11,6 @@
 
     <appender name="PROD_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"application":"git-ranker-api", "environment":"production"}</customFields>
-
             <includeMdcKeyName>trace_id</includeMdcKeyName>
             <includeMdcKeyName>username</includeMdcKeyName>
             <includeMdcKeyName>node_id</includeMdcKeyName>
@@ -24,14 +22,13 @@
             <includeMdcKeyName>db_query_time_ms</includeMdcKeyName>
             <includeMdcKeyName>github_api_call_time_ms</includeMdcKeyName>
             <includeMdcKeyName>job_name</includeMdcKeyName>
-            <includeMdcKeyName>job_id</includeMdcKeyName>
             <includeMdcKeyName>step_name</includeMdcKeyName>
             <includeMdcKeyName>chunk_number</includeMdcKeyName>
             <includeMdcKeyName>error_code</includeMdcKeyName>
             <includeMdcKeyName>error_message</includeMdcKeyName>
             <includeMdcKeyName>error_hash</includeMdcKeyName>
 
-            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSS</timestampPattern>
 
             <includeContext>true</includeContext>
             <includeCallerData>false</includeCallerData>

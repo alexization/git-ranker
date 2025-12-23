@@ -81,11 +81,10 @@ public final class MdcUtils {
         MDC.put(MdcKey.Github_API_CALL_TIME_MS, String.valueOf(githubApiCallTimeMs));
     }
 
-    public static void setupBatchJobContext(String jobName, String jobId) {
+    public static void setupBatchJobContext(String jobName) {
         generateAndSetTraceId();
 
         MDC.put(MdcKey.JOB_NAME, jobName);
-        MDC.put(MdcKey.JOB_ID, jobId);
         MDC.put(MdcKey.CLIENT_IP, "SYSTEM");
     }
 

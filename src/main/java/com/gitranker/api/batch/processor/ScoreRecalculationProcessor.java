@@ -3,11 +3,12 @@ package com.gitranker.api.batch.processor;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.global.logging.MdcKey;
+import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +23,8 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
     @Override
     public User process(User user) {
-        MDC.put("username", user.getUsername());
-        MDC.put("node_id", user.getNodeId());
+        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
+        log.info("사용자 점수 재계산 시작");
 
         try {
             GitHubActivitySummary summary =
@@ -35,13 +36,15 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             saveNewActivityLog(user, summary, lastLog);
 
+            log.info("사용자 점수 재계산 완료");
+
             return user;
         } catch (Exception e) {
-            log.error("ScoreRecalculationProcessor Failed - Msg: {}", e.getMessage());
+            log.error("사용자 점수 재계산 실패: {}", e.getMessage());
             return null;
         } finally {
-            MDC.remove("username");
-            MDC.remove("node_id");
+            MdcUtils.remove(MdcKey.USERNAME);
+            MdcUtils.remove(MdcKey.NODE_ID);
         }
     }
 

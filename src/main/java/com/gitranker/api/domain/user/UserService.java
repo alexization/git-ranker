@@ -2,18 +2,18 @@ package com.gitranker.api.domain.user;
 
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
-import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.ranking.RankingService;
+import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,42 +32,57 @@ public class UserService {
 
     @Transactional
     public RegisterUserResponse registerUser(String username) {
+        MdcUtils.setUsername(username);
+        log.info("사용자 분석하기 요청");
+
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
+            log.info("기존 사용자 발견 - username 으로 조회");
             return createResponseForExistingUser(existingUserByUsername);
         }
 
         GitHubUserInfoResponse githubUserInfo = graphQLClient.getUserInfo(username);
         String nodeId = githubUserInfo.getNodeId();
 
+        MdcUtils.setNodeId(nodeId);
+
         return userRepository.findByNodeId(nodeId)
-                .map(existingUser -> updateExistingUserProfile(existingUser, githubUserInfo))
+                .map(existingUser -> {
+                    log.info("기존 사용자 발견 - nodeId 로 조회");
+                    return updateExistingUserProfile(existingUser, githubUserInfo);
+                })
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
     }
 
     @Transactional(readOnly = true)
     public RegisterUserResponse searchUser(String username) {
+        log.debug("사용자 조회");
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        MDC.put("username", username);
-        MDC.put("node_id", user.getNodeId());
+        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
+        log.info("사용자 조회 완료 - Ranking: {}, Tier: {}", user.getRanking(), user.getTier());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse createResponseForExistingUser(User user) {
+        log.debug("기존 사용자 응답 수행");
+
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        MDC.put("username", user.getUsername());
-        MDC.put("node_id", user.getNodeId());
+        MdcUtils.setNodeId(user.getNodeId());
+        log.info("기존 사용자 응답 반환");
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse updateExistingUserProfile(User user, GitHubUserInfoResponse userInfo) {
+        log.debug("기존 사용자 프로필 업데이트 수행");
+
         user.updateUsername(userInfo.getLogin());
         user.updateProfileImage(userInfo.getAvatarUrl());
 
@@ -75,14 +90,14 @@ public class UserService {
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        MDC.put("username", user.getUsername());
-        MDC.put("node_id", user.getNodeId());
-        log.info("기존 사용자 정보 업데이트");
+        log.info("기존 사용자 프로필 업데이트 완료");
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
+        log.debug("신규 사용자 등록 시작");
+
         LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
 
         User newUser = User.builder()
@@ -109,8 +124,7 @@ public class UserService {
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
 
-        MDC.put("node_id", githubUserInfo.getNodeId());
-        log.info("신규 회원 등록 완료 - Tier: {}, Score: {}", totalScore, rankingInfo.tier());
+        log.info("신규 사용자 등록 완료");
 
         return RegisterUserResponse.register(newUser, activityLog, true);
     }

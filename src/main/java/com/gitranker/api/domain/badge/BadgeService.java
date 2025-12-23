@@ -7,6 +7,7 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,18 @@ public class BadgeService {
 
     @Transactional(readOnly = true)
     public String generateBadge(String nodeId) {
+        log.info("배지 생성 시작");
+
         User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
-        return createSvgContent(user, activityLog);
+        MdcUtils.setUserContext(user.getUsername(), nodeId);
+
+        String svg = createSvgContent(user, activityLog);
+
+        log.info("배지 생성 완료 - SvgSize: {}bytes", svg.length());
+
+        return svg;
     }
 
     private String createSvgContent(User user, ActivityLog activityLog) {

@@ -1,9 +1,9 @@
 package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Slf4j
 @Configuration
@@ -27,13 +26,10 @@ public class BatchScheduler {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
     public void runDailyScoreRecalculationJob() {
-        String traceId = "BATCH-" + UUID.randomUUID().toString().substring(0, 8);
-        MDC.put("trace_id", traceId);
-        MDC.put("job_name", "DailyScoreRecalculation");
-        MDC.put("client_ip", "SYSTEM");
+        MdcUtils.setupBatchJobContext("DailyScoreRecalculation");
+        log.info("Daily 배치 작업 시작");
 
         long start = System.currentTimeMillis();
-        log.info("Daily 배치 작업 시작");
 
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -42,35 +38,31 @@ public class BatchScheduler {
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
-            long end = System.currentTimeMillis();
-            MDC.put("latency_ms", String.valueOf(end - start));
-            log.info("Daily 배치 작업 종료");
+            long latency = System.currentTimeMillis() - start;
+            MdcUtils.setLatency(latency);
+            log.info("Daily 배치 작업 완료");
 
         } catch (Exception e) {
-            long end = System.currentTimeMillis();
-            MDC.put("latency_ms", String.valueOf(end - start));
-            log.error("Batch Job Failed: {}", e.getMessage(), e);
+            long latency = System.currentTimeMillis() - start;
+            MdcUtils.setLatency(latency);
+            log.error("Daily 배치 작업 실패: {}", e.getMessage(), e);
         } finally {
-            MDC.clear();
+            MdcUtils.clear();
         }
     }
 
     @Scheduled(cron = "0 0 * * * *", zone = "UTC")
     public void runHourlyRankingRecalculation() {
-        String traceId = "BATCH-" + UUID.randomUUID().toString().substring(0, 8);
-        MDC.put("trace_id", traceId);
-        MDC.put("job_name", "HourlyRankingRecalculation");
-        MDC.put("client_ip", "SYSTEM");
+        MdcUtils.setupBatchJobContext("HourlyRankingRecalculation");
 
         long start = System.currentTimeMillis();
 
         try {
-
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             long newUserCount = userRepository.countByCreatedAtAfter(oneHourAgo);
 
             if (newUserCount == 0) {
-                log.info("Hourly 배치 작업 패스");
+                log.info("배치 작업 패스");
                 return;
             }
 
@@ -82,16 +74,16 @@ public class BatchScheduler {
 
             jobLauncher.run(hourlyRankingJob, jobParameters);
 
-            long end = System.currentTimeMillis();
-            MDC.put("latency_ms", String.valueOf(end - start));
+            long latency = System.currentTimeMillis() - start;
+            MdcUtils.setLatency(latency);
             log.info("Hourly 배치 작업 종료");
 
         } catch (Exception e) {
-            long end = System.currentTimeMillis();
-            MDC.put("latency_ms", String.valueOf(end - start));
-            log.error("Batch Job Failed: {}", e.getMessage(), e);
+            long latency = System.currentTimeMillis();
+            MdcUtils.setLatency(latency);
+            log.error("Hourly 배치 실패: {}", e.getMessage(), e);
         } finally {
-            MDC.clear();
+            MdcUtils.clear();
         }
     }
 }
