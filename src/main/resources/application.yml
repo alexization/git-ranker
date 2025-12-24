@@ -37,6 +37,11 @@ management:
     tags:
       application: ${spring.application.name}
 
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
 github:
   api:
     graphql-url: ${GITHUB_API_GRAPHQL_URL}
