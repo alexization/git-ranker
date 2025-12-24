@@ -65,6 +65,10 @@ public final class MdcUtils {
         MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
     }
 
+    public static String getGithubApiCost() {
+        return MDC.get(MdcKey.GITHUB_API_COST);
+    }
+
     public static void setError(String errorCode, String errorMessage) {
         if (StringUtils.hasText(errorCode)) {
             MDC.put(MdcKey.ERROR_CODE, errorCode);

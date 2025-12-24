@@ -90,18 +90,15 @@ public class BadgeService {
                     <rect x="1" y="1" width="348" height="168" rx="11" ry="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.5"/>
                 
                 <style>
-                    /* 폰트 스택 개선: 시스템 폰트를 최우선으로 적용하여 모바일 호환성 확보 */
                     .base-text { font-family: -apple-system, Arial, 'Segoe UI', Roboto, Helvetica, sans-serif; }
                     .mono-text { font-family: 'Monaco', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Andale Mono', 'Ubuntu Mono', monospace; }
                 
-                    /* SVG Filter 대신 CSS text-shadow 사용 (모바일 렌더링 품질 개선) */
                     .text-shadow { text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4); }
                     .text-shadow-strong { text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); }
                 
                     .header { font-weight: 600; font-size: 16px; fill: #ffffff; }
                     .username { font-weight: 400; font-size: 12px; fill: #f0f6fc; opacity: 0.95; }
                 
-                    /* 작은 텍스트는 그림자를 제거하거나 약하게 주어 가독성 확보 */
                     .stat-label { font-weight: 600; font-size: 9px; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
                     .stat-value { font-weight: 600; font-size: 13px; fill: #ffffff; }
                 

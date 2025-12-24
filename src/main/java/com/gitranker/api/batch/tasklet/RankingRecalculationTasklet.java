@@ -2,6 +2,8 @@ package com.gitranker.api.batch.tasklet;
 
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.aop.LogExecutionTime;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
@@ -20,9 +22,19 @@ public class RankingRecalculationTasklet implements Tasklet {
     @Override
     @LogExecutionTime
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("[Batch Step] 순위 일괄 재계산");
+        log.info("[Batch Step] 순위 일괄 재계산 시작");
 
-        userRepository.bulkUpdateRanking();
+        try {
+            long start = System.currentTimeMillis();
+            userRepository.bulkUpdateRanking();
+            long latency = System.currentTimeMillis() - start;
+
+            log.info("[Domain Event] 랭킹 벌크 업데이트 완료 - Latency: {}ms", latency);
+        } catch (Exception e) {
+            log.error("[Batch Error] 랭킹 벌크 업데이트 실패 - Reason: {}", e.getMessage(), e);
+
+            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "랭킹 재산정 실패");
+        }
 
         return RepeatStatus.FINISHED;
     }

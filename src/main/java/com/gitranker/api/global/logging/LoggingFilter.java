@@ -42,7 +42,7 @@ public class LoggingFilter implements Filter {
             MdcUtils.setHttpStatus(status);
 
             if (latency > 10_000) {
-                log.warn("[HTTP Response] {} {} - Status: {}, Latency: {}ms",
+                log.warn("[HTTP Response] {} {} - Status: {}, Latency: {}ms (Slow Request)",
                         httpRequest.getMethod(), httpRequest.getRequestURI(), status, latency);
             } else {
                 log.info("[HTTP Response] {} {} - Status: {}, Latency: {}ms",

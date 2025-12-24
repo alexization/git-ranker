@@ -3,7 +3,6 @@ package com.gitranker.api.global.exception;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,15 +16,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
         ErrorType errorType = e.getErrorType();
-
         MdcUtils.setError(errorType.name(), e.getMessage());
 
-        if (e.getErrorType().getLogLevel() == LogLevel.ERROR) {
-            log.error("[Business Error] {}", e.getMessage(), e);
-        } else if (e.getErrorType().getLogLevel() == LogLevel.WARN) {
-            log.warn("[Business Warning]: {}", e.getMessage());
-        } else {
-            log.info("[Business Info]: {}", e.getMessage());
+        switch (errorType.getLogLevel()) {
+            case ERROR -> log.error("[Business Error] {} - Code: {}", e.getMessage(), errorType.name(), e);
+            case WARN -> log.error("[Business Warning] {} - Code: {}", e.getMessage(), errorType.name());
+            default -> log.info("[Business Info]: {} - Code: {}", e.getMessage(), errorType.name());
         }
 
         return ResponseEntity
@@ -36,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
         MdcUtils.setError("RESOURCE_NOT_FOUND", e.getMessage());
-        log.warn("[Resource Not Found] {}", e.getResourcePath());
+        log.info("[Client Error] Resource Not Found - Path: {}", e.getResourcePath());
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -46,7 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
         MdcUtils.setError("INTERNAL_SERVER_ERROR", e.getMessage());
-        log.error("[Unexpected Error] {}", e.getMessage(), e);
+        log.error("[Unexpected Error] Internal Server Error - Message: {}", e.getMessage(), e);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

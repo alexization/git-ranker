@@ -22,7 +22,7 @@ public class PerformanceLoggingAspect {
             String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
             String methodName = joinPoint.getSignature().getName();
 
-            log.info("[Performance] {}.{} took {}ms", className, methodName, executionTime);
+            log.info("[Performance] 실행 완료 - {}.{}, 실행 시간: {}ms", className, methodName, executionTime);
         }
     }
 }

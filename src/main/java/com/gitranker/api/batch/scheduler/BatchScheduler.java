@@ -31,7 +31,7 @@ public class BatchScheduler {
     @LogExecutionTime
     public void runDailyScoreRecalculationJob() {
         MdcUtils.setupBatchJobContext("DailyScoreRecalculation");
-        log.info("[Batch Job] Daily 배치 작업 시작");
+        log.info("[Batch Job] Job 시작 - Name: DailyScoreRecalculation");
 
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -40,7 +40,11 @@ public class BatchScheduler {
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
+            log.info("[Batch Job] Job 완료 - Name: DailyScoreRecalculation");
+
         } catch (Exception e) {
+            log.error("[Batch Job] Job 실패 - Name: DailyScoreRecalculation, Reason: {}", e.getMessage(), e);
+
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
             MdcUtils.clear();
@@ -57,11 +61,11 @@ public class BatchScheduler {
             long newUserCount = userRepository.countByCreatedAtAfter(oneHourAgo);
 
             if (newUserCount == 0) {
-                log.info("[Batch Job] 신규 사용자가 없어 작업을 건너뜁니다.");
+                log.info("[Batch Job] Job 건너뜀 - Name: HourlyRankingRecalculation");
                 return;
             }
 
-            log.info("[Batch Job] Hourly 배치 작업 시작");
+            log.info("[Batch Job] Job 시작 - Name: HourlyRankingRecalculation");
 
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
@@ -69,7 +73,11 @@ public class BatchScheduler {
 
             jobLauncher.run(hourlyRankingJob, jobParameters);
 
+            log.info("[Batch Job] Job 완료 - Name: HourlyRankingRecalculation");
+
         } catch (Exception e) {
+            log.error("[Batch Error] Job 실패 - Name: HourlyRankingRecalculation, Reason: {}", e.getMessage(), e);
+
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
             MdcUtils.clear();

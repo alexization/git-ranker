@@ -17,22 +17,23 @@ public class GitHubApiLoggingAspect {
         long start = System.currentTimeMillis();
         String methodName = joinPoint.getSignature().getName();
 
-        try {
-            log.info("[GitHub API Request] Method: {}", methodName);
+        log.info("[External API] GitHub API 요청 - Method: {}", methodName);
 
+        try {
             Object result = joinPoint.proceed();
 
             long latency = System.currentTimeMillis() - start;
             MdcUtils.setGithubApiCallTime(latency);
+            String cost = MdcUtils.getGithubApiCost();
 
-            log.info("[GitHub API Response] Method: {}, Latency: {}", methodName, latency);
+            log.info("[External API] GitHub API 응답 - Method: {}, Latency: {}ms, Cost: {}", methodName, latency, cost != null ? cost : "N/A");
 
             return result;
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
             MdcUtils.setGithubApiCallTime(latency);
 
-            log.error("[GitHub API Error] Method: {}, Latency: {}, Error: {}", methodName, latency, e.getMessage());
+            log.error("[External API] GitHub API 에러 - Method: {}, Latency: {}ms, Reason: {}", methodName, latency, e.getMessage());
             throw e;
         }
     }
