@@ -8,7 +8,6 @@ import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.exception.BusinessException;
 import com.gitranker.api.global.exception.ErrorType;
-import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
@@ -16,10 +15,8 @@ import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +38,6 @@ public class UserService {
 
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
-            log.info("[UserService] 기존 사용자 발견 - Username: {}", username);
             return createResponseForExistingUser(existingUserByUsername);
         }
 
@@ -52,7 +48,7 @@ public class UserService {
 
         return userRepository.findByNodeId(nodeId)
                 .map(existingUser -> {
-                    log.info("[UserService] 기존 사용자 발견 (닉네임 변경 감지)");
+                    log.info("[Domain Event] 사용자 닉네임 업데이트 - 기존 닉네임: {}, 신규 닉네임: {}", existingUser.getUsername(), githubUserInfo.getLogin());
                     return updateExistingUserProfile(existingUser, githubUserInfo);
                 })
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
@@ -63,6 +59,8 @@ public class UserService {
     public RegisterUserResponse searchUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+
+        log.info("[Domain Event] 사용자 검색 - 타겟 사용자: {}", username);
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
@@ -91,8 +89,6 @@ public class UserService {
     }
 
     private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
-        log.debug("[UserService] 신규 사용자 등록 시작 - Username: {}", githubUserInfo.getLogin());
-
         LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
 
         User newUser = User.builder()
@@ -116,6 +112,9 @@ public class UserService {
                 rankingInfo.percentile(),
                 rankingInfo.tier()
         );
+
+        log.info("[Domain Event] 신규 사용자 등록 - 사용자: {}, 점수: {}, 티어: {}, 순위: {}",
+                newUser.getUsername(), totalScore, rankingInfo.tier(), rankingInfo.ranking());
 
         ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
 

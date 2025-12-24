@@ -20,7 +20,7 @@ public class RankingRecalculationTasklet implements Tasklet {
     @Override
     @LogExecutionTime
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("[Batch Step] 순위 일괄 재계산 시작");
+        log.info("[Batch Step] 순위 일괄 재계산");
 
         userRepository.bulkUpdateRanking();
 

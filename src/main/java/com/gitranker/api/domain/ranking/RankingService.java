@@ -48,6 +48,8 @@ public class RankingService {
     @Transactional(readOnly = true)
     @LogExecutionTime
     public RankingList getRankingList(int page) {
+        log.info("[Domain Event] 랭킹 리스트 조회 - Page: {}", page + 1);
+
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
         Page<User> userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
 

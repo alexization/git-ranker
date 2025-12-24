@@ -30,6 +30,8 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
 
         try {
+            int oldScore = user.getTotalScore();
+
             GitHubActivitySummary summary =
                     activityService.collectAllActivities(user.getUsername(), user.getGithubCreatedAt());
 
@@ -39,8 +41,12 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             saveNewActivityLog(user, summary, lastLog);
 
+            log.info("[Domain Event] 사용자 점수 재계산 - 사용자: {}, 이전 점수: {}, 신규 점수: {}, 점수차: {}",
+                    user.getUsername(), oldScore, newScore, (newScore - oldScore));
+
             return user;
         } catch (Exception e) {
+            log.error("[Batch Error] 사용자 점수 재계산 실패 - 사용자: {}", user.getUsername(), e);
             throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + user.getUsername());
         } finally {
             MdcUtils.remove(MdcKey.USERNAME);

@@ -31,6 +31,8 @@ public class BadgeService {
 
         MdcUtils.setUserContext(user.getUsername(), nodeId);
 
+        log.info("[Domain Event] Badge 생성 - 사용자:{}", user.getUsername());
+
         return createSvgContent(user, activityLog);
     }
 

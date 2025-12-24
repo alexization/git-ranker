@@ -25,6 +25,9 @@ public class GitHubActivityService {
         int issueCount = response.getIssueCount();
         int reviewCount = response.getReviewCount();
 
+        log.info("[Domain Event] GitHub 활동 내역 수집 - 사용자: {}, Commits: {}, Issues: {}, PrOpen: {}, PrMerged: {}, Reviews: {}",
+                username, commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
+
         return new GitHubActivitySummary(
                 commitCount,
                 prOpenCount,
