@@ -12,6 +12,11 @@ public enum ErrorType {
     GITHUB_API_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "GitHub API 호출에 실패했습니다.", LogLevel.WARN),
     GITHUB_PARTIAL_ERROR(HttpStatus.MULTI_STATUS, "GitHub 데이터 중 일부를 불러오지 못했습니다.", LogLevel.WARN),
 
+    /* Batch/API 안정성 관련 에러 */
+    GITHUB_API_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "GitHub API 요청 시간이 초과되었습니다.", LogLevel.WARN),
+    GITHUB_API_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "GitHub API 클라이언트 오류가 발생했습니다.", LogLevel.WARN),
+    GITHUB_API_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "GitHub API 서버 오류가 발생했습니다.", LogLevel.ERROR),
+
     /* Batch 관련 에러 */
     BATCH_JOB_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배치 작업 실행 중 오류가 발생했습니다.", LogLevel.ERROR),
     BATCH_STEP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배치 상세 단계 처리 중 오류가 발생했습니다.", LogLevel.ERROR),
