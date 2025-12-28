@@ -17,16 +17,21 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Component
 public class GitHubGraphQLClient {
-    private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration API_TIMEOUT = Duration.ofSeconds(20);
+    private static final int CONCURRENCY_LIMIT = 5;
     private final WebClient webClient;
 
     public GitHubGraphQLClient(
@@ -51,20 +56,57 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
-        String query = GraphQLQueryBuilder.buildAllActivitiesQuery(username, githubJoinDate);
-        GitHubAllActivitiesResponse response = executeQuery(query, GitHubAllActivitiesResponse.class);
+        int joinYear = githubJoinDate.getYear();
+        int currentYear = LocalDateTime.now(ZoneId.of("UTC")).getYear();
 
-        if (response != null && response.hasErrors()) {
-            log.error("[GitHub API] GraphQL Error: {}", response.errors());
-            throw new GitHubApiNonRetryableException(ErrorType.GITHUB_PARTIAL_ERROR, response.errors().toString());
+        Flux<String> queries = Flux.concat(
+                Flux.just(GraphQLQueryBuilder.buildMergedPRQuery(username)),
+                Flux.fromStream(IntStream.rangeClosed(joinYear, currentYear).boxed())
+                        .map(year -> GraphQLQueryBuilder.buildYearlyContributionQuery(username, year, githubJoinDate))
+        );
+
+        GitHubAllActivitiesResponse aggregatedResponse = queries
+                .parallel(CONCURRENCY_LIMIT)
+                .runOn(Schedulers.boundedElastic())
+                .flatMap(query -> executeQueryReactive(query, GitHubAllActivitiesResponse.class))
+                .sequential()
+                .reduce(GitHubAllActivitiesResponse.empty(), (acc, current) -> {
+                    acc.merge(current);
+                    return acc;
+                })
+                .block();
+
+        if (aggregatedResponse == null || aggregatedResponse.data() == null) {
+            throw new GitHubApiNonRetryableException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
         }
 
-        if (response == null || response.data() == null || response.data().getYearDataMap() == null) {
-            throw new GitHubApiNonRetryableException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED, "Invalid Response Data");
+        if (aggregatedResponse.data().rateLimit() != null) {
+            MdcUtils.setGithubApiCost(aggregatedResponse.data().rateLimit().cost());
         }
 
-        MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
-        return response;
+        return aggregatedResponse;
+    }
+
+    private <T> Mono<T> executeQueryReactive(String query, Class<T> responseType) {
+        GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
+
+        return webClient.post()
+                .bodyValue(request)
+                .retrieve()
+                .onStatus(HttpStatusCode::is5xxServerError, res ->
+                        Mono.error(new GitHubApiRetryableException(ErrorType.GITHUB_API_SERVER_ERROR, "Status: " + res.statusCode())))
+                .onStatus(HttpStatusCode::is4xxClientError, res ->
+                        Mono.error(new GitHubApiNonRetryableException(ErrorType.GITHUB_API_CLIENT_ERROR, "Status: " + res.statusCode())))
+                .bodyToMono(responseType)
+                .timeout(API_TIMEOUT)
+                .onErrorMap(TimeoutException.class, e -> new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e))
+                .onErrorMap(ReadTimeoutException.class, e -> new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e))
+                .doOnError(e -> {
+                    if (e instanceof WebClientRequestException) {
+                        log.warn("[GitHub API] Network Error: {}", e.getMessage());
+                        throw new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR);
+                    }
+                });
     }
 
     private <T> T executeQuery(String query, Class<T> responseType) {

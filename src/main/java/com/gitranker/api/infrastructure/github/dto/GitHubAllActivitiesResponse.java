@@ -15,8 +15,18 @@ public record GitHubAllActivitiesResponse(
         @JsonProperty("data") Data data,
         @JsonProperty("errors") List<Object> errors
 ) {
+    public static GitHubAllActivitiesResponse empty() {
+        return new GitHubAllActivitiesResponse(new Data(), null);
+    }
+
     public boolean hasErrors() {
         return errors != null && !errors.isEmpty();
+    }
+
+    public void merge(GitHubAllActivitiesResponse other) {
+        if (other != null && other.data != null) {
+            this.data.merge(other.data);
+        }
     }
 
     public int getCommitCount() {
@@ -62,19 +72,18 @@ public record GitHubAllActivitiesResponse(
             int cost,
             int remaining,
             LocalDateTime resetAt
-    ) {}
+    ) {
+    }
 
     public static class Data {
         @Getter
         private final Map<String, YearData> yearDataMap = new HashMap<>();
-
+        @JsonProperty("rateLimit")
+        RateLimit rateLimit;
         @JsonProperty("mergedPRs")
         private Search mergedPRs;
-
         @JsonProperty("reviewedPRs")
         private Search reviewedPRs;
-
-        @JsonProperty("rateLimit") RateLimit rateLimit;
 
         @JsonAnySetter
         public void setYearData(String key, YearData value) {
@@ -83,12 +92,28 @@ public record GitHubAllActivitiesResponse(
             }
         }
 
-        public Search mergedPRs() {
-            return mergedPRs;
+        public void merge(Data other) {
+            if (other.yearDataMap != null) {
+                this.yearDataMap.putAll(other.yearDataMap);
+            }
+
+            if (other.mergedPRs != null) {
+                this.mergedPRs = other.mergedPRs;
+            }
+
+            if (other.rateLimit != null) {
+                int currentCost = (this.rateLimit != null) ? this.rateLimit.cost() : 0;
+                this.rateLimit = new RateLimit(
+                        other.rateLimit.limit(),
+                        currentCost + other.rateLimit.cost(),
+                        other.rateLimit.remaining(),
+                        other.rateLimit.resetAt()
+                );
+            }
         }
 
-        public Search reviewedPRs() {
-            return reviewedPRs;
+        public Search mergedPRs() {
+            return mergedPRs;
         }
 
         public RateLimit rateLimit() {

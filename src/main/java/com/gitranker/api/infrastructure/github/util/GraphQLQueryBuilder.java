@@ -9,30 +9,32 @@ import java.time.ZoneId;
 @Slf4j
 public class GraphQLQueryBuilder {
 
-    public static String buildAllActivitiesQuery(String username, LocalDateTime githubJoinDate) {
+    public static String buildYearlyContributionQuery(String username, int year, LocalDateTime githubJoinDate) {
         int joinYear = githubJoinDate.getYear();
         int currentYear = LocalDate.now(ZoneId.of("UTC")).getYear();
 
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("{\n");
-        queryBuilder.append("    rateLimit {\n" +
-                            "      limit\n" +
-                            "      remaining\n" +
-                            "      resetAt\n" +
-                            "      cost\n" +
-                            "    }\n");
+        String fromDate = buildFromDate(year, joinYear, githubJoinDate);
+        String toDate = buildToDate(year, currentYear);
 
-        for (int year = joinYear; year <= currentYear; year++) {
-            String fromDate = buildFromDate(year, joinYear, githubJoinDate);
-            String toDate = buildToDate(year, currentYear);
+        return String.format("""
+                {
+                    rateLimit {
+                        cost
+                    }
+                    %s
+                }
+                """, buildYearContributionBlock(year, username, fromDate, toDate));
+    }
 
-            queryBuilder.append(buildYearContributionBlock(year, username, fromDate, toDate));
-        }
-
-        queryBuilder.append(buildMergedPRBlock(username));
-        queryBuilder.append("}\n");
-
-        return queryBuilder.toString();
+    public static String buildMergedPRQuery(String username) {
+        return String.format("""
+                {
+                    rateLimit {
+                        cost
+                    }
+                    %s
+                }
+                """, buildMergedPRBlock(username));
     }
 
     private static String buildYearContributionBlock(int year, String username,
