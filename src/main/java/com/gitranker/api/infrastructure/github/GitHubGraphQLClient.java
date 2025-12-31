@@ -56,7 +56,7 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubAllActivitiesResponse getActivitiesForYear(String username, int year) {
-        String query = GraphQLQueryBuilder.buildYearlyContributionQuery(username, year, LocalDateTime.of(year, 1, 1, 0, 0));
+        String query = GraphQLQueryBuilder.buildBatchQuery(username, year);
 
         return executeQuery(query, GitHubAllActivitiesResponse.class);
     }

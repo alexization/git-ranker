@@ -12,6 +12,9 @@ import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse.ContributionsCollection;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse.YearData;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -54,6 +57,25 @@ public class UserService {
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
     }
 
+    private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
+        User newUser = User.builder()
+                .nodeId(nodeId)
+                .username(githubUserInfo.getLogin())
+                .profileImage(githubUserInfo.getAvatarUrl())
+                .githubCreatedAt(githubUserInfo.getGitHubCreatedAt())
+                .build();
+
+        userRepository.save(newUser);
+
+        ActivityLog currentLog = createPastLogAndCurrentLog(newUser);
+
+        updateUserScoreAndRanking(newUser, currentLog);
+
+        log.info("[Domain Event] 신규 사용자 등록 완료");
+
+        return RegisterUserResponse.register(newUser, currentLog, true);
+    }
+
     @Transactional(readOnly = true)
     @LogExecutionTime
     public RegisterUserResponse searchUser(String username) {
@@ -85,43 +107,99 @@ public class UserService {
 
         log.info("[Domain Event] 사용자 수동 전체 갱신 요청 - 사용자: {}", username);
 
-        GitHubActivitySummary summary
-                = gitHubActivityService.collectAllActivities(username, user.getGithubCreatedAt());
+        ActivityLog currentLog = createPastLogAndCurrentLog(user);
 
-        int newScore = summary.calculateTotalScore();
-        user.updateScore(newScore);
+        updateUserScoreAndRanking(user, currentLog);
         user.updateLastFullScanAt();
 
-        ActivityLog latestLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-        ActivityLog newLog = saveActivityLogOnRefresh(user, summary, latestLog);
-
-        return RegisterUserResponse.of(user, newLog, false);
+        return RegisterUserResponse.of(user, currentLog, false);
     }
 
-    private ActivityLog saveActivityLogOnRefresh(User user, GitHubActivitySummary current, ActivityLog last) {
-        int diffCommit = current.totalCommitCount() - last.getCommitCount();
-        int diffIssue = current.totalIssueCount() - last.getIssueCount();
-        int diffPrOpen = current.totalPrOpenedCount() - last.getPrCount();
-        int diffPrMerged = current.totalPrMergedCount() - last.getMergedPrCount();
-        int diffReview = current.totalReviewCount() - last.getReviewCount();
+    private ActivityLog createPastLogAndCurrentLog(User user) {
+        GitHubAllActivitiesResponse rawResponse
+                = gitHubActivityService.fetchRawAllActivities(user.getUsername(), user.getGithubCreatedAt());
 
+        int currentYear = LocalDate.now().getYear();
+        int lastYear = currentYear - 1;
+
+        if (user.getGithubCreatedAt().getYear() < currentYear) {
+            GitHubActivitySummary baselineSummary = calculateSummaryUntilYear(rawResponse, lastYear);
+
+            saveActivityLog(user, baselineSummary, LocalDate.of(lastYear, 12, 31));
+        }
+
+        GitHubActivitySummary totalSummary = calculateSummaryTotal(rawResponse);
+        return saveActivityLog(user, totalSummary, LocalDate.now());
+    }
+
+    private GitHubActivitySummary calculateSummaryUntilYear(GitHubAllActivitiesResponse response, int targetYear) {
+        int commits = 0;
+        int issues = 0;
+        int prs = 0;
+        int reviews = 0;
+
+        if (response.data() != null && response.data().getYearDataMap() != null) {
+            for (Map.Entry<String, YearData> entry : response.data().getYearDataMap().entrySet()) {
+                try {
+                    int year = Integer.parseInt(entry.getKey().replace("year", ""));
+
+                    if (year <= targetYear) {
+                        ContributionsCollection collection = entry.getValue().contributionsCollection();
+                        commits += collection.totalCommitContributions();
+                        issues += collection.totalIssueContributions();
+                        prs += collection.totalPullRequestContributions();
+                        reviews += collection.totalPullRequestReviewContributions();
+                    }
+                } catch (NumberFormatException e) {
+                    log.warn("연도 파싱 실패: {}", entry.getKey());
+                }
+            }
+        }
+
+        return new GitHubActivitySummary(commits, prs, 0, issues, reviews);
+    }
+
+    private GitHubActivitySummary calculateSummaryTotal(GitHubAllActivitiesResponse response) {
+        return new GitHubActivitySummary(
+                response.getCommitCount(),
+                response.getPRCount(),
+                response.getMergedPRCount(),
+                response.getIssueCount(),
+                response.getReviewCount()
+        );
+    }
+
+    private ActivityLog saveActivityLog(User user, GitHubActivitySummary summary, LocalDate date) {
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user)
-                .activityDate(LocalDate.now())
-                .commitCount(current.totalCommitCount())
-                .issueCount(current.totalIssueCount())
-                .prCount(current.totalPrOpenedCount())
-                .mergedPrCount(current.totalPrMergedCount())
-                .reviewCount(current.totalReviewCount())
-                .diffCommitCount(diffCommit)
-                .diffIssueCount(diffIssue)
-                .diffPrCount(diffPrOpen)
-                .diffMergedPrCount(diffPrMerged)
-                .diffReviewCount(diffReview)
+                .activityDate(date)
+                .commitCount(summary.totalCommitCount())
+                .issueCount(summary.totalIssueCount())
+                .prCount(summary.totalPrOpenedCount())
+                .mergedPrCount(summary.totalPrMergedCount())
+                .reviewCount(summary.totalReviewCount())
+                .diffCommitCount(0).diffIssueCount(0).diffPrCount(0)
+                .diffMergedPrCount(0).diffReviewCount(0)
                 .build();
 
         activityLogRepository.save(activityLog);
         return activityLog;
+    }
+
+    private void updateUserScoreAndRanking(User user, ActivityLog current) {
+        GitHubActivitySummary summary = new GitHubActivitySummary(
+                current.getCommitCount(),
+                current.getPrCount(),
+                current.getMergedPrCount(),
+                current.getIssueCount(),
+                current.getReviewCount()
+        );
+
+        int totalScore = summary.calculateTotalScore();
+        user.updateScore(totalScore);
+
+        RankingInfo rankingInfo = rankingService.calculateRankingForNewUser(totalScore);
+        user.updateRankInfo(rankingInfo.ranking(), rankingInfo.percentile(), rankingInfo.tier());
     }
 
     private RegisterUserResponse createResponseForExistingUser(User user) {
@@ -141,58 +219,5 @@ public class UserService {
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
         return RegisterUserResponse.of(user, activityLog, false);
-    }
-
-    private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
-        LocalDateTime githubCreatedAt = githubUserInfo.getGitHubCreatedAt();
-
-        User newUser = User.builder()
-                .nodeId(nodeId)
-                .username(githubUserInfo.getLogin())
-                .profileImage(githubUserInfo.getAvatarUrl())
-                .githubCreatedAt(githubCreatedAt)
-                .build();
-
-        userRepository.save(newUser);
-
-        GitHubActivitySummary summary =
-                gitHubActivityService.collectAllActivities(githubUserInfo.getLogin(), githubCreatedAt);
-
-        int totalScore = summary.calculateTotalScore();
-        newUser.updateScore(totalScore);
-
-        RankingInfo rankingInfo = rankingService.calculateRankingForNewUser(totalScore);
-        newUser.updateRankInfo(
-                rankingInfo.ranking(),
-                rankingInfo.percentile(),
-                rankingInfo.tier()
-        );
-
-        log.info("[Domain Event] 신규 사용자 등록 - 사용자: {}, 점수: {}, 티어: {}, 순위: {}",
-                newUser.getUsername(), totalScore, rankingInfo.tier(), rankingInfo.ranking());
-
-        ActivityLog activityLog = saveInitialActivityLog(newUser, summary);
-
-        return RegisterUserResponse.register(newUser, activityLog, true);
-    }
-
-    private ActivityLog saveInitialActivityLog(User user, GitHubActivitySummary summary) {
-        ActivityLog activityLog = ActivityLog.builder()
-                .user(user)
-                .activityDate(LocalDate.now())
-                .commitCount(summary.totalCommitCount())
-                .issueCount(summary.totalIssueCount())
-                .prCount(summary.totalPrOpenedCount())
-                .mergedPrCount(summary.totalPrMergedCount())
-                .reviewCount(summary.totalReviewCount())
-                .diffCommitCount(0)
-                .diffPrCount(0)
-                .diffMergedPrCount(0)
-                .diffReviewCount(0)
-                .diffIssueCount(0)
-                .build();
-
-        activityLogRepository.save(activityLog);
-        return activityLog;
     }
 }

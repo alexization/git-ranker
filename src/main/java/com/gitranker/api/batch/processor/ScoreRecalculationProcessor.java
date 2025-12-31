@@ -11,7 +11,6 @@ import com.gitranker.api.global.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
-import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
-    private final GitHubGraphQLClient graphQLClient;
     private final GitHubActivityService activityService;
     private final ActivityLogRepository activityLogRepository;
 
@@ -47,16 +45,15 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
                             .orElse(null);
 
             if (pastLog != null) {
-                GitHubAllActivitiesResponse currentYearResponse =
-                        graphQLClient.getActivitiesForYear(user.getUsername(), currentYear);
+                GitHubActivitySummary currentYearSummary =
+                        activityService.collectActivityForYear(user.getUsername(), currentYear);
 
-                GitHubActivitySummary currentYearSummary = convertToSummary(currentYearResponse);
-
-                finalSummary = mergeSummary(pastLog, currentYearSummary, currentYearResponse.getMergedPRCount());
+                finalSummary = mergeSummary(pastLog, currentYearSummary);
 
                 log.info("[Batch] 증분 업데이트 적용 - 사용자: {}", user.getUsername());
             } else {
-                finalSummary = activityService.collectAllActivities(user.getUsername(), user.getGithubCreatedAt());
+                GitHubAllActivitiesResponse finalResponse = activityService.fetchRawAllActivities(user.getUsername(), user.getGithubCreatedAt());
+                finalSummary = activityService.convertToSummary(finalResponse);
 
                 log.info("[Batch] 전체 업데이트 수행 - 사용자: {}", user.getUsername());
             }
@@ -82,21 +79,11 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         }
     }
 
-    private GitHubActivitySummary convertToSummary(GitHubAllActivitiesResponse response) {
-        return new GitHubActivitySummary(
-                response.getCommitCount(),
-                response.getPRCount(),
-                response.getMergedPRCount(),
-                response.getIssueCount(),
-                response.getReviewCount()
-        );
-    }
-
-    private GitHubActivitySummary mergeSummary(ActivityLog past, GitHubActivitySummary current, int totalPrMergedCount) {
+    private GitHubActivitySummary mergeSummary(ActivityLog past, GitHubActivitySummary current) {
         return new GitHubActivitySummary(
                 past.getCommitCount() + current.totalCommitCount(),
                 past.getPrCount() + current.totalPrOpenedCount(),
-                totalPrMergedCount,
+                current.totalPrMergedCount(),
                 past.getIssueCount() + current.totalIssueCount(),
                 past.getReviewCount() + current.totalReviewCount()
         );

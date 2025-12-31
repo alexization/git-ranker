@@ -16,24 +16,25 @@ public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
     @LogExecutionTime
-    public GitHubActivitySummary collectAllActivities(String username, LocalDateTime githubJoinDate) {
-        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(username, githubJoinDate);
+    public GitHubActivitySummary collectActivityForYear(String username, int year) {
+        GitHubAllActivitiesResponse response = graphQLClient.getActivitiesForYear(username, year);
 
-        int commitCount = response.getCommitCount();
-        int prOpenCount = response.getPRCount();
-        int prMergedCount = response.getMergedPRCount();
-        int issueCount = response.getIssueCount();
-        int reviewCount = response.getReviewCount();
+        log.info("[GitHub API] 증분 데이터 조회 완료 - 사용자: {}", username);
 
-        log.info("[Domain Event] GitHub 활동 내역 수집 - 사용자: {}, Commits: {}, Issues: {}, PrOpen: {}, PrMerged: {}, Reviews: {}",
-                username, commitCount, prOpenCount, prMergedCount, issueCount, reviewCount);
+        return convertToSummary(response);
+    }
 
+    public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
+        return graphQLClient.getAllActivities(username, githubJoinDate);
+    }
+
+    public GitHubActivitySummary convertToSummary(GitHubAllActivitiesResponse response) {
         return new GitHubActivitySummary(
-                commitCount,
-                prOpenCount,
-                prMergedCount,
-                issueCount,
-                reviewCount
+                response.getCommitCount(),
+                response.getPRCount(),
+                response.getMergedPRCount(),
+                response.getIssueCount(),
+                response.getReviewCount()
         );
     }
 }
