@@ -41,6 +41,8 @@ public class User {
     @Column(name = "github_created_at")
     private LocalDateTime githubCreatedAt;
 
+    private LocalDateTime lastFullScanAt;
+
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
@@ -53,6 +55,7 @@ public class User {
         this.username = username;
         this.profileImage = profileImage;
         this.githubCreatedAt = githubCreatedAt;
+        this.lastFullScanAt = LocalDateTime.now();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -79,6 +82,10 @@ public class User {
     public void updateScore(int totalScore) {
         this.totalScore = totalScore;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateLastFullScanAt() {
+        this.lastFullScanAt = LocalDateTime.now();
     }
 }
 
