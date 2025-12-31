@@ -52,13 +52,25 @@ public class GitHubGraphQLClient {
     public GitHubUserInfoResponse getUserInfo(String username) {
         String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
 
-        return executeQuery(query, GitHubUserInfoResponse.class);
+        GitHubUserInfoResponse response = executeQuery(query, GitHubUserInfoResponse.class);
+
+        if (response.data().rateLimit() != null) {
+            MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
+        }
+
+        return response;
     }
 
     public GitHubAllActivitiesResponse getActivitiesForYear(String username, int year) {
         String query = GraphQLQueryBuilder.buildBatchQuery(username, year);
 
-        return executeQuery(query, GitHubAllActivitiesResponse.class);
+        GitHubAllActivitiesResponse response = executeQuery(query, GitHubAllActivitiesResponse.class);
+
+        if (response.data().rateLimit() != null) {
+            MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
+        }
+
+        return response;
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
