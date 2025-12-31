@@ -53,7 +53,8 @@ public class DailyScoreRecalculationJobConfig {
                 .retryLimit(3)
                 .backOffPolicy(new ExponentialBackOffPolicy())
                 .skip(GitHubApiNonRetryableException.class)
-                .skipLimit(10)
+                .skip(GitHubApiRetryableException.class)
+                .skipLimit(100)
                 .listener(userScoreCalculationSkipListener)
                 .build();
     }
