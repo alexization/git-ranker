@@ -1,5 +1,6 @@
 package com.gitranker.api.batch.processor;
 
+import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
@@ -15,6 +16,9 @@ import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +31,13 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
     private final GitHubActivityService activityService;
     private final ActivityLogRepository activityLogRepository;
+
+    private StepExecution stepExecution;
+
+    @BeforeStep
+    public void saveStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+    }
 
     @Override
     @LogExecutionTime
@@ -64,6 +75,9 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             saveNewActivityLog(user, finalSummary, lastLog);
 
+            int cost = Integer.parseInt(MdcUtils.getGithubApiCost());
+            addCostToJobContext(cost);
+
             log.info("[Domain Event] 점수 갱신 완료 - 사용자: {}, 변동: {}", user.getUsername(), (newScore - oldScore));
 
             return user;
@@ -76,6 +90,14 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         } finally {
             MdcUtils.remove(MdcKey.USERNAME);
             MdcUtils.remove(MdcKey.NODE_ID);
+        }
+    }
+
+    private synchronized void addCostToJobContext(int cost) {
+        if (stepExecution != null) {
+            ExecutionContext jobContext = stepExecution.getJobExecution().getExecutionContext();
+            int currentCost = jobContext.getInt(GitHubCostListener.TOTAL_COST_KEY, 0);
+            jobContext.putInt(GitHubCostListener.TOTAL_COST_KEY, currentCost + cost);
         }
     }
 
