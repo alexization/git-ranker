@@ -84,6 +84,14 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public boolean canTriggerFullScan() {
+        if (this.lastFullScanAt == null) {
+            return true;
+        }
+
+        return LocalDateTime.now().minusDays(7).isAfter(this.lastFullScanAt);
+    }
+
     public void updateLastFullScanAt() {
         this.lastFullScanAt = LocalDateTime.now();
     }

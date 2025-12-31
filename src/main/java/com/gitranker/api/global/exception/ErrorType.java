@@ -21,12 +21,15 @@ public enum ErrorType {
     BATCH_JOB_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배치 작업 실행 중 오류가 발생했습니다.", LogLevel.ERROR),
     BATCH_STEP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배치 상세 단계 처리 중 오류가 발생했습니다.", LogLevel.ERROR),
 
-    /* 공통 에러*/
+    /* 공통 에러 */
     DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다.", LogLevel.ERROR),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청이 올바르지 않습니다.", LogLevel.INFO),
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다.", LogLevel.INFO),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자 입니다.", LogLevel.INFO),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
+
+    /* 사용자 관련 */
+    REFRESH_COOL_DOWN_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "전체 갱신은 7일에 1회만 가능합니다.", LogLevel.INFO),
     ;
 
     private final HttpStatus status;

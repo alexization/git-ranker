@@ -30,6 +30,12 @@ public class UserController {
         return ApiResponse.success(response);
     }
 
+    @PostMapping("/{username}/refresh")
+    public ApiResponse<RegisterUserResponse> refreshUser(@PathVariable String username) {
+        RegisterUserResponse response = userService.refreshUser(username);
+
+        return ApiResponse.success(response);
+    }
 }
 
 

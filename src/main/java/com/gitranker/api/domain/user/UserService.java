@@ -69,6 +69,61 @@ public class UserService {
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
+    @Transactional
+    @LogExecutionTime
+    public RegisterUserResponse refreshUser(String username) {
+        MdcUtils.setUsername(username);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+
+        MdcUtils.setNodeId(user.getNodeId());
+
+        if (!user.canTriggerFullScan()) {
+            throw new BusinessException(ErrorType.REFRESH_COOL_DOWN_EXCEEDED);
+        }
+
+        log.info("[Domain Event] 사용자 수동 전체 갱신 요청 - 사용자: {}", username);
+
+        GitHubActivitySummary summary
+                = gitHubActivityService.collectAllActivities(username, user.getGithubCreatedAt());
+
+        int newScore = summary.calculateTotalScore();
+        user.updateScore(newScore);
+        user.updateLastFullScanAt();
+
+        ActivityLog latestLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+        ActivityLog newLog = saveActivityLogOnRefresh(user, summary, latestLog);
+
+        return RegisterUserResponse.of(user, newLog, false);
+    }
+
+    private ActivityLog saveActivityLogOnRefresh(User user, GitHubActivitySummary current, ActivityLog last) {
+        int diffCommit = current.totalCommitCount() - last.getCommitCount();
+        int diffIssue = current.totalIssueCount() - last.getIssueCount();
+        int diffPrOpen = current.totalPrOpenedCount() - last.getPrCount();
+        int diffPrMerged = current.totalPrMergedCount() - last.getMergedPrCount();
+        int diffReview = current.totalReviewCount() - last.getReviewCount();
+
+        ActivityLog activityLog = ActivityLog.builder()
+                .user(user)
+                .activityDate(LocalDate.now())
+                .commitCount(current.totalCommitCount())
+                .issueCount(current.totalIssueCount())
+                .prCount(current.totalPrOpenedCount())
+                .mergedPrCount(current.totalPrMergedCount())
+                .reviewCount(current.totalReviewCount())
+                .diffCommitCount(diffCommit)
+                .diffIssueCount(diffIssue)
+                .diffPrCount(diffPrOpen)
+                .diffMergedPrCount(diffPrMerged)
+                .diffReviewCount(diffReview)
+                .build();
+
+        activityLogRepository.save(activityLog);
+        return activityLog;
+    }
+
     private RegisterUserResponse createResponseForExistingUser(User user) {
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
