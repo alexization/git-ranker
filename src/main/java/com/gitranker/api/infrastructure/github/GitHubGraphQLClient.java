@@ -78,7 +78,7 @@ public class GitHubGraphQLClient {
         int currentYear = LocalDateTime.now(ZoneId.of("UTC")).getYear();
 
         Flux<String> queries = Flux.concat(
-                Flux.just(GraphQLQueryBuilder.buildMergedPRQuery(username)),
+                Flux.just(GraphQLQueryBuilder.buildMergedPRBlock(username)),
                 Flux.fromStream(IntStream.rangeClosed(joinYear, currentYear).boxed())
                         .map(year -> GraphQLQueryBuilder.buildYearlyContributionQuery(username, year, githubJoinDate))
         );

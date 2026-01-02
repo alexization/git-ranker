@@ -22,6 +22,9 @@ public class GraphQLQueryBuilder {
         return String.format("""
                 {
                     rateLimit {
+                        limit
+                        remaining
+                        resetAt
                         cost
                     }
                     %s
@@ -38,6 +41,9 @@ public class GraphQLQueryBuilder {
         return String.format("""
                 {
                     rateLimit {
+                        limit
+                        remaining
+                        resetAt
                         cost
                     }
                     %s
@@ -49,56 +55,12 @@ public class GraphQLQueryBuilder {
         );
     }
 
-    public static String buildMergedPRQuery(String username) {
-        return String.format("""
-                {
-                    rateLimit {
-                        cost
-                    }
-                    %s
-                }
-                """, buildMergedPRBlock(username));
-    }
-
-    private static String buildYearContributionBlock(
-            int year, String username, String fromDate, String toDate
-    ) {
-        return String.format("""
-                year%d: user(login: "%s") {
-                  contributionsCollection(from: "%s", to: "%s") {
-                    totalCommitContributions
-                    totalIssueContributions
-                    totalPullRequestContributions
-                    totalPullRequestReviewContributions
-                  }
-                }
-                """, year, username, fromDate, toDate);
-    }
-
-    private static String buildMergedPRBlock(String username) {
+    public static String buildMergedPRBlock(String username) {
         return String.format("""
                 mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
                   issueCount
                 }
                 """, username);
-    }
-
-    private static String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
-        if (year == joinYear) {
-            return toISOString(githubJoinDate);
-        }
-        return String.format("%d-01-01T00:00:00Z", year);
-    }
-
-    private static String buildToDate(int year, int currentYear) {
-        if (year == currentYear) {
-            return toISOString(LocalDateTime.now(ZoneId.of("UTC")));
-        }
-        return String.format("%d-12-31T23:59:59Z", year);
-    }
-
-    private static String toISOString(LocalDateTime dateTime) {
-        return dateTime.format(ISO_FORMATTER);
     }
 
     public static String buildUserCreatedAtQuery(String username) {
@@ -118,5 +80,38 @@ public class GraphQLQueryBuilder {
                   }
                 }
                 """, username);
+    }
+
+    private static String buildYearContributionBlock(
+            int year, String username, String fromDate, String toDate
+    ) {
+        return String.format("""
+                year%d: user(login: "%s") {
+                  contributionsCollection(from: "%s", to: "%s") {
+                    totalCommitContributions
+                    totalIssueContributions
+                    totalPullRequestContributions
+                    totalPullRequestReviewContributions
+                  }
+                }
+                """, year, username, fromDate, toDate);
+    }
+
+    private static String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
+        if (year == joinYear) {
+            return toISOString(githubJoinDate);
+        }
+        return String.format("%d-01-01T00:00:00Z", year);
+    }
+
+    private static String buildToDate(int year, int currentYear) {
+        if (year == currentYear) {
+            return toISOString(LocalDateTime.now(ZoneId.of("UTC")));
+        }
+        return String.format("%d-12-31T23:59:59Z", year);
+    }
+
+    private static String toISOString(LocalDateTime dateTime) {
+        return dateTime.format(ISO_FORMATTER);
     }
 }
