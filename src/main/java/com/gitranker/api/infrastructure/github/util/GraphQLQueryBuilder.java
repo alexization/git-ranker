@@ -46,19 +46,23 @@ public class GraphQLQueryBuilder {
                         resetAt
                         cost
                     }
-                    %s
+                    mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
+                      issueCount
+                    }
                     %s
                 }
                 """,
-                buildYearContributionBlock(year, username, fromDate, toDate),
-                buildMergedPRBlock(username)
+                username,
+                buildYearContributionBlock(year, username, fromDate, toDate)
         );
     }
 
     public static String buildMergedPRBlock(String username) {
         return String.format("""
-                mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
-                  issueCount
+                {
+                    mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
+                      issueCount
+                    }
                 }
                 """, username);
     }

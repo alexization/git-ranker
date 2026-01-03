@@ -12,7 +12,7 @@ public record RegisterUserResponse(
         String username,
         String profileImage,
         LocalDateTime updatedAt,
-        LocalDateTime lastFullSacnAt,
+        LocalDateTime lastFullScanAt,
         int totalScore,
         int ranking,
         Tier tier,

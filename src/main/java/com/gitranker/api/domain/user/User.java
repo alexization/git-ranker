@@ -41,6 +41,7 @@ public class User {
     @Column(name = "github_created_at")
     private LocalDateTime githubCreatedAt;
 
+    @Column(nullable = false)
     private LocalDateTime lastFullScanAt;
 
     @Column(updatable = false, nullable = false)

@@ -210,7 +210,7 @@
                                    tabindex="0"
                                    data-bs-toggle="popover"
                                    data-bs-trigger="hover focus"
-                                   data-bs-title="점수 산정 기준"
+                                   data-bs-title="점수 산정 기준 및 갱신"
                                    data-bs-html="true"
                                    data-bs-content="
                                      <ul class='mb-0 small ps-3 text-start'>
@@ -220,20 +220,38 @@
                                         <li><strong>Issue</strong>: 2점</li>
                                         <li><strong>Commit</strong>: 1점</li>
                                         <hr class='my-2'>
-                                        <li class='text-muted' style='font-size:0.85em'>Public 데이터만 집계되며, 매일 새벽 자동 갱신됩니다.</li>
+                                        <li class='text-muted' style='font-size:0.85em'>
+                                            매일 새벽, <strong>최근 1년 간의 활동</strong>만 자동 반영됩니다.
+                                        </li>
+                                        <li class='text-muted' style='font-size:0.85em'>
+                                            <strong>수동 갱신이 필요한 경우:</strong><br>
+                                            - <strong>1년 이전의 활동</strong>이 변경되었을 때<br> (예: Private → Public)<br>
+                                            - 방금 기여한 내용을 즉시 반영하고 싶을 때
+                                        </li>
+                                        <li class='text-danger mt-1' style='font-size:0.85em'>※ 7일에 1회만 가능합니다.</li>
                                      </ul>
                                    ">
                                 </i>
                             </h5>
 
                             <h1 class="display-3 fw-bold text-primary" id="resTotalScore"></h1>
-                            <p class="text-muted small">최종 업데이트: <span id="resUpdatedAt"></span></p>
+
+                            <div class="mb-4">
+                                <button id="btnRefresh" class="btn btn-sm btn-outline-primary rounded-pill px-3 mb-2"
+                                        onclick="requestRefresh()">
+                                    <i class="fas fa-sync-alt me-1"></i> <span>데이터 갱신하기</span>
+                                </button>
+                                <div id="refreshStatusText" class="small text-muted font-code"
+                                     style="font-size: 0.8rem;"></div>
+                            </div>
 
                             <div class="d-flex justify-content-center gap-2">
                                 <button class="btn btn-outline-dark btn-sm" onclick="copyBadgeMarkdown()">
                                     <i class="fab fa-markdown"></i> README 배지 복사
                                 </button>
-                                <input type="hidden" id="resNodeId"></div>
+                                <input type="hidden" id="resNodeId">
+                                <input type="hidden" id="resUsername">
+                            </div>
                         </div>
 
                         <div class="row g-3 text-center">
@@ -386,7 +404,8 @@
                             <div class="small text-muted"><i class="fas fa-code-commit"></i> Commits</div>
                             <div class="fw-bold fs-5">
                                 <span id="modalStatCommit">0</span>
-                                <span id="modalDiffCommit" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                                <span id="modalDiffCommit" class="badge rounded-pill bg-success diff-badge"
+                                      style="display: none;"></span>
                             </div>
                         </div>
                     </div>
@@ -395,7 +414,8 @@
                             <div class="small text-muted"><i class="fas fa-exclamation-circle"></i> Issues</div>
                             <div class="fw-bold fs-5">
                                 <span id="modalStatIssue">0</span>
-                                <span id="modalDiffIssue" class="badge rounded-pill bg-danger diff-badge" style="display: none;"></span>
+                                <span id="modalDiffIssue" class="badge rounded-pill bg-danger diff-badge"
+                                      style="display: none;"></span>
                             </div>
                         </div>
                     </div>
@@ -404,7 +424,8 @@
                             <div class="small text-muted"><i class="far fa-message"></i> Reviews</div>
                             <div class="fw-bold fs-5">
                                 <span id="modalStatReview">0</span>
-                                <span id="modalDiffReview" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                                <span id="modalDiffReview" class="badge rounded-pill bg-success diff-badge"
+                                      style="display: none;"></span>
                             </div>
                         </div>
                     </div>
@@ -413,7 +434,8 @@
                             <div class="small text-muted"><i class="fas fa-code-pull-request"></i> PR Open</div>
                             <div class="fw-bold fs-5">
                                 <span id="modalStatPrOpen">0</span>
-                                <span id="modalDiffPrOpen" class="badge rounded-pill bg-secondary diff-badge" style="display: none;"></span>
+                                <span id="modalDiffPrOpen" class="badge rounded-pill bg-secondary diff-badge"
+                                      style="display: none;"></span>
                             </div>
                         </div>
                     </div>
@@ -422,7 +444,8 @@
                             <div class="small text-muted"><i class="fas fa-code-merge"></i> PR Merged</div>
                             <div class="fw-bold fs-5">
                                 <span id="modalStatPrMerged">0</span>
-                                <span id="modalDiffPrMerged" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span>
+                                <span id="modalDiffPrMerged" class="badge rounded-pill bg-success diff-badge"
+                                      style="display: none;"></span>
                             </div>
                         </div>
                     </div>
@@ -620,34 +643,6 @@
         }
     }
 
-    function renderUserResult(data) {
-        const section = document.getElementById('resultSection');
-        section.classList.remove('d-none');
-        document.getElementById('resNodeId').value = data.nodeId;
-        document.getElementById('resProfileImage').src = data.profileImage;
-
-        const githubLink = document.getElementById('resGithubLink');
-        githubLink.href = `https://github.com/${data.username}`;
-
-        document.getElementById('resTierText').innerText = data.tier;
-        document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
-        document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
-        document.getElementById('resRanking').innerText = data.ranking;
-        document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
-        document.getElementById('resUpdatedAt').innerText = new Date().toLocaleDateString();
-
-        updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
-        updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
-        updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
-        updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
-        updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
-
-        const iconClass = getTierIconClass(data.tier);
-        document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
-
-        section.scrollIntoView({behavior: 'smooth', block: 'center'});
-    }
-
     function copyBadgeMarkdown() {
         const nodeIdInput = document.getElementById('resNodeId');
         const usernameInput = document.getElementById('usernameInput');
@@ -715,6 +710,125 @@
         const overlay = document.getElementById('loadingOverlay');
         overlay.style.display = isLoading ? 'flex' : 'none';
     }
+
+    // [추가/수정] renderUserResult 함수 내부
+    function renderUserResult(data) {
+        const section = document.getElementById('resultSection');
+        section.classList.remove('d-none');
+
+        // 기본 데이터 바인딩
+        document.getElementById('resNodeId').value = data.nodeId;
+        document.getElementById('resUsername').value = data.username; // [추가] username 저장
+        document.getElementById('resProfileImage').src = data.profileImage;
+
+        const githubLink = document.getElementById('resGithubLink');
+        githubLink.href = `https://github.com/${data.username}`;
+
+        document.getElementById('resTierText').innerText = data.tier;
+        document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
+        document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
+        document.getElementById('resRanking').innerText = data.ranking;
+        document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
+
+        // 통계 데이터 바인딩
+        updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
+        updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
+        updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
+        updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
+        updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
+
+        const iconClass = getTierIconClass(data.tier);
+        document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
+
+        // [추가] 갱신 버튼 상태 관리 로직
+        updateRefreshButtonState(data.lastFullScanAt);
+
+        section.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+
+    // [수정] 갱신 버튼 상태 계산 함수
+    function updateRefreshButtonState(lastFullScanAt) {
+        const btn = document.getElementById('btnRefresh');
+        const statusText = document.getElementById('refreshStatusText');
+        const span = btn.querySelector('span');
+
+        const lastScanDate = new Date(lastFullScanAt);
+        const now = new Date();
+
+        // 쿨타임: 7일
+        const cooldownTime = 7 * 24 * 60 * 60 * 1000;
+        const nextAvailableTime = new Date(lastScanDate.getTime() + cooldownTime);
+
+        // 날짜 포맷팅 (YYYY-MM-DD HH:mm)
+        const lastScanStr = formatDateTime(lastScanDate);
+        const nextScanStr = formatDateTime(nextAvailableTime);
+
+        if (now >= nextAvailableTime) {
+            // [Case 1] 갱신 가능
+            btn.disabled = false;
+            btn.className = "btn btn-sm btn-outline-primary rounded-pill px-3 mb-2";
+            span.innerText = "데이터 갱신하기";
+
+            statusText.innerHTML = `
+            마지막 갱신: ${lastScanStr}<br>
+            <span class="text-primary fw-bold">지금 즉시 갱신 가능합니다!</span>
+        `;
+        } else {
+            // [Case 2] 쿨타임 중
+            btn.disabled = true;
+            btn.className = "btn btn-sm btn-outline-secondary rounded-pill px-3 mb-2";
+            span.innerText = "갱신 대기 중";
+
+            statusText.innerHTML = `
+            마지막 갱신: ${lastScanStr}<br>
+            다음 갱신 가능: <span class="fw-bold">${nextScanStr}</span>
+        `;
+        }
+    }
+
+    // [수정] 날짜/시간 포맷팅 헬퍼 (YYYY-MM-DD HH:mm)
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hour = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hour}:${min}`;
+    }
+
+    // [추가] 갱신 요청 함수
+    async function requestRefresh() {
+        const username = document.getElementById('resUsername').value;
+        if (!username) return;
+
+        if (!confirm('데이터를 갱신하시겠습니까? (갱신 후 7일간 다시 갱신할 수 없습니다.)')) {
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${username}/refresh`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+
+            if (result.result === 'SUCCESS') {
+                alert('갱신이 완료되었습니다!');
+                renderUserResult(result.data); // 결과 화면 갱신
+            } else {
+                // 에러 메시지 처리 (쿨타임 등)
+                alert(result.error.message);
+            }
+        } catch (error) {
+            console.error('Refresh Error:', error);
+            alert('갱신 요청 중 오류가 발생했습니다.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
 </script>
 </body>
 </html>
