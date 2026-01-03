@@ -2,15 +2,16 @@ package com.gitranker.api.global.exception;
 
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
@@ -30,13 +31,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
+    public Object handleNoResourceFoundException(NoResourceFoundException e, HttpServletRequest request) {
         MdcUtils.setError("RESOURCE_NOT_FOUND", e.getMessage());
         log.info("[Client Error] Resource Not Found - Path: {}", e.getResourcePath());
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
+        if(request.getRequestURI().startsWith("/api/")) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
+        }
+
+        return "error/404";
     }
 
     @ExceptionHandler(Exception.class)
