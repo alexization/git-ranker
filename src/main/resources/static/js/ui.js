@@ -23,7 +23,7 @@ export function updateChartTheme() {
     radarChartInstance.update();
 }
 
-// [유지] 심플 리포트 캡처
+// [유지] 리포트 캡처
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
@@ -99,7 +99,7 @@ window.captureAndDownload = async () => {
     }
 };
 
-// [유지] 3D 효과 (Scale 제거 버전)
+// [유지] 3D 효과
 function apply3DEffect(cardElement) {
     if (!cardElement) return;
     if (window.matchMedia("(max-width: 768px)").matches) return;
@@ -219,14 +219,16 @@ export function renderUserResult(data) {
     updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount, data.diffPrCount);
     updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount, data.diffMergedPrCount);
 
-    // [신규] 동적 타이틀 변경 (사용자 이름 + 티어)
     document.title = `${data.username} (${data.tier}) | Git Ranker`;
 
     renderRefreshButton(data.lastFullScanAt);
-    createRadarChart(data);
+
+    // [중요] 여기서 차트를 그리지 않고, main.js에서 화면이 뜬 뒤에 호출하도록 변경함
+    // createRadarChart(data); <- 제거됨
 }
 
-function createRadarChart(data) {
+// [수정] 외부에서 호출 가능하도록 export 처리
+export function createRadarChart(data) {
     const ctx = document.getElementById('statRadarChart');
     if (!ctx) return;
 
@@ -291,9 +293,10 @@ function createRadarChart(data) {
                     }
                 }
             },
+            // [중요] 애니메이션 설정 강화 (서서히 차오르도록)
             animation: {
                 duration: 2000,
-                easing: 'easeOutQuart',
+                easing: 'easeInOutQuart', // 시작과 끝을 부드럽게
                 loop: false
             }
         }

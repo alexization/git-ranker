@@ -3,8 +3,8 @@ import * as Ui from './ui.js';
 import * as Utils from './utils.js';
 
 let userDetailModal = null;
+let currentFocus = -1;
 
-// === Theme Logic ===
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -36,7 +36,6 @@ function updateThemeIcon(isDark) {
     }
 }
 
-// === Recent Search Logic ===
 function renderRecentSearches() {
     const listEl = document.getElementById('recentList');
     const boxEl = document.getElementById('recentSearchBox');
@@ -48,26 +47,30 @@ function renderRecentSearches() {
     }
 
     listEl.innerHTML = '';
-    searches.forEach(username => {
+    searches.forEach((username, index) => {
         const li = document.createElement('li');
         li.className = 'recent-item';
+        li.setAttribute('data-index', index);
+
         li.innerHTML = `
             <span class="recent-name">${username}</span>
-            <button class="btn-delete-item" data-user="${username}">
+            <button class="btn-delete-item" data-user="${username}" tabindex="-1">
                 <i class="fas fa-times"></i>
             </button>
         `;
 
-        li.querySelector('.recent-name').onclick = () => {
+        li.onclick = () => {
             document.getElementById('usernameInput').value = username;
             handleRegisterUser();
             boxEl.classList.add('hidden');
         };
 
-        li.querySelector('.btn-delete-item').onclick = (e) => {
+        const delBtn = li.querySelector('.btn-delete-item');
+        delBtn.onclick = (e) => {
             e.stopPropagation();
             Utils.removeRecentSearch(username);
             renderRecentSearches();
+            document.getElementById('usernameInput').focus();
         };
 
         listEl.appendChild(li);
@@ -76,12 +79,35 @@ function renderRecentSearches() {
     boxEl.classList.remove('hidden');
 }
 
+function addActive(items) {
+    if (!items) return false;
+    removeActive(items);
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    items[currentFocus].classList.add('active');
+}
+
+function removeActive(items) {
+    for (let i = 0; i < items.length; i++) {
+        items[i].classList.remove('active');
+    }
+}
+
+function triggerShake() {
+    const wrapper = document.querySelector('.toss-input-group');
+    wrapper.classList.remove('shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('shake');
+    setTimeout(() => {
+        wrapper.classList.remove('shake');
+    }, 400);
+}
+
 window.clearAllRecentSearches = () => {
     Utils.clearAllRecentSearches();
     renderRecentSearches();
 };
 
-// === [신규] Deep Linking Logic ===
 function updateUrlState(username) {
     const currentUrlParams = new URLSearchParams(window.location.search);
     if (currentUrlParams.get('username') !== username) {
@@ -95,12 +121,10 @@ function checkUrlParams() {
     const username = params.get('username');
     if (username) {
         document.getElementById('usernameInput').value = username;
-        // URL에서 왔을 때는 History Push를 하지 않음 (replace 효과)
         handleRegisterUser(false);
     }
 }
 
-// === API Handlers ===
 async function handleLoadRankings(page) {
     try {
         const result = await Api.fetchRankings(page);
@@ -113,28 +137,34 @@ async function handleLoadRankings(page) {
     }
 }
 
-// [수정] pushHistory 파라미터 추가 (기본값 true)
 async function handleRegisterUser(pushHistory = true) {
     const usernameInput = document.getElementById('usernameInput');
     const username = usernameInput.value.trim();
+
     if (!username) {
-        Ui.showToast('GitHub Username을 입력해주세요.');
+        triggerShake();
+        usernameInput.focus();
         return;
     }
 
     document.getElementById('recentSearchBox').classList.add('hidden');
+    currentFocus = -1;
 
     Ui.showLoading(true);
     try {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
             Utils.saveRecentSearch(username);
-
-            // [신규] URL 업데이트
             if (pushHistory) updateUrlState(username);
 
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
+
+            // [핵심 수정] 화면이 확실히 뜬 뒤에 차트를 그려야 애니메이션이 동작함
+            requestAnimationFrame(() => {
+                Ui.createRadarChart(result.data);
+            });
+
             const resultSection = document.getElementById('resultSection');
             resultSection.scrollIntoView({behavior: 'smooth', block: 'center'});
         } else {
@@ -160,6 +190,11 @@ async function handleRefreshUser() {
             Ui.showToast('✅ 갱신이 완료되었습니다!');
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
+
+            // [핵심 수정] 갱신 시에도 동일하게 적용
+            requestAnimationFrame(() => {
+                Ui.createRadarChart(result.data);
+            });
         } else {
             Ui.showToast(result.error.message);
         }
@@ -198,24 +233,57 @@ window.copyBadgeMarkdown = () => {
         .catch(() => Ui.showToast('복사에 실패했습니다.'));
 };
 
-// === Initialization ===
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
-    window.registerUser = () => handleRegisterUser(true); // 버튼 클릭 시에는 History Push
+    window.registerUser = () => handleRegisterUser(true);
 
     const input = document.getElementById('usernameInput');
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
 
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleRegisterUser(true);
+    input.addEventListener('keydown', (e) => {
+        const list = document.getElementById('recentList');
+        let items = list ? list.getElementsByTagName('li') : null;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentFocus++;
+            addActive(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentFocus--;
+            addActive(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1 && items) {
+                if (items[currentFocus]) items[currentFocus].click();
+            } else {
+                handleRegisterUser(true);
+            }
+        } else if (e.key === 'Escape') {
+            recentBox.classList.add('hidden');
+            currentFocus = -1;
+        } else if ((e.key === 'Delete' || (e.shiftKey && e.key === 'Delete')) && currentFocus > -1) {
+            e.preventDefault();
+            const targetUser = items[currentFocus].querySelector('.btn-delete-item').getAttribute('data-user');
+            Utils.removeRecentSearch(targetUser);
+            renderRecentSearches();
+            items = list.getElementsByTagName('li');
+            if (currentFocus >= items.length) currentFocus = items.length - 1;
+            if (items.length > 0) addActive(items);
+            else {
+                currentFocus = -1;
+                recentBox.classList.add('hidden');
+            }
+        }
     });
 
     input.addEventListener('input', () => {
         if (input.value.length > 0) btnClear.classList.remove('hidden');
         else btnClear.classList.add('hidden');
+        currentFocus = -1;
     });
 
     input.addEventListener('focus', () => {
@@ -226,34 +294,30 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = '';
         input.focus();
         btnClear.classList.add('hidden');
+        renderRecentSearches();
     });
 
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target) && !recentBox.contains(e.target)) {
             recentBox.classList.add('hidden');
+            currentFocus = -1;
         }
     });
 
     document.addEventListener('requestRefreshUser', handleRefreshUser);
     document.addEventListener('requestUserDetail', (e) => handleUserDetail(e.detail));
 
-    // [신규] 뒤로 가기(Popstate) 처리
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.username) {
             document.getElementById('usernameInput').value = event.state.username;
-            handleRegisterUser(false); // History Push 없이 로드
+            handleRegisterUser(false);
         } else {
-            // 초기 상태로 돌아왔을 때 (쿼리 없음) -> 페이지 리로드 혹은 결과창 숨김
-            // 여기서는 깔끔하게 리로드하여 초기 상태 복구
             location.reload();
         }
     });
 
-    // 초기 로드
     handleLoadRankings(0);
     startCountdownTimer();
-
-    // [신규] URL 파라미터 체크 (자동 검색)
     checkUrlParams();
 });
 

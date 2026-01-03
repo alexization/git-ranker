@@ -321,6 +321,27 @@ body {
     background-color: var(--toss-blue-dark);
 }
 
+/* Shake Animation */
+.shake {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+    border-color: #EF4444 !important;
+}
+
+@keyframes shake {
+    10%, 90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+    20%, 80% {
+        transform: translate3d(2px, 0, 0);
+    }
+    30%, 50%, 70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+    40%, 60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
 /* Recent Search Dropdown */
 .recent-search-box {
     position: absolute;
@@ -395,8 +416,20 @@ body {
     transition: all 0.2s;
 }
 
-.recent-item:hover {
+.recent-item:hover, .recent-item.active {
     background: var(--border-color);
+    transform: scale(1.02);
+}
+
+/* Keyboard Focus Style */
+.recent-item.active {
+    border-color: var(--toss-blue);
+    background: var(--toss-blue);
+    color: white;
+}
+
+.recent-item.active .btn-delete-item {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .recent-name {
@@ -449,7 +482,7 @@ body {
     perspective: 1000px;
 }
 
-/* Glow Effects - Variable Based */
+/* Glow Effects */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
     border: 2px solid var(--tier-bg-challenger);
@@ -524,7 +557,6 @@ body {
     backface-visibility: hidden;
 }
 
-/* Tier Color Classes */
 .tier-badge.CHALLENGER {
     background: var(--tier-bg-challenger);
     color: var(--tier-challenger);
@@ -1073,7 +1105,7 @@ body {
     }
 }
 
-/* Simple Report Styles */
+/* Report Export Styles */
 #report-export-view {
     position: fixed;
     top: -9999px;

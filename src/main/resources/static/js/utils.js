@@ -49,7 +49,6 @@ export function animateCountUp(element, target, duration = 1500) {
     const startNum = 0;
     const startTime = performance.now();
 
-    // Quartic Ease-Out Function
     const easeOutQuart = (x) => 1 - Math.pow(1 - x, 4);
 
     function update(currentTime) {
@@ -70,7 +69,6 @@ export function animateCountUp(element, target, duration = 1500) {
     requestAnimationFrame(update);
 }
 
-// [신규] Recent Search Utils
 const RECENT_SEARCH_KEY = 'git_ranker_recent_searches';
 const MAX_RECENT_ITEMS = 8;
 
@@ -81,11 +79,9 @@ export function getRecentSearches() {
 
 export function saveRecentSearch(username) {
     let searches = getRecentSearches();
-    // 중복 제거 (이미 있으면 삭제 후 맨 앞에 추가)
     searches = searches.filter(item => item !== username);
     searches.unshift(username);
 
-    // 최대 개수 제한
     if (searches.length > MAX_RECENT_ITEMS) {
         searches = searches.slice(0, MAX_RECENT_ITEMS);
     }
