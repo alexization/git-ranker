@@ -1,9 +1,10 @@
 import * as Api from './api.js';
 import * as Ui from './ui.js';
-import * as Utils from './utils.js'; // Utils import 추가
+import * as Utils from './utils.js';
 
 let userDetailModal = null;
 
+// === Theme Logic ===
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -35,7 +36,7 @@ function updateThemeIcon(isDark) {
     }
 }
 
-// [신규] 최근 검색어 렌더링
+// === Recent Search Logic ===
 function renderRecentSearches() {
     const listEl = document.getElementById('recentList');
     const boxEl = document.getElementById('recentSearchBox');
@@ -57,18 +58,16 @@ function renderRecentSearches() {
             </button>
         `;
 
-        // 이름 클릭 시 검색
         li.querySelector('.recent-name').onclick = () => {
             document.getElementById('usernameInput').value = username;
             handleRegisterUser();
             boxEl.classList.add('hidden');
         };
 
-        // 삭제 버튼 클릭
         li.querySelector('.btn-delete-item').onclick = (e) => {
-            e.stopPropagation(); // 부모 클릭 방지
+            e.stopPropagation();
             Utils.removeRecentSearch(username);
-            renderRecentSearches(); // 재렌더링
+            renderRecentSearches();
         };
 
         listEl.appendChild(li);
@@ -77,12 +76,31 @@ function renderRecentSearches() {
     boxEl.classList.remove('hidden');
 }
 
-// [신규] 전체 삭제 핸들러
 window.clearAllRecentSearches = () => {
     Utils.clearAllRecentSearches();
     renderRecentSearches();
 };
 
+// === [신규] Deep Linking Logic ===
+function updateUrlState(username) {
+    const currentUrlParams = new URLSearchParams(window.location.search);
+    if (currentUrlParams.get('username') !== username) {
+        const newUrl = `${window.location.pathname}?username=${username}`;
+        window.history.pushState({username: username}, '', newUrl);
+    }
+}
+
+function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username');
+    if (username) {
+        document.getElementById('usernameInput').value = username;
+        // URL에서 왔을 때는 History Push를 하지 않음 (replace 효과)
+        handleRegisterUser(false);
+    }
+}
+
+// === API Handlers ===
 async function handleLoadRankings(page) {
     try {
         const result = await Api.fetchRankings(page);
@@ -95,7 +113,8 @@ async function handleLoadRankings(page) {
     }
 }
 
-async function handleRegisterUser() {
+// [수정] pushHistory 파라미터 추가 (기본값 true)
+async function handleRegisterUser(pushHistory = true) {
     const usernameInput = document.getElementById('usernameInput');
     const username = usernameInput.value.trim();
     if (!username) {
@@ -103,15 +122,16 @@ async function handleRegisterUser() {
         return;
     }
 
-    // 드롭다운 숨기기
     document.getElementById('recentSearchBox').classList.add('hidden');
 
     Ui.showLoading(true);
     try {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
-            // [신규] 검색 성공 시 저장
             Utils.saveRecentSearch(username);
+
+            // [신규] URL 업데이트
+            if (pushHistory) updateUrlState(username);
 
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
@@ -178,23 +198,22 @@ window.copyBadgeMarkdown = () => {
         .catch(() => Ui.showToast('복사에 실패했습니다.'));
 };
 
+// === Initialization ===
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
-    window.registerUser = handleRegisterUser;
+    window.registerUser = () => handleRegisterUser(true); // 버튼 클릭 시에는 History Push
 
     const input = document.getElementById('usernameInput');
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
 
-    // [신규] 입력창 이벤트 바인딩
     input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleRegisterUser();
+        if (e.key === 'Enter') handleRegisterUser(true);
     });
 
     input.addEventListener('input', () => {
-        // X 버튼 토글
         if (input.value.length > 0) btnClear.classList.remove('hidden');
         else btnClear.classList.add('hidden');
     });
@@ -203,14 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRecentSearches();
     });
 
-    // [신규] X 버튼 클릭 시 초기화
     btnClear.addEventListener('click', () => {
         input.value = '';
         input.focus();
         btnClear.classList.add('hidden');
     });
 
-    // [신규] 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target) && !recentBox.contains(e.target)) {
             recentBox.classList.add('hidden');
@@ -220,8 +237,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('requestRefreshUser', handleRefreshUser);
     document.addEventListener('requestUserDetail', (e) => handleUserDetail(e.detail));
 
+    // [신규] 뒤로 가기(Popstate) 처리
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.username) {
+            document.getElementById('usernameInput').value = event.state.username;
+            handleRegisterUser(false); // History Push 없이 로드
+        } else {
+            // 초기 상태로 돌아왔을 때 (쿼리 없음) -> 페이지 리로드 혹은 결과창 숨김
+            // 여기서는 깔끔하게 리로드하여 초기 상태 복구
+            location.reload();
+        }
+    });
+
+    // 초기 로드
     handleLoadRankings(0);
     startCountdownTimer();
+
+    // [신규] URL 파라미터 체크 (자동 검색)
+    checkUrlParams();
 });
 
 function startCountdownTimer() {

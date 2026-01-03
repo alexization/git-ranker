@@ -9,15 +9,13 @@ import {
 
 let radarChartInstance = null;
 
-// [신규] 차트 테마 업데이트 함수
+// [유지] 차트 테마 업데이트
 export function updateChartTheme() {
     if (!radarChartInstance) return;
 
-    // CSS 변수에서 현재 색상 값을 읽어옴
     const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
     const textColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim();
 
-    // 차트 옵션 업데이트
     radarChartInstance.options.scales.r.grid.color = gridColor;
     radarChartInstance.options.scales.r.angleLines.color = gridColor;
     radarChartInstance.options.scales.r.pointLabels.color = textColor;
@@ -25,7 +23,7 @@ export function updateChartTheme() {
     radarChartInstance.update();
 }
 
-// [고도화] 심플 리포트 생성 및 다운로드
+// [유지] 심플 리포트 캡처
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
@@ -33,13 +31,10 @@ window.captureAndDownload = async () => {
     btn.disabled = true;
 
     try {
-        // 1. 필요한 데이터만 추출
         const username = document.getElementById('resUsername').value;
         const profileSrc = document.getElementById('resProfileImage').src;
-        // 차트 이미지 변환
         const chartBase64 = radarChartInstance.toBase64Image();
 
-        // 5개 수행 횟수 데이터 (순수 숫자값)
         const stats = [
             {label: 'Commits', value: document.getElementById('statCommit').innerText},
             {label: 'PR Merged', value: document.getElementById('statPrMerged').innerText},
@@ -48,29 +43,24 @@ window.captureAndDownload = async () => {
             {label: 'Issues', value: document.getElementById('statIssue').innerText}
         ];
 
-        // 2. 가상 보고서 DOM 생성
         const reportContainer = document.createElement('div');
         reportContainer.id = 'report-export-view';
         document.body.appendChild(reportContainer);
 
-        // 요청하신 심플한 레이아웃 적용
         reportContainer.innerHTML = `
             <div class="simple-report-card">
                 <div class="sim-header">
                     <div class="sim-brand"><i class="fab fa-github"></i> Git Ranker</div>
                     <div class="sim-date">${new Date().toISOString().split('T')[0]}</div>
                 </div>
-
                 <div class="sim-body">
                     <div class="sim-profile">
                         <img src="${profileSrc}" class="sim-avatar">
                         <div class="sim-username">${username}</div>
                     </div>
-
                     <div class="sim-chart">
                         <img src="${chartBase64}" style="width: 100%; height: auto; display: block;">
                     </div>
-
                     <div class="sim-stats-row">
                         ${stats.map(s => `
                             <div class="sim-stat-item">
@@ -80,22 +70,17 @@ window.captureAndDownload = async () => {
                         `).join('')}
                     </div>
                 </div>
-
-                <div class="sim-footer">
-                    Get your tier at <strong>git-ranker.com</strong>
-                </div>
+                <div class="sim-footer">Get your tier at <strong>git-ranker.com</strong></div>
             </div>
         `;
 
-        // 3. 캡처 실행
         const canvas = await html2canvas(reportContainer, {
             backgroundColor: null,
-            scale: 2, // 고해상도
+            scale: 2,
             useCORS: true,
             logging: false
         });
 
-        // 4. 다운로드
         const link = document.createElement('a');
         link.download = `GitRanker_${username}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -107,16 +92,14 @@ window.captureAndDownload = async () => {
         console.error(err);
         showToast("리포트 생성에 실패했습니다.");
     } finally {
-        // 정리
         const el = document.getElementById('report-export-view');
         if (el) el.remove();
-
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 };
 
-// [수정] 3D 효과: Blur 방지를 위해 scale3d 제거 및 회전만 적용
+// [유지] 3D 효과 (Scale 제거 버전)
 function apply3DEffect(cardElement) {
     if (!cardElement) return;
     if (window.matchMedia("(max-width: 768px)").matches) return;
@@ -144,7 +127,6 @@ function apply3DEffect(cardElement) {
         const rotateY = ((center.x / bounds.width) * 4).toFixed(2);
 
         requestAnimationFrame(() => {
-            // scale3d를 제거하여 텍스트 선명도 유지
             cardElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
     });
@@ -237,6 +219,9 @@ export function renderUserResult(data) {
     updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount, data.diffPrCount);
     updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount, data.diffMergedPrCount);
 
+    // [신규] 동적 타이틀 변경 (사용자 이름 + 티어)
+    document.title = `${data.username} (${data.tier}) | Git Ranker`;
+
     renderRefreshButton(data.lastFullScanAt);
     createRadarChart(data);
 }
@@ -259,7 +244,6 @@ function createRadarChart(data) {
 
     const chartData = rawData.map(v => Math.log10(v + 1));
 
-    // 초기 색상 로드 (다크모드 지원을 위해 CSS 변수 참조)
     const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
     const textColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim();
 
@@ -334,7 +318,7 @@ export function renderRefreshButton(lastFullScanAt) {
         newBtn.style.opacity = "0.5";
         newBtn.style.cursor = "not-allowed";
         newBtn.disabled = true;
-        statusText.innerHTML = `<span style="color:#B0B8C1;">${formatDateTime(nextTime)} 이후 가능</span>`;
+        statusText.innerHTML = `<span style="color:var(--text-tertiary);">${formatDateTime(nextTime)} 이후 가능</span>`;
     }
 }
 
@@ -350,7 +334,6 @@ export function renderRankingTable(users) {
     users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
-
         row.style.animation = `fadeInStagger 0.4s forwards`;
         row.style.animationDelay = `${index * 0.05}s`;
 
@@ -415,7 +398,6 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
     pagination.appendChild(createItem('<i class="fas fa-chevron-right"></i>', currentPage + 1, isLast));
 }
 
-// [수정] 모달에도 증감 데이터 반영
 export function renderUserDetailModal(data, modalInstance) {
     document.getElementById('modalProfileImage').src = data.profileImage;
     document.getElementById('modalUsername').innerText = data.username;
