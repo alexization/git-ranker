@@ -18,6 +18,7 @@
     <link href="/css/style.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -47,94 +48,102 @@
         </div>
     </div>
 
-    <section id="resultSection" class="dashboard-grid hidden fade-in-up delay-2">
-        <div class="card-box profile-section">
-            <img id="resProfileImage" src="" alt="Profile" class="profile-img">
-            <div id="resTierBadgeWrapper" class="tier-badge">
-                <i id="resTierIcon" class="fas fa-crown"></i> <span id="resTierText">IRON</span>
-            </div>
-
-            <div class="text-center w-100 mt-2">
-                <div class="rank-info">
-                    상위 <span id="resPercentile" class="font-code fw-bold text-primary">0.00</span>% • <span
-                        id="resRanking" class="font-code fw-bold">0</span>위
+    <div id="captureArea">
+        <section id="resultSection" class="dashboard-grid hidden fade-in-up delay-2">
+            <div class="card-box profile-section" id="profileCard">
+                <img id="resProfileImage" src="" alt="Profile" class="profile-img">
+                <div id="resTierBadgeWrapper" class="tier-badge">
+                    <i id="resTierIcon" class="fas fa-crown"></i> <span id="resTierText">IRON</span>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-center gap-2 my-2">
-                    <div id="resTotalScore" class="score-display font-code">0</div>
-                    <i class="far fa-question-circle info-icon" data-bs-toggle="modal"
-                       data-bs-target="#scoreInfoModal"></i>
+                <div class="text-center w-100 mt-2">
+                    <div class="rank-info">
+                        상위 <span id="resPercentile" class="font-code fw-bold text-primary">0.00</span>% • <span
+                            id="resRanking" class="font-code fw-bold">0</span>위
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-center gap-2 my-2">
+                        <div id="resTotalScore" class="score-display font-code">0</div>
+                        <i class="far fa-question-circle info-icon" data-bs-toggle="modal"
+                           data-bs-target="#scoreInfoModal"></i>
+                    </div>
+                    <div class="rank-info" style="font-size: 14px;">Total Score</div>
                 </div>
-                <div class="rank-info" style="font-size: 14px;">Total Score</div>
-            </div>
 
-            <div class="action-buttons">
-                <button onclick="copyBadgeMarkdown()" class="btn-ghost">
-                    <i class="fab fa-markdown"></i> 배지 복사
-                </button>
-                <a id="resGithubLink" href="#" target="_blank" class="btn-ghost">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-            </div>
+                <div class="action-buttons" data-html2canvas-ignore="true">
+                    <button onclick="captureAndDownload()" class="btn-black">
+                        <i class="fas fa-camera"></i> 이미지로 저장
+                    </button>
 
-            <div class="refresh-box">
-                <div id="refreshStatusText" class="refresh-text"></div>
-                <button id="btnRefresh" class="btn-refresh-sm">
-                    <i class="fas fa-sync-alt"></i> 갱신하기
-                </button>
-            </div>
-
-            <input type="hidden" id="resNodeId">
-            <input type="hidden" id="resUsername">
-        </div>
-
-        <div class="right-column" style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="card-box chart-container"
-                 style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative;">
-                <canvas id="statRadarChart"></canvas>
-            </div>
-
-            <div class="card-box" style="padding: 20px;">
-                <div class="stats-grid">
-                    <div class="stat-item merged">
-                        <div class="stat-header">PR Merged <i class="fas fa-code-merge"></i></div>
-                        <div class="stat-value font-code">
-                            <span id="statPrMerged">0</span>
-                            <span id="diffPrMerged" class="diff-badge"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item open">
-                        <div class="stat-header">PR Open <i class="fas fa-code-pull-request"></i></div>
-                        <div class="stat-value font-code">
-                            <span id="statPrOpen">0</span>
-                            <span id="diffPrOpen" class="diff-badge"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item review">
-                        <div class="stat-header">Reviews <i class="far fa-message"></i></div>
-                        <div class="stat-value font-code">
-                            <span id="statReview">0</span>
-                            <span id="diffReview" class="diff-badge"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item issue">
-                        <div class="stat-header">Issues <i class="fas fa-exclamation-circle"></i></div>
-                        <div class="stat-value font-code">
-                            <span id="statIssue">0</span>
-                            <span id="diffIssue" class="diff-badge"></span>
-                        </div>
-                    </div>
-                    <div class="stat-item commit" style="grid-column: span 2;">
-                        <div class="stat-header">Commits <i class="fas fa-code-commit"></i></div>
-                        <div class="stat-value font-code">
-                            <span id="statCommit">0</span>
-                            <span id="diffCommit" class="diff-badge"></span>
-                        </div>
+                    <div class="sub-actions">
+                        <button onclick="copyBadgeMarkdown()" class="btn-ghost">
+                            <i class="fab fa-markdown"></i> 배지 복사
+                        </button>
+                        <a id="resGithubLink" href="#" target="_blank" class="btn-ghost">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
                     </div>
                 </div>
+
+                <div class="refresh-box" data-html2canvas-ignore="true">
+                    <div id="refreshStatusText" class="refresh-text"></div>
+                    <button id="btnRefresh" class="btn-refresh-sm">
+                        <i class="fas fa-sync-alt"></i> 갱신하기
+                    </button>
+                </div>
+
+                <input type="hidden" id="resNodeId">
+                <input type="hidden" id="resUsername">
             </div>
-        </div>
-    </section>
+
+            <div class="right-column" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="card-box chart-container"
+                     style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <canvas id="statRadarChart"></canvas>
+                </div>
+
+                <div class="card-box" style="padding: 20px;">
+                    <div class="stats-grid">
+                        <div class="stat-item merged">
+                            <div class="stat-header">PR Merged <i class="fas fa-code-merge"></i></div>
+                            <div class="stat-value font-code">
+                                <span id="statPrMerged">0</span>
+                                <span id="diffPrMerged" class="diff-badge"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item open">
+                            <div class="stat-header">PR Open <i class="fas fa-code-pull-request"></i></div>
+                            <div class="stat-value font-code">
+                                <span id="statPrOpen">0</span>
+                                <span id="diffPrOpen" class="diff-badge"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item review">
+                            <div class="stat-header">Reviews <i class="far fa-message"></i></div>
+                            <div class="stat-value font-code">
+                                <span id="statReview">0</span>
+                                <span id="diffReview" class="diff-badge"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item issue">
+                            <div class="stat-header">Issues <i class="fas fa-exclamation-circle"></i></div>
+                            <div class="stat-value font-code">
+                                <span id="statIssue">0</span>
+                                <span id="diffIssue" class="diff-badge"></span>
+                            </div>
+                        </div>
+                        <div class="stat-item commit" style="grid-column: span 2;">
+                            <div class="stat-header">Commits <i class="fas fa-code-commit"></i></div>
+                            <div class="stat-value font-code">
+                                <span id="statCommit">0</span>
+                                <span id="diffCommit" class="diff-badge"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <section id="skeletonSection" class="dashboard-grid hidden fade-in-up">
         <div class="card-box profile-section">
@@ -165,7 +174,6 @@
                 <i class="fas fa-stopwatch"></i> <span id="countdownTimer" class="font-code">--:--</span>
             </div>
         </div>
-
         <div class="ranking-list" id="rankingHeader">
             <div style="display: flex; padding: 12px 8px; border-bottom: 1px solid #E5E8EB; color: #8B95A1; font-size: 13px; font-weight: 600;">
                 <div class="col-rank">#</div>
@@ -174,9 +182,7 @@
                 <div class="col-score">Score</div>
             </div>
         </div>
-
         <div id="rankingList" class="ranking-list"></div>
-
         <div class="mt-4 d-flex justify-content-center">
             <ul class="pagination" id="pagination" style="display: flex; gap: 6px; list-style: none; padding: 0;"></ul>
         </div>
@@ -190,53 +196,8 @@
     </footer>
 </main>
 
-<div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 p-0 mb-3">
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center p-0">
-                <img id="modalProfileImage" src="" class="rounded-circle mb-3" width="90" height="90"
-                     style="object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <h4 id="modalUsername" class="fw-bold mb-2" style="font-size: 22px;"></h4>
-                <div id="modalTierBadge" class="tier-badge d-inline-flex mb-3"></div>
-                <p class="text-secondary small mb-4">전체 <span id="modalRanking"
-                                                              class="font-code fw-bold text-dark"></span>위 (상위 <span
-                        id="modalPercentile" class="font-code fw-bold text-dark"></span>%)</p>
-                <h2 id="modalTotalScore" class="fw-bold font-code mb-4" style="font-size: 36px;"></h2>
-                <div class="mb-4">
-                    <a id="modalGithubLink" href="#" target="_blank" class="btn btn-dark rounded-pill px-4 py-2 fw-bold"
-                       style="font-size: 15px;">
-                        <i class="fab fa-github me-1"></i> GitHub
-                    </a>
-                </div>
-                <div class="stats-grid text-start">
-                    <div class="stat-item merged p-3"><span class="stat-header mb-1">PR Merged <i
-                            class="fas fa-code-merge ms-1" style="color: #3182F6;"></i></span><span
-                            id="modalStatPrMerged" class="font-code fw-bold h5 m-0"></span></div>
-                    <div class="stat-item open p-3"><span class="stat-header mb-1">PR Open <i
-                            class="fas fa-code-pull-request ms-1" style="color: #9C27B0;"></i></span><span
-                            id="modalStatPrOpen" class="font-code fw-bold h5 m-0"></span></div>
-                    <div class="stat-item review p-3"><span class="stat-header mb-1">Reviews <i
-                            class="far fa-message ms-1" style="color: #009688;"></i></span><span id="modalStatReview"
-                                                                                                 class="font-code fw-bold h5 m-0"></span>
-                    </div>
-                    <div class="stat-item issue p-3"><span class="stat-header mb-1">Issues <i
-                            class="fas fa-exclamation-circle ms-1" style="color: #FF9800;"></i></span><span
-                            id="modalStatIssue" class="font-code fw-bold h5 m-0"></span></div>
-                    <div class="stat-item commit p-3" style="grid-column: span 2;"><span class="stat-header mb-1">Commits <i
-                            class="fas fa-code-commit ms-1 text-secondary"></i></span><span id="modalStatCommit"
-                                                                                            class="font-code fw-bold h5 m-0"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="scoreInfoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header border-0 p-0 mb-3">
                 <h5 class="fw-bold m-0" style="font-size: 18px;">점수 산정 및 갱신 기준</h5>
@@ -260,7 +221,6 @@
                             class="fas fa-code-commit text-secondary me-2"></i> Commit</span><span
                             class="score-badge bg-secondary-subtle text-secondary">1점</span></li>
                 </ul>
-
                 <h6 class="fw-bold text-secondary mb-2" style="font-size:14px;">데이터 갱신 규칙</h6>
                 <div class="p-3 bg-light rounded-4 text-dark" style="font-size: 14px; line-height: 1.6;">
                     <p class="mb-2">📅 <strong>자동 갱신:</strong> 매일 새벽, 최근 1년 간의 활동이 자동 반영됩니다.</p>
@@ -269,6 +229,79 @@
                         <li>1년 이전의 활동이 변경되었을 때 (예: Private → Public)</li>
                         <li>방금 기여한 내용을 즉시 반영하고 싶을 때</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 p-0 mb-3">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="modalProfileImage" src="" class="rounded-circle mb-3" width="90" height="90"
+                     style="object-fit: cover; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h4 id="modalUsername" class="fw-bold mb-2" style="font-size: 22px;"></h4>
+                <div id="modalTierBadge" class="tier-badge d-inline-flex mb-3"></div>
+                <p class="text-secondary small mb-4">전체 <span id="modalRanking"
+                                                              class="font-code fw-bold text-dark"></span>위 (상위 <span
+                        id="modalPercentile" class="font-code fw-bold text-dark"></span>%)</p>
+                <h2 id="modalTotalScore" class="fw-bold font-code mb-4" style="font-size: 36px;"></h2>
+                <div class="mb-4">
+                    <a id="modalGithubLink" href="#" target="_blank" class="btn btn-dark rounded-pill px-4 py-2 fw-bold"
+                       style="font-size: 15px;">
+                        <i class="fab fa-github me-1"></i> GitHub
+                    </a>
+                </div>
+
+                <div class="stats-grid text-start">
+                    <div class="stat-item merged p-3">
+                        <span class="stat-header mb-1">PR Merged <i class="fas fa-code-merge ms-1"
+                                                                    style="color: #3182F6;"></i></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="modalStatPrMerged" class="font-code fw-bold h5 m-0"></span>
+                            <span id="modalDiffPrMerged" class="diff-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item open p-3">
+                        <span class="stat-header mb-1">PR Open <i class="fas fa-code-pull-request ms-1"
+                                                                  style="color: #9C27B0;"></i></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="modalStatPrOpen" class="font-code fw-bold h5 m-0"></span>
+                            <span id="modalDiffPrOpen" class="diff-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item review p-3">
+                        <span class="stat-header mb-1">Reviews <i class="far fa-message ms-1"
+                                                                  style="color: #009688;"></i></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="modalStatReview" class="font-code fw-bold h5 m-0"></span>
+                            <span id="modalDiffReview" class="diff-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item issue p-3">
+                        <span class="stat-header mb-1">Issues <i class="fas fa-exclamation-circle ms-1"
+                                                                 style="color: #FF9800;"></i></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="modalStatIssue" class="font-code fw-bold h5 m-0"></span>
+                            <span id="modalDiffIssue" class="diff-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item commit p-3" style="grid-column: span 2;">
+                        <span class="stat-header mb-1">Commits <i
+                                class="fas fa-code-commit ms-1 text-secondary"></i></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="modalStatCommit" class="font-code fw-bold h5 m-0"></span>
+                            <span id="modalDiffCommit" class="diff-badge"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

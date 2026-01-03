@@ -1,30 +1,22 @@
+/* ... (이전 CSS 변수 및 리셋 동일 - 생략) ... */
 :root {
-    /* Brand Colors */
     --toss-blue: #3182F6;
     --toss-blue-dark: #1B64DA;
     --toss-bg: #F2F4F6;
     --toss-white: #FFFFFF;
-
-    /* Text Colors */
     --text-primary: #191F28;
     --text-secondary: #4E5968;
     --text-tertiary: #8B95A1;
     --text-weak: #B0B8C1;
-
-    /* UI Variables */
     --radius-xl: 24px;
     --radius-lg: 20px;
     --radius-md: 16px;
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
-    --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-    /* Typography */
     --font-heading: 'Pretendard', -apple-system, sans-serif;
     --font-number: 'JetBrains Mono', 'Pretendard', monospace;
     --tracking-heading: -0.025em;
     --tracking-body: -0.005em;
-
-    /* Tier Colors */
+    /* Tier Colors 생략 (기존 유지) */
     --tier-challenger: #3182F6;
     --tier-master: #9B59B6;
     --tier-diamond: #00B4FC;
@@ -51,7 +43,7 @@ body {
     word-break: keep-all;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden; /* 가로 스크롤 방지 */
+    overflow-x: hidden;
 }
 
 .container {
@@ -98,7 +90,7 @@ body {
     }
 }
 
-/* Header */
+/* Header & Search */
 .top-nav {
     display: flex;
     justify-content: flex-end;
@@ -135,7 +127,6 @@ body {
     margin: 0;
 }
 
-/* Search */
 .search-wrapper {
     max-width: 720px;
     margin: 0 auto 40px;
@@ -197,7 +188,7 @@ body {
 /* Dashboard Grid */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 320px 1fr; /* Profile fixed, Chart flexible */
+    grid-template-columns: 320px 1fr;
     gap: 24px;
     margin-bottom: 48px;
     align-items: start;
@@ -208,10 +199,10 @@ body {
     border-radius: var(--radius-xl);
     padding: 28px;
     box-shadow: var(--shadow-card);
-    transition: all 0.3s ease;
+    transition: transform 0.1s ease-out, box-shadow 0.3s ease;
 }
 
-/* Profile Section */
+/* [수정] 3D Profile Card - 흐림 현상 해결 */
 .profile-section {
     display: flex;
     flex-direction: column;
@@ -219,11 +210,13 @@ body {
     justify-content: center;
     text-align: center;
     position: relative;
-    /* [수정] Glow 효과가 잘리지 않도록 overflow: hidden 제거 */
-    /* overflow: hidden; */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    /* [중요] will-change 제거: 텍스트가 비트맵으로 래스터화되어 흐려지는 것을 방지 */
+    /* will-change: transform; */
 }
 
-/* Tier Glow */
+/* Glow Effects */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px rgba(49, 130, 246, 0.3);
     border: 2px solid rgba(49, 130, 246, 0.2);
@@ -277,6 +270,9 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     object-fit: cover;
     border: 4px solid var(--toss-white);
+    transform: translateZ(30px);
+    z-index: 20;
+    backface-visibility: hidden;
 }
 
 .tier-badge {
@@ -290,8 +286,12 @@ body {
     margin-bottom: 16px;
     background: #F2F4F6;
     color: var(--text-secondary);
+    transform: translateZ(25px);
+    z-index: 20;
+    backface-visibility: hidden;
 }
 
+/* Tier Colors 생략 */
 .tier-badge.CHALLENGER {
     background: rgba(49, 130, 246, 0.1);
     color: var(--tier-challenger);
@@ -338,13 +338,19 @@ body {
 }
 
 .score-display {
-    font-size: clamp(32px, 5vw, 48px);
+    font-size: clamp(28px, 5vw, 48px);
     font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 6px;
     line-height: 1.1;
     letter-spacing: -0.04em;
-    word-break: break-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    transform: translateZ(35px);
+    z-index: 20;
+    backface-visibility: hidden;
 }
 
 .rank-info {
@@ -352,6 +358,9 @@ body {
     color: var(--text-secondary);
     margin-bottom: 12px;
     font-weight: 500;
+    transform: translateZ(20px);
+    z-index: 20;
+    backface-visibility: hidden;
 }
 
 .info-icon {
@@ -365,6 +374,37 @@ body {
 .action-buttons {
     margin-top: 24px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transform: translateZ(20px);
+    z-index: 20;
+}
+
+.btn-black {
+    background: #191F28;
+    color: white;
+    border: none;
+    padding: 14px 0;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-black:hover {
+    background: #333D4B;
+    transform: translateY(-2px);
+}
+
+.sub-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
@@ -394,7 +434,6 @@ body {
     color: var(--text-primary);
 }
 
-/* Refresh Box */
 .refresh-box {
     margin-top: 20px;
     width: 100%;
@@ -406,6 +445,8 @@ body {
     align-items: center;
     border: 1px solid #F2F4F6;
     flex-wrap: wrap;
+    transform: translateZ(10px);
+    z-index: 20;
 }
 
 .refresh-text {
@@ -440,7 +481,6 @@ body {
     background: #FAFAFA;
 }
 
-/* PC 화면에서 Profile Card 내부 Refresh Box 수직 정렬 */
 @media (min-width: 769px) {
     .profile-section .refresh-box {
         flex-direction: column;
@@ -460,13 +500,12 @@ body {
     }
 }
 
-
 /* Stats & Chart */
 .right-column {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    min-width: 0; /* [중요] Grid 내에서 자식이 넘치지 않도록 방지 */
+    min-width: 0;
 }
 
 .stats-grid {
@@ -501,12 +540,13 @@ body {
     opacity: 0.8;
 }
 
+/* [수정] 스탯과 배지 정렬 수정 */
 .stat-value {
     font-size: 24px;
     font-weight: 800;
     color: var(--text-primary);
     display: flex;
-    align-items: baseline;
+    align-items: center; /* baseline -> center로 변경하여 수직 중앙 정렬 */
     gap: 8px;
     letter-spacing: -0.02em;
     flex-wrap: wrap;
@@ -548,6 +588,7 @@ body {
     align-items: center;
     gap: 2px;
     white-space: nowrap;
+    /* margin-top: 2px; // 미세 조정이 필요하면 추가 */
 }
 
 .diff-plus {
@@ -607,6 +648,15 @@ body {
     border-bottom: 1px solid #F2F4F6;
     cursor: pointer;
     transition: background 0.1s;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+@keyframes fadeInStagger {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .ranking-row:hover {
@@ -665,7 +715,12 @@ body {
     white-space: nowrap;
 }
 
-/* Footer */
+/* Modal Width Override */
+.modal-dialog {
+    max-width: 500px;
+}
+
+/* Footer & Toast */
 .footer {
     text-align: center;
     padding: 40px 0;
@@ -691,7 +746,6 @@ body {
     font-weight: 600;
 }
 
-/* Toast */
 #toast-container {
     position: fixed;
     bottom: 32px;
@@ -714,7 +768,6 @@ body {
     pointer-events: auto;
 }
 
-/* Skeleton & Modals */
 .modal-content {
     border-radius: 28px;
     border: none;
@@ -760,9 +813,116 @@ body {
     }
 }
 
-/* === Mobile Optimization === */
+/* Simple Report Styles */
+#report-export-view {
+    position: fixed;
+    top: -9999px;
+    left: -9999px; /* 화면 밖 숨김 */
+    width: 800px; /* 고정 너비 */
+    padding: 0;
+    background-color: white;
+}
+
+.simple-report-card {
+    padding: 50px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    font-family: var(--font-heading);
+}
+
+.sim-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-tertiary);
+    border-bottom: 2px solid #F2F4F6;
+    padding-bottom: 20px;
+}
+
+.sim-brand {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.sim-date {
+    font-family: var(--font-number);
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.sim-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.sim-profile {
+    text-align: center;
+}
+
+.sim-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #F2F4F6;
+    margin-bottom: 16px;
+}
+
+.sim-username {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.sim-chart {
+    width: 400px;
+    margin: 0 auto;
+}
+
+.sim-stats-row {
+    width: 100%;
+    background: #F9FAFB;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sim-stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.sim-stat-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.sim-stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-family: var(--font-number);
+}
+
+.sim-footer {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Mobile Optimization */
 @media (max-width: 768px) {
-    /* [수정] 좌우 여백을 줄여 콘텐츠 공간 확보 */
     .container {
         padding: 0 16px;
     }
@@ -770,12 +930,10 @@ body {
     .dashboard-grid {
         grid-template-columns: 1fr;
         gap: 24px;
-        /* [중요] Grid 아이템이 부모 너비를 넘지 않도록 제한 */
         min-width: 0;
     }
 
     .chart-container {
-        /* [수정] 모바일에서 차트 높이를 조금 더 줄여서 한 화면에 더 많이 보이게 */
         min-height: 250px;
         order: 2;
     }
@@ -794,16 +952,24 @@ body {
         order: 2;
     }
 
-    /* [수정] 프로필 섹션 패딩도 약간 줄여서 타이트하게 */
     .profile-section {
         padding: 28px 16px;
+        transform: none !important;
+        perspective: none;
+    }
+
+    .profile-section:hover {
+        transform: none !important;
+    }
+
+    .profile-img, .tier-badge, .score-display, .action-buttons, .refresh-box {
+        transform: none !important;
     }
 
     .brand-title {
         font-size: 32px;
     }
 
-    /* 점수 폰트: clamp가 적용되어 있지만, 모바일 최대 크기를 약간 줄임 */
     .score-display {
         font-size: clamp(32px, 8vw, 40px);
     }
@@ -846,6 +1012,10 @@ body {
     }
 
     .action-buttons {
+        flex-direction: column;
+    }
+
+    .sub-actions {
         grid-template-columns: 1fr 1fr;
     }
 }

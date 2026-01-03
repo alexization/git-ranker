@@ -9,27 +9,157 @@ import {
 
 let radarChartInstance = null;
 
-// [수정] 로딩 함수: 로딩이 끝났다고 해서 무조건 결과창을 띄우지 않음 (성공 시에만 띄우기 위함)
+// [고도화] 심플 리포트 생성 및 다운로드
+window.captureAndDownload = async () => {
+    const btn = document.querySelector('.btn-black');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
+    btn.disabled = true;
+
+    try {
+        // 1. 필요한 데이터만 추출
+        const username = document.getElementById('resUsername').value;
+        const profileSrc = document.getElementById('resProfileImage').src;
+        // 차트 이미지 변환
+        const chartBase64 = radarChartInstance.toBase64Image();
+
+        // 5개 수행 횟수 데이터 (순수 숫자값)
+        const stats = [
+            {label: 'Commits', value: document.getElementById('statCommit').innerText},
+            {label: 'PR Merged', value: document.getElementById('statPrMerged').innerText},
+            {label: 'PR Open', value: document.getElementById('statPrOpen').innerText},
+            {label: 'Reviews', value: document.getElementById('statReview').innerText},
+            {label: 'Issues', value: document.getElementById('statIssue').innerText}
+        ];
+
+        // 2. 가상 보고서 DOM 생성
+        const reportContainer = document.createElement('div');
+        reportContainer.id = 'report-export-view';
+        document.body.appendChild(reportContainer);
+
+        // [수정] 요청하신 심플한 레이아웃 적용
+        reportContainer.innerHTML = `
+            <div class="simple-report-card">
+                <div class="sim-header">
+                    <div class="sim-brand"><i class="fab fa-github"></i> Git Ranker</div>
+                    <div class="sim-date">${new Date().toISOString().split('T')[0]}</div>
+                </div>
+
+                <div class="sim-body">
+                    <div class="sim-profile">
+                        <img src="${profileSrc}" class="sim-avatar">
+                        <div class="sim-username">${username}</div>
+                    </div>
+
+                    <div class="sim-chart">
+                        <img src="${chartBase64}" style="width: 100%; height: auto; display: block;">
+                    </div>
+
+                    <div class="sim-stats-row">
+                        ${stats.map(s => `
+                            <div class="sim-stat-item">
+                                <div class="sim-stat-label">${s.label}</div>
+                                <div class="sim-stat-value">${s.value}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="sim-footer">
+                    Get your tier at <strong>git-ranker.com</strong>
+                </div>
+            </div>
+        `;
+
+        // 3. 캡처 실행
+        const canvas = await html2canvas(reportContainer, {
+            backgroundColor: null,
+            scale: 2, // 고해상도
+            useCORS: true,
+            logging: false
+        });
+
+        // 4. 다운로드
+        const link = document.createElement('a');
+        link.download = `GitRanker_${username}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        showToast("리포트가 저장되었습니다! 📄");
+
+    } catch (err) {
+        console.error(err);
+        showToast("리포트 생성에 실패했습니다.");
+    } finally {
+        // 정리
+        const el = document.getElementById('report-export-view');
+        if (el) el.remove();
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+// [수정] 3D 효과: Blur 방지를 위해 scale3d 제거
+function apply3DEffect(cardElement) {
+    if (!cardElement) return;
+    if (window.matchMedia("(max-width: 768px)").matches) return;
+
+    let bounds;
+
+    cardElement.addEventListener('mouseenter', () => {
+        bounds = cardElement.getBoundingClientRect();
+    });
+
+    cardElement.addEventListener('mousemove', (e) => {
+        if (!bounds) bounds = cardElement.getBoundingClientRect();
+
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const leftX = mouseX - bounds.x;
+        const topY = mouseY - bounds.y;
+
+        const center = {
+            x: leftX - bounds.width / 2,
+            y: topY - bounds.height / 2
+        };
+
+        const rotateX = ((center.y / bounds.height) * -4).toFixed(2);
+        const rotateY = ((center.x / bounds.width) * 4).toFixed(2);
+
+        requestAnimationFrame(() => {
+            // [중요] scale3d 제거 - 확대 시 비트맵 래스터화로 인한 흐림 현상 방지
+            cardElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+    });
+
+    cardElement.addEventListener('mouseleave', () => {
+        requestAnimationFrame(() => {
+            cardElement.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+        });
+        bounds = null;
+    });
+}
+
 export function showLoading(isLoading) {
     const resultSection = document.getElementById('resultSection');
     const skeletonSection = document.getElementById('skeletonSection');
 
     if (isLoading) {
-        // 로딩 시작 시 결과창은 확실히 숨김
         resultSection.classList.add('hidden');
         skeletonSection.classList.remove('hidden');
     } else {
-        // 로딩 종료 시 스켈레톤만 숨김 (결과창 노출 여부는 별도 제어)
         setTimeout(() => {
             skeletonSection.classList.add('hidden');
         }, 300);
     }
 }
 
-// [신규] 결과창 노출 전용 함수 (성공 시 호출)
 export function showResultSection() {
     const resultSection = document.getElementById('resultSection');
     resultSection.classList.remove('hidden');
+
+    apply3DEffect(document.getElementById('profileCard'));
 }
 
 export function showToast(message) {
@@ -49,9 +179,7 @@ function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
     const statEl = document.getElementById(statId);
     const diffEl = document.getElementById(diffId);
 
-    if (statEl) {
-        animateCountUp(statEl, totalValue || 0, 1000);
-    }
+    if (statEl) animateCountUp(statEl, totalValue || 0, 1000);
 
     if (diffEl) {
         if (diffValue > 0) {
@@ -129,7 +257,8 @@ function createRadarChart(data) {
                 pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: 'rgba(49, 130, 246, 1)',
-                borderWidth: 2
+                borderWidth: 2,
+                fill: true
             }]
         },
         options: {
@@ -160,8 +289,9 @@ function createRadarChart(data) {
                 }
             },
             animation: {
-                duration: 1500,
-                easing: 'easeOutQuart'
+                duration: 2000,
+                easing: 'easeOutQuart',
+                loop: false
             }
         }
     });
@@ -185,7 +315,6 @@ export function renderRefreshButton(lastFullScanAt) {
         newBtn.style.opacity = "0.5";
         newBtn.style.cursor = "not-allowed";
         newBtn.disabled = true;
-        // 문구 간소화 (UI 깨짐 방지)
         statusText.innerHTML = `<span style="color:#B0B8C1;">${formatDateTime(nextTime)} 이후 가능</span>`;
     }
 }
@@ -199,9 +328,12 @@ export function renderRankingTable(users) {
         return;
     }
 
-    users.forEach((user) => {
+    users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
+
+        row.style.animation = `fadeInStagger 0.4s forwards`;
+        row.style.animationDelay = `${index * 0.05}s`;
 
         let tierColor = '#6B7684';
         if (user.tier === 'CHALLENGER') tierColor = '#3182F6';
