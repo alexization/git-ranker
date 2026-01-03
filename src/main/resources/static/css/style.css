@@ -1,0 +1,100 @@
+/* 메인 폰트 설정 */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Plus Jakarta Sans', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    letter-spacing: -0.015em;
+}
+
+/* 코드/데이터 폰트 설정 */
+.font-code,
+#resTotalScore,
+#modalTotalScore,
+#countdownTimer,
+.stat-card .fs-5,
+.modal-body .fs-5,
+#rankingTableBody td.fw-bold.text-primary,
+#rankingTableBody td.fw-bold:first-child,
+.diff-badge,
+.popover-body {
+    font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+    letter-spacing: -0.03em;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #24292e 0%, #2b3137 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.tier-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Tier Colors */
+.text-CHALLENGER {
+    background: linear-gradient(135deg, #1E90FF 0%, #F4D03F 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800 !important;
+}
+
+.text-MASTER { color: #C633F2 !important; }
+.text-DIAMOND { color: #3375FF !important; }
+.text-EMERALD { color: #2ECC71 !important; }
+.text-PLATINUM { color: #00BCD4 !important; }
+.text-GOLD { color: #d2a803 !important; }
+.text-SILVER { color: #95A5A6 !important; }
+.text-BRONZE { color: #D35400 !important; }
+.text-IRON { color: #607D8B !important; }
+
+.tier-badge {
+    background-color: #ffffff;
+    border: 1px solid currentColor;
+    font-weight: 700;
+    padding-top: 0.35em;
+    padding-bottom: 0.35em;
+}
+
+.diff-badge {
+    font-size: 0.75rem;
+    vertical-align: middle;
+    margin-left: 6px;
+    position: relative;
+    top: -1px;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.info-icon {
+    cursor: pointer;
+    font-size: 1rem;
+    color: #6c757d;
+    transition: color 0.2s;
+}
+
+.info-icon:hover {
+    color: #0d6efd;
+}

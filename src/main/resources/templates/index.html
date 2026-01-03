@@ -13,137 +13,14 @@
 
     <link rel="icon" type="image/x-icon" href="https://www.git-ranker.com/favicon.ico">
 
-    <link rel="stylesheet" as="style" crossorigin
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* 메인 폰트 설정 */
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Plus Jakarta Sans', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-            letter-spacing: -0.015em;
-        }
 
-        /* 코드/데이터 폰트 설정 */
-        .font-code,
-        #resTotalScore,
-        #modalTotalScore,
-        #countdownTimer,
-        .stat-card .fs-5,
-        .modal-body .fs-5,
-        #rankingTableBody td.fw-bold.text-primary,
-        #rankingTableBody td.fw-bold:first-child,
-        .diff-badge,
-        .popover-body {
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
-            letter-spacing: -0.03em;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #24292e 0%, #2b3137 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .tier-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .text-CHALLENGER {
-            background: linear-gradient(135deg, #1E90FF 0%, #F4D03F 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800 !important;
-        }
-
-        .text-MASTER {
-            color: #C633F2 !important;
-        }
-
-        .text-DIAMOND {
-            color: #3375FF !important;
-        }
-
-        .text-PLATINUM {
-            color: #00BCD4 !important;
-        }
-
-        .text-EMERALD {
-            color: #2ECC71 !important;
-        }
-
-        .text-GOLD {
-            color: #d2a803 !important;
-        }
-
-        .text-SILVER {
-            color: #95A5A6 !important;
-        }
-
-        .text-BRONZE {
-            color: #D35400 !important;
-        }
-
-        .text-IRON {
-            color: #607D8B !important;
-        }
-
-        .tier-badge {
-            background-color: #ffffff;
-            border: 1px solid currentColor;
-            font-weight: 700;
-            padding-top: 0.35em;
-            padding-bottom: 0.35em;
-        }
-
-        .diff-badge {
-            font-size: 0.75rem;
-            vertical-align: middle;
-            margin-left: -3px;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
-
-        .info-icon {
-            cursor: pointer;
-            font-size: 1rem;
-            color: #6c757d;
-            transition: color 0.2s;
-        }
-
-        .info-icon:hover {
-            color: #0d6efd;
-        }
-    </style>
+    <link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 
@@ -157,10 +34,8 @@
     <div class="container text-center">
         <h1 class="display-4 fw-bold"><i class="fab fa-github"></i> Git Ranker</h1>
         <p class="lead">단순 커밋 수가 아닌, <strong>코드의 품질과 기여도</strong>로 당신의 티어를 확인하세요.</p>
-
         <div class="mt-4">
-            <a href="https://github.com/alexization/git-ranker" target="_blank"
-               class="btn btn-outline-light px-4 py-2 rounded-pill">
+            <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn btn-outline-light px-4 py-2 rounded-pill">
                 <i class="fas fa-file-lines me-2"></i>Git Ranker 사용 가이드
             </a>
         </div>
@@ -172,8 +47,7 @@
         <div class="col-md-6">
             <div class="input-group input-group-lg shadow-sm">
                 <span class="input-group-text bg-white"><i class="fab fa-github"></i></span>
-                <input type="text" id="usernameInput" class="form-control"
-                       placeholder="GitHub Username 입력 (예: alexization)" aria-label="Username">
+                <input type="text" id="usernameInput" class="form-control" placeholder="GitHub Username 입력" aria-label="Username">
                 <button class="btn btn-dark px-4" type="button" onclick="registerUser()">분석하기</button>
             </div>
         </div>
@@ -184,8 +58,7 @@
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-lg-4 text-center border-end-lg mb-4 mb-lg-0">
-                        <img id="resProfileImage" src="" alt="Profile" class="rounded-circle mb-3 shadow-sm" width="120"
-                             height="120">
+                        <img id="resProfileImage" src="" alt="Profile" class="rounded-circle mb-3 shadow-sm" width="120" height="120">
                         <div>
                             <i id="resTierIcon" class="fas fa-gem tier-icon"></i>
                             <h3 id="resTierText" class="fw-bold mb-1"></h3>
@@ -194,7 +67,6 @@
                                 (<span id="resRanking" class="font-code"></span>위)
                             </p>
                         </div>
-
                         <div class="mt-4">
                             <a id="resGithubLink" href="#" target="_blank" class="btn btn-dark rounded-pill px-4">
                                 <i class="fab fa-github me-2"></i>GitHub
@@ -206,43 +78,17 @@
                         <div class="text-center mb-4">
                             <h5 class="text-muted text-uppercase small ls-1 d-flex align-items-center justify-content-center gap-2">
                                 Total Score
-                                <i class="fas fa-info-circle info-icon"
-                                   tabindex="0"
-                                   data-bs-toggle="popover"
-                                   data-bs-trigger="hover focus"
-                                   data-bs-title="점수 산정 기준 및 갱신"
-                                   data-bs-html="true"
-                                   data-bs-content="
-                                     <ul class='mb-0 small ps-3 text-start'>
-                                        <li><strong>PR Merged</strong>: 10점</li>
-                                        <li><strong>PR Open</strong>: 5점</li>
-                                        <li><strong>Review</strong>: 3점</li>
-                                        <li><strong>Issue</strong>: 2점</li>
-                                        <li><strong>Commit</strong>: 1점</li>
-                                        <hr class='my-2'>
-                                        <li class='text-muted' style='font-size:0.85em'>
-                                            매일 새벽, <strong>최근 1년 간의 활동</strong>만 자동 반영됩니다.
-                                        </li>
-                                        <li class='text-muted' style='font-size:0.85em'>
-                                            <strong>수동 갱신이 필요한 경우:</strong><br>
-                                            - <strong>1년 이전의 활동</strong>이 변경되었을 때<br> (예: Private → Public)<br>
-                                            - 방금 기여한 내용을 즉시 반영하고 싶을 때
-                                        </li>
-                                        <li class='text-danger mt-1' style='font-size:0.85em'>※ 7일에 1회만 가능합니다.</li>
-                                     </ul>
-                                   ">
+                                <i class="fas fa-info-circle info-icon" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-title="점수 산정 기준 및 갱신" data-bs-html="true"
+                                   data-bs-content="<ul class='mb-0 small ps-3 text-start'><li><strong>PR Merged</strong>: 10점</li><li><strong>PR Open</strong>: 5점</li><li><strong>Review</strong>: 3점</li><li><strong>Issue</strong>: 2점</li><li><strong>Commit</strong>: 1점</li><hr class='my-2'><li class='text-muted' style='font-size:0.85em'>매일 새벽, <strong>최근 1년 간의 활동</strong>만 자동 반영됩니다.</li><li class='text-muted' style='font-size:0.85em'><strong>수동 갱신이 필요한 경우:</strong><br>- <strong>1년 이전의 활동</strong>이 변경되었을 때 (예: Private → Public)<br>- 방금 기여한 내용을 즉시 반영하고 싶을 때</li><li class='text-danger mt-1' style='font-size:0.85em'>※ 7일에 1회만 가능합니다.</li></ul>">
                                 </i>
                             </h5>
-
                             <h1 class="display-3 fw-bold text-primary" id="resTotalScore"></h1>
 
                             <div class="mb-4">
-                                <button id="btnRefresh" class="btn btn-sm btn-outline-primary rounded-pill px-3 mb-2"
-                                        onclick="requestRefresh()">
+                                <button id="btnRefresh" class="btn btn-sm btn-outline-primary rounded-pill px-3 mb-2">
                                     <i class="fas fa-sync-alt me-1"></i> <span>데이터 갱신하기</span>
                                 </button>
-                                <div id="refreshStatusText" class="small text-muted font-code"
-                                     style="font-size: 0.8rem;"></div>
+                                <div id="refreshStatusText" class="small text-muted font-code" style="font-size: 0.8rem;"></div>
                             </div>
 
                             <div class="d-flex justify-content-center gap-2">
@@ -259,56 +105,35 @@
                                 <div class="p-3 bg-light rounded stat-card">
                                     <div class="fs-4 text-secondary mb-1"><i class="fas fa-code-commit"></i></div>
                                     <div class="small text-muted">Commits</div>
-                                    <div class="fw-bold fs-5">
-                                        <span id="statCommit">0</span>
-                                        <span id="diffCommit" class="badge rounded-pill bg-success diff-badge"
-                                              style="display: none;"></span>
-                                    </div>
+                                    <div class="fw-bold fs-5"><span id="statCommit">0</span><span id="diffCommit" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span></div>
                                 </div>
                             </div>
                             <div class="col-4 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
                                     <div class="fs-4 text-warning mb-1"><i class="fas fa-exclamation-circle"></i></div>
                                     <div class="small text-muted">Issues</div>
-                                    <div class="fw-bold fs-5">
-                                        <span id="statIssue">0</span>
-                                        <span id="diffIssue" class="badge rounded-pill bg-danger diff-badge"
-                                              style="display: none;"></span>
-                                    </div>
+                                    <div class="fw-bold fs-5"><span id="statIssue">0</span><span id="diffIssue" class="badge rounded-pill bg-danger diff-badge" style="display: none;"></span></div>
                                 </div>
                             </div>
                             <div class="col-4 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
                                     <div class="fs-4 text-info mb-1"><i class="far fa-message"></i></div>
                                     <div class="small text-muted">Reviews</div>
-                                    <div class="fw-bold fs-5">
-                                        <span id="statReview">0</span>
-                                        <span id="diffReview" class="badge rounded-pill bg-success diff-badge"
-                                              style="display: none;"></span>
-                                    </div>
+                                    <div class="fw-bold fs-5"><span id="statReview">0</span><span id="diffReview" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span></div>
                                 </div>
                             </div>
                             <div class="col-6 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
                                     <div class="fs-4 text-success mb-1"><i class="fas fa-code-pull-request"></i></div>
                                     <div class="small text-muted">PR Open</div>
-                                    <div class="fw-bold fs-5">
-                                        <span id="statPrOpen">0</span>
-                                        <span id="diffPrOpen" class="badge rounded-pill bg-secondary diff-badge"
-                                              style="display: none;"></span>
-                                    </div>
+                                    <div class="fw-bold fs-5"><span id="statPrOpen">0</span><span id="diffPrOpen" class="badge rounded-pill bg-secondary diff-badge" style="display: none;"></span></div>
                                 </div>
                             </div>
                             <div class="col-6 col-md">
                                 <div class="p-3 bg-light rounded stat-card">
-                                    <div class="fs-4 text-purple mb-1" style="color: #6f42c1;"><i
-                                            class="fas fa-code-merge"></i></div>
+                                    <div class="fs-4 text-purple mb-1" style="color: #6f42c1;"><i class="fas fa-code-merge"></i></div>
                                     <div class="small text-muted">PR Merged</div>
-                                    <div class="fw-bold fs-5">
-                                        <span id="statPrMerged">0</span>
-                                        <span id="diffPrMerged" class="badge rounded-pill bg-success diff-badge"
-                                              style="display: none;"></span>
-                                    </div>
+                                    <div class="fw-bold fs-5"><span id="statPrMerged">0</span><span id="diffPrMerged" class="badge rounded-pill bg-success diff-badge" style="display: none;"></span></div>
                                 </div>
                             </div>
                         </div>
@@ -348,17 +173,12 @@
                     </tr>
                     </thead>
                     <tbody id="rankingTableBody">
-                    <tr>
-                        <td colspan="6" class="py-4 text-muted">랭킹 데이터를 불러오는 중...</td>
-                    </tr>
+                    <tr><td colspan="6" class="py-4 text-muted">랭킹 데이터를 불러오는 중...</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="card-footer bg-white py-3">
-                <nav>
-                    <ul class="pagination justify-content-center mb-0" id="pagination">
-                    </ul>
-                </nav>
+                <nav><ul class="pagination justify-content-center mb-0" id="pagination"></ul></nav>
             </div>
         </div>
     </section>
@@ -367,10 +187,7 @@
 <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
         <p class="mb-1">&copy; 2025 Git Ranker. All rights reserved.</p>
-        <p class="small text-white-50">
-            Designed by <a href="https://github.com/alexization" class="text-white text-decoration-underline"
-                           target="_blank">@alexization</a>
-        </p>
+        <p class="small text-white-50">Designed by <a href="https://github.com/alexization" class="text-white text-decoration-underline" target="_blank">@alexization</a></p>
     </div>
 </footer>
 
@@ -382,73 +199,24 @@
             </div>
             <div class="modal-body text-center pb-5 pt-0">
                 <div class="mb-4">
-                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100"
-                         height="100">
+                    <img id="modalProfileImage" src="" alt="Profile" class="rounded-circle shadow-sm mb-3" width="100" height="100">
                     <h3 id="modalUsername" class="fw-bold mb-1"></h3>
-                    <div id="modalTierBadge"
-                         class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
+                    <div id="modalTierBadge" class="d-inline-block px-3 py-1 rounded-pill bg-light fw-bold border mb-2"></div>
                     <p class="text-muted small mb-0">
                         전체 <span id="modalRanking" class="fw-bold text-dark font-code"></span>위
                         (상위 <span id="modalPercentile" class="fw-bold text-dark font-code"></span>%)
                     </p>
                 </div>
-
                 <div class="mb-4">
                     <h2 class="display-4 fw-bold text-primary mb-0" id="modalTotalScore"></h2>
                     <span class="text-muted small text-uppercase ls-1">Total Score</span>
                 </div>
-
                 <div class="row g-2 justify-content-center">
-                    <div class="col-4">
-                        <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-code-commit"></i> Commits</div>
-                            <div class="fw-bold fs-5">
-                                <span id="modalStatCommit">0</span>
-                                <span id="modalDiffCommit" class="badge rounded-pill bg-success diff-badge"
-                                      style="display: none;"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-exclamation-circle"></i> Issues</div>
-                            <div class="fw-bold fs-5">
-                                <span id="modalStatIssue">0</span>
-                                <span id="modalDiffIssue" class="badge rounded-pill bg-danger diff-badge"
-                                      style="display: none;"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="far fa-message"></i> Reviews</div>
-                            <div class="fw-bold fs-5">
-                                <span id="modalStatReview">0</span>
-                                <span id="modalDiffReview" class="badge rounded-pill bg-success diff-badge"
-                                      style="display: none;"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-code-pull-request"></i> PR Open</div>
-                            <div class="fw-bold fs-5">
-                                <span id="modalStatPrOpen">0</span>
-                                <span id="modalDiffPrOpen" class="badge rounded-pill bg-secondary diff-badge"
-                                      style="display: none;"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-2 bg-light rounded border">
-                            <div class="small text-muted"><i class="fas fa-code-merge"></i> PR Merged</div>
-                            <div class="fw-bold fs-5">
-                                <span id="modalStatPrMerged">0</span>
-                                <span id="modalDiffPrMerged" class="badge rounded-pill bg-success diff-badge"
-                                      style="display: none;"></span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="col-4"><div class="p-2 bg-light rounded border"><div class="small text-muted"><i class="fas fa-code-commit"></i> Commits</div><div class="fw-bold fs-5"><span id="modalStatCommit">0</span><span id="modalDiffCommit" class="badge rounded-pill bg-success diff-badge"></span></div></div></div>
+                    <div class="col-4"><div class="p-2 bg-light rounded border"><div class="small text-muted"><i class="fas fa-exclamation-circle"></i> Issues</div><div class="fw-bold fs-5"><span id="modalStatIssue">0</span><span id="modalDiffIssue" class="badge rounded-pill bg-danger diff-badge"></span></div></div></div>
+                    <div class="col-4"><div class="p-2 bg-light rounded border"><div class="small text-muted"><i class="far fa-message"></i> Reviews</div><div class="fw-bold fs-5"><span id="modalStatReview">0</span><span id="modalDiffReview" class="badge rounded-pill bg-success diff-badge"></span></div></div></div>
+                    <div class="col-6"><div class="p-2 bg-light rounded border"><div class="small text-muted"><i class="fas fa-code-pull-request"></i> PR Open</div><div class="fw-bold fs-5"><span id="modalStatPrOpen">0</span><span id="modalDiffPrOpen" class="badge rounded-pill bg-secondary diff-badge"></span></div></div></div>
+                    <div class="col-6"><div class="p-2 bg-light rounded border"><div class="small text-muted"><i class="fas fa-code-merge"></i> PR Merged</div><div class="fw-bold fs-5"><span id="modalStatPrMerged">0</span><span id="modalDiffPrMerged" class="badge rounded-pill bg-success diff-badge"></span></div></div></div>
                 </div>
             </div>
         </div>
@@ -456,379 +224,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="/js/main.js"></script>
 
-<script>
-    const API_BASE_URL = '/api/v1';
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
-
-        loadRankings(0);
-        startCountdownTimer();
-
-        document.getElementById('usernameInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                registerUser();
-            }
-        });
-    });
-
-    async function loadRankings(page) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/ranking?page=${page}`);
-            const result = await response.json();
-
-            if (result.result === 'SUCCESS') {
-                const {rankings, pageInfo} = result.data;
-                renderRankingTable(rankings);
-                renderPagination(pageInfo);
-            } else {
-                console.error('랭킹 조회 실패:', result.error.message);
-                document.getElementById('rankingTableBody').innerHTML =
-                    `<tr><td colspan="5" class="text-danger">랭킹 정보를 불러오지 못했습니다.</td></tr>`;
-            }
-
-        } catch (error) {
-            console.error('Ranking Load Error:', error);
-            document.getElementById('rankingTableBody').innerHTML =
-                `<tr><td colspan="5" class="text-danger">서버 통신 중 오류가 발생했습니다.</td></tr>`;
-        }
-    }
-
-    function renderRankingTable(users) {
-        const tbody = document.getElementById('rankingTableBody');
-        tbody.innerHTML = '';
-
-        if (!users || users.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="py-4">등록된 랭킹 데이터가 없습니다.</td></tr>`;
-            return;
-        }
-
-        users.forEach((user) => {
-            const row = `
-                <tr>
-                    <td class="fw-bold">${user.ranking}</td>
-                    <td><span class="badge tier-badge text-${user.tier}">${user.tier}</span></td>
-                    <td class="text-start">
-                        <img src="${user.profileImage}" class="rounded-circle me-2" width="30" height="30"
-                             alt="profile">
-                        <a href="https://github.com/${user.username}" target="_blank"
-                           class="text-decoration-none text-dark fw-bold">
-                            ${user.username}
-                        </a>
-                    </td>
-                    <td class="fw-bold text-primary">${user.totalScore.toLocaleString()}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="openUserDetail('${user.username}')">
-                            View
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-    }
-
-    async function openUserDetail(username) {
-        const modalElement = document.getElementById('userDetailModal');
-        const modal = new bootstrap.Modal(modalElement);
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/users/${username}`);
-            const result = await response.json();
-
-            if (result.result === 'SUCCESS') {
-                const data = result.data;
-                document.getElementById('modalProfileImage').src = data.profileImage;
-                document.getElementById('modalUsername').innerText = data.username;
-
-                const tierEl = document.getElementById('modalTierBadge');
-                tierEl.className = `d-inline-block px-3 py-1 rounded-pill fw-bold border mb-2 tier-badge text-${data.tier}`;
-                tierEl.innerHTML = `<i class="${getTierIconClass(data.tier)} me-1"></i> ${data.tier}`;
-
-                document.getElementById('modalRanking').innerText = data.ranking;
-                document.getElementById('modalPercentile').innerText = data.percentile.toFixed(2);
-                document.getElementById('modalTotalScore').innerText = data.totalScore.toLocaleString();
-
-                // [수정된 부분] 단순 텍스트 할당에서 updateStatWithDiff 함수 사용으로 변경
-                updateStatWithDiff('modalStatCommit', 'modalDiffCommit', data.commitCount || 0, data.diffCommitCount || 0);
-                updateStatWithDiff('modalStatIssue', 'modalDiffIssue', data.issueCount || 0, data.diffIssueCount || 0);
-                updateStatWithDiff('modalStatReview', 'modalDiffReview', data.reviewCount || 0, data.diffReviewCount || 0);
-                updateStatWithDiff('modalStatPrOpen', 'modalDiffPrOpen', data.prCount || 0, data.diffPrCount || 0);
-                updateStatWithDiff('modalStatPrMerged', 'modalDiffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
-
-                modal.show();
-            } else {
-                alert('사용자 정보를 불러올 수 없습니다.');
-            }
-        } catch (error) {
-            console.error('User Detail Error:', error);
-            alert('상세 정보를 불러오는 중 오류가 발생했습니다.');
-        }
-    }
-
-    function renderPagination(pageInfo) {
-        const pagination = document.getElementById('pagination');
-        pagination.innerHTML = '';
-        const currentPage = pageInfo.currentPage;
-        const totalPages = pageInfo.totalPages;
-        const pageSize = 5;
-        const startPage = Math.floor(currentPage / pageSize) * pageSize;
-        const endPage = Math.min(startPage + pageSize, totalPages);
-
-        if (pageInfo.isFirst) {
-            pagination.innerHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a></li>`;
-        } else {
-            pagination.innerHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadRankings(${currentPage - 1}); return false;">&laquo;</a></li>`;
-        }
-
-        for (let i = startPage; i < endPage; i++) {
-            const activeClass = (i === currentPage) ? 'active' : '';
-            pagination.innerHTML += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="loadRankings(${i}); return false;">${i + 1}</a></li>`;
-        }
-
-        if (pageInfo.isLast) {
-            pagination.innerHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">&raquo;</a></li>`;
-        } else {
-            pagination.innerHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadRankings(${currentPage + 1}); return false;">&raquo;</a></li>`;
-        }
-    }
-
-    function startCountdownTimer() {
-        function update() {
-            const now = new Date();
-            const nextHour = new Date(now);
-            nextHour.setHours(now.getHours() + 1);
-            nextHour.setMinutes(0);
-            nextHour.setSeconds(0);
-            nextHour.setMilliseconds(0);
-            const diff = nextHour - now;
-            const m = Math.floor(diff / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            const mStr = String(m).padStart(2, '0');
-            const sStr = String(s).padStart(2, '0');
-            const timerEl = document.getElementById('countdownTimer');
-            if (timerEl) timerEl.innerText = `${mStr}:${sStr}`;
-        }
-
-        update();
-        setInterval(update, 1000);
-    }
-
-    async function registerUser() {
-        const username = document.getElementById('usernameInput').value.trim();
-        if (!username) {
-            alert('GitHub Username을 입력해주세요.');
-            return;
-        }
-        showLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/users`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: username})
-            });
-            const result = await response.json();
-            if (result.result === 'SUCCESS') {
-                renderUserResult(result.data);
-            } else {
-                alert(`오류 발생: ${result.error.message}`);
-            }
-        } catch (error) {
-            console.error('API Error:', error);
-            alert('서버와 통신 중 오류가 발생했습니다.');
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    function copyBadgeMarkdown() {
-        const nodeIdInput = document.getElementById('resNodeId');
-        const usernameInput = document.getElementById('usernameInput');
-        if (!nodeIdInput || !usernameInput) {
-            alert('페이지 로딩 중 오류가 발생했습니다.');
-            return;
-        }
-        const nodeId = nodeIdInput.value;
-        if (!nodeId) {
-            alert('사용자 정보를 찾을 수 없습니다.');
-            return;
-        }
-        const origin = window.location.origin;
-        const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(markdown).then(() => {
-                alert('README.md 코드가 복사되었습니다!');
-            })
-                .catch(err => {
-                    console.error('Clipboard API 실패:', err);
-                    alert('복사에 실패했습니다.');
-                });
-        } else {
-            alert('이 브라우저에서는 자동 복사를 지원하지 않습니다.');
-        }
-    }
-
-    function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
-        document.getElementById(statId).innerText = totalValue.toLocaleString();
-        const diffEl = document.getElementById(diffId);
-        if (diffValue > 0) {
-            diffEl.className = 'badge rounded-pill bg-success diff-badge';
-            diffEl.innerText = `+${diffValue}`;
-            diffEl.style.display = 'inline-block';
-        } else if (diffValue < 0) {
-            diffEl.className = 'badge rounded-pill bg-danger diff-badge';
-            diffEl.innerText = `${diffValue}`;
-            diffEl.style.display = 'inline-block';
-        } else {
-            diffEl.style.display = 'none';
-        }
-    }
-
-    function getTierIconClass(tier) {
-        switch (tier) {
-            case 'CHALLENGER':
-                return 'fas fa-crown';
-            case 'MASTER':
-                return 'fas fa-star';
-            case 'EMERALD':
-            case 'GOLD':
-            case 'SILVER':
-            case 'BRONZE':
-            case 'PLATINUM':
-                return 'fas fa-medal';
-            case 'DIAMOND':
-                return 'fas fa-gem';
-            default:
-                return 'fas fa-shield-alt';
-        }
-    }
-
-    function showLoading(isLoading) {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.style.display = isLoading ? 'flex' : 'none';
-    }
-
-    // [추가/수정] renderUserResult 함수 내부
-    function renderUserResult(data) {
-        const section = document.getElementById('resultSection');
-        section.classList.remove('d-none');
-
-        // 기본 데이터 바인딩
-        document.getElementById('resNodeId').value = data.nodeId;
-        document.getElementById('resUsername').value = data.username; // [추가] username 저장
-        document.getElementById('resProfileImage').src = data.profileImage;
-
-        const githubLink = document.getElementById('resGithubLink');
-        githubLink.href = `https://github.com/${data.username}`;
-
-        document.getElementById('resTierText').innerText = data.tier;
-        document.getElementById('resTierText').className = `fw-bold mb-1 text-${data.tier}`;
-        document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
-        document.getElementById('resRanking').innerText = data.ranking;
-        document.getElementById('resTotalScore').innerText = data.totalScore ? data.totalScore.toLocaleString() : '0';
-
-        // 통계 데이터 바인딩
-        updateStatWithDiff('statCommit', 'diffCommit', data.commitCount || 0, data.diffCommitCount || 0);
-        updateStatWithDiff('statIssue', 'diffIssue', data.issueCount || 0, data.diffIssueCount || 0);
-        updateStatWithDiff('statReview', 'diffReview', data.reviewCount || 0, data.diffReviewCount || 0);
-        updateStatWithDiff('statPrOpen', 'diffPrOpen', data.prCount || 0, data.diffPrCount || 0);
-        updateStatWithDiff('statPrMerged', 'diffPrMerged', data.mergedPrCount || 0, data.diffMergedPrCount || 0);
-
-        const iconClass = getTierIconClass(data.tier);
-        document.getElementById('resTierIcon').className = `${iconClass} tier-icon text-${data.tier}`;
-
-        // [추가] 갱신 버튼 상태 관리 로직
-        updateRefreshButtonState(data.lastFullScanAt);
-
-        section.scrollIntoView({behavior: 'smooth', block: 'center'});
-    }
-
-    // [수정] 갱신 버튼 상태 계산 함수
-    function updateRefreshButtonState(lastFullScanAt) {
-        const btn = document.getElementById('btnRefresh');
-        const statusText = document.getElementById('refreshStatusText');
-        const span = btn.querySelector('span');
-
-        const lastScanDate = new Date(lastFullScanAt);
-        const now = new Date();
-
-        // 쿨타임: 7일
-        const cooldownTime = 7 * 24 * 60 * 60 * 1000;
-        const nextAvailableTime = new Date(lastScanDate.getTime() + cooldownTime);
-
-        // 날짜 포맷팅 (YYYY-MM-DD HH:mm)
-        const lastScanStr = formatDateTime(lastScanDate);
-        const nextScanStr = formatDateTime(nextAvailableTime);
-
-        if (now >= nextAvailableTime) {
-            // [Case 1] 갱신 가능
-            btn.disabled = false;
-            btn.className = "btn btn-sm btn-outline-primary rounded-pill px-3 mb-2";
-            span.innerText = "데이터 갱신하기";
-
-            statusText.innerHTML = `
-            마지막 갱신: ${lastScanStr}<br>
-            <span class="text-primary fw-bold">지금 즉시 갱신 가능합니다!</span>
-        `;
-        } else {
-            // [Case 2] 쿨타임 중
-            btn.disabled = true;
-            btn.className = "btn btn-sm btn-outline-secondary rounded-pill px-3 mb-2";
-            span.innerText = "갱신 대기 중";
-
-            statusText.innerHTML = `
-            마지막 갱신: ${lastScanStr}<br>
-            다음 갱신 가능: <span class="fw-bold">${nextScanStr}</span>
-        `;
-        }
-    }
-
-    // [수정] 날짜/시간 포맷팅 헬퍼 (YYYY-MM-DD HH:mm)
-    function formatDateTime(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hour = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-
-        return `${year}-${month}-${day} ${hour}:${min}`;
-    }
-
-    // [추가] 갱신 요청 함수
-    async function requestRefresh() {
-        const username = document.getElementById('resUsername').value;
-        if (!username) return;
-
-        if (!confirm('데이터를 갱신하시겠습니까? (갱신 후 7일간 다시 갱신할 수 없습니다.)')) {
-            return;
-        }
-
-        showLoading(true);
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/users/${username}/refresh`, {
-                method: 'POST'
-            });
-            const result = await response.json();
-
-            if (result.result === 'SUCCESS') {
-                alert('갱신이 완료되었습니다!');
-                renderUserResult(result.data); // 결과 화면 갱신
-            } else {
-                // 에러 메시지 처리 (쿨타임 등)
-                alert(result.error.message);
-            }
-        } catch (error) {
-            console.error('Refresh Error:', error);
-            alert('갱신 요청 중 오류가 발생했습니다.');
-        } finally {
-            showLoading(false);
-        }
-    }
-
-</script>
 </body>
 </html>
