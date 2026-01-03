@@ -42,7 +42,6 @@ export function isRefreshAvailable(lastFullScanAt) {
     return new Date() >= nextTime;
 }
 
-// [신규 기능] 카운트업 애니메이션
 export function animateCountUp(element, target, duration = 1500) {
     if (!element) return;
 
@@ -69,4 +68,37 @@ export function animateCountUp(element, target, duration = 1500) {
     }
 
     requestAnimationFrame(update);
+}
+
+// [신규] Recent Search Utils
+const RECENT_SEARCH_KEY = 'git_ranker_recent_searches';
+const MAX_RECENT_ITEMS = 8;
+
+export function getRecentSearches() {
+    const json = localStorage.getItem(RECENT_SEARCH_KEY);
+    return json ? JSON.parse(json) : [];
+}
+
+export function saveRecentSearch(username) {
+    let searches = getRecentSearches();
+    // 중복 제거 (이미 있으면 삭제 후 맨 앞에 추가)
+    searches = searches.filter(item => item !== username);
+    searches.unshift(username);
+
+    // 최대 개수 제한
+    if (searches.length > MAX_RECENT_ITEMS) {
+        searches = searches.slice(0, MAX_RECENT_ITEMS);
+    }
+
+    localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(searches));
+}
+
+export function removeRecentSearch(username) {
+    let searches = getRecentSearches();
+    searches = searches.filter(item => item !== username);
+    localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(searches));
+}
+
+export function clearAllRecentSearches() {
+    localStorage.removeItem(RECENT_SEARCH_KEY);
 }

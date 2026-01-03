@@ -27,12 +27,10 @@
 <main class="container">
     <div class="top-nav fade-in-up">
         <div></div>
-
         <div class="nav-right">
             <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode">
                 <i class="fas fa-moon"></i>
             </button>
-
             <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn-ghost"
                style="width: auto; padding: 8px 16px;">
                 <i class="fas fa-book"></i> 사용 가이드
@@ -47,12 +45,28 @@
         <p class="brand-subtitle">코드의 품질로 증명하는 개발자 전투력 측정기</p>
     </header>
 
-    <div class="search-wrapper fade-in-up delay-1">
-        <div class="toss-input-group">
-            <i class="fab fa-github input-icon"></i>
-            <input type="text" id="usernameInput" class="toss-input" placeholder="GitHub ID 입력 (예: alexization)"
-                   aria-label="Username" autocomplete="off">
-            <button class="btn-search" onclick="registerUser()">분석하기</button>
+    <div class="search-section fade-in-up delay-1">
+        <div class="search-wrapper">
+            <div class="toss-input-group">
+                <i class="fab fa-github input-icon"></i>
+
+                <div class="input-wrapper">
+                    <input type="text" id="usernameInput" class="toss-input" placeholder="GitHub ID 입력 (예: alexization)"
+                           aria-label="Username" autocomplete="off">
+                    <button id="btnClear" class="btn-clear hidden"><i class="fas fa-times-circle"></i></button>
+                </div>
+
+                <button class="btn-search" onclick="registerUser()">분석하기</button>
+            </div>
+
+            <div id="recentSearchBox" class="recent-search-box hidden">
+                <div class="recent-header">
+                    <span>최근 검색</span>
+                    <button onclick="clearAllRecentSearches()" class="btn-text-sm">전체 삭제</button>
+                </div>
+                <ul id="recentList" class="recent-list">
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -263,6 +277,7 @@
                         <i class="fab fa-github me-1"></i> GitHub
                     </a>
                 </div>
+
                 <div class="stats-grid text-start">
                     <div class="stat-item merged p-3">
                         <span class="stat-header mb-1">PR Merged <i class="fas fa-code-merge ms-1"

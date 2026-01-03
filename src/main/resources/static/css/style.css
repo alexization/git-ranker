@@ -1,5 +1,5 @@
 :root {
-    /* [Global Theme Variables] */
+    /* [Light Mode Variables] */
     --toss-blue: #3182F6;
     --toss-blue-dark: #1B64DA;
 
@@ -18,11 +18,11 @@
 
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
 
+    /* Chart Colors */
     --chart-grid: #E5E8EB;
     --chart-text: #4E5968;
 
-    /* [Tier Colors - Light Mode (Original)] */
-    /* 글자색: 흰 배경에서 잘 보이도록 진하게 */
+    /* [Tier Colors - Light Mode] */
     --tier-challenger: #3182F6;
     --tier-master: #9B59B6;
     --tier-diamond: #00B4FC;
@@ -33,7 +33,7 @@
     --tier-bronze: #CD7F32;
     --tier-iron: #6B7684;
 
-    /* 배경색: 은은하게 */
+    /* Tier Backgrounds - Light Mode */
     --tier-bg-challenger: rgba(49, 130, 246, 0.1);
     --tier-bg-master: rgba(155, 89, 182, 0.1);
     --tier-bg-diamond: rgba(0, 180, 252, 0.1);
@@ -76,19 +76,18 @@
     --chart-grid: #333333;
     --chart-text: #B0B8C1;
 
-    /* [Tier Colors - Dark Mode (Neon/Pastel)] */
-    /* 글자색: 어두운 배경에서 잘 보이도록 밝고 채도가 높게 */
-    --tier-challenger: #5C9EFF; /* 밝은 블루 */
-    --tier-master: #D68BF5; /* 밝은 퍼플 */
-    --tier-diamond: #4FC3F7; /* 밝은 스카이블루 */
-    --tier-platinum: #26E0D6; /* 형광 민트 */
-    --tier-emerald: #66E39E; /* 밝은 그린 */
-    --tier-gold: #FFD700; /* 리얼 골드 (노랑) */
-    --tier-silver: #CFD8DC; /* 밝은 실버 */
-    --tier-bronze: #E0A678; /* 밝은 브론즈 */
-    --tier-iron: #90A4AE; /* 밝은 그레이 */
+    /* Tier Colors - Dark Mode (Neon/Pastel) */
+    --tier-challenger: #5C9EFF;
+    --tier-master: #D68BF5;
+    --tier-diamond: #4FC3F7;
+    --tier-platinum: #26E0D6;
+    --tier-emerald: #66E39E;
+    --tier-gold: #FFD700;
+    --tier-silver: #CFD8DC;
+    --tier-bronze: #E0A678;
+    --tier-iron: #90A4AE;
 
-    /* 배경색: 다크모드에서는 배경도 약간 더 밝게 주거나 투명도 조절 */
+    /* Tier Backgrounds - Dark Mode */
     --tier-bg-challenger: rgba(92, 158, 255, 0.15);
     --tier-bg-master: rgba(214, 139, 245, 0.15);
     --tier-bg-diamond: rgba(79, 195, 247, 0.15);
@@ -225,10 +224,17 @@ body {
     background: var(--bg-tertiary);
 }
 
-/* Search */
-.search-wrapper {
+/* Search Section Layout */
+.search-section {
+    position: relative;
     max-width: 720px;
     margin: 0 auto 40px;
+    z-index: 100;
+}
+
+.search-wrapper {
+    width: 100%;
+    margin: 0;
 }
 
 .toss-input-group {
@@ -255,6 +261,14 @@ body {
     min-width: 48px;
 }
 
+/* Input Wrapper & Clear Button */
+.input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
 .toss-input {
     border: none;
     background: transparent;
@@ -269,6 +283,25 @@ body {
 
 .toss-input::placeholder {
     color: var(--text-weak);
+}
+
+.btn-clear {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.btn-clear:hover {
+    color: var(--text-secondary);
 }
 
 .btn-search {
@@ -286,6 +319,104 @@ body {
 
 .btn-search:hover {
     background-color: var(--toss-blue-dark);
+}
+
+/* Recent Search Dropdown */
+.recent-search-box {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0 8px;
+}
+
+.btn-text-sm {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.btn-text-sm:hover {
+    color: var(--text-secondary);
+}
+
+.recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.recent-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.recent-item:hover {
+    background: var(--border-color);
+}
+
+.recent-name {
+    font-weight: 500;
+}
+
+.btn-delete-item {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 14px;
+    padding: 0 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.btn-delete-item:hover {
+    color: #EF4444;
 }
 
 /* Dashboard Grid */
@@ -306,7 +437,7 @@ body {
     transition: transform 0.1s ease-out, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Profile Section - 3D Effect */
+/* 3D Profile Card */
 .profile-section {
     display: flex;
     flex-direction: column;
@@ -318,7 +449,7 @@ body {
     perspective: 1000px;
 }
 
-/* Glow Effects - 변수로 통합하여 테마별 자동 적용 */
+/* Glow Effects - Variable Based */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
     border: 2px solid var(--tier-bg-challenger);
@@ -377,7 +508,6 @@ body {
     backface-visibility: hidden;
 }
 
-/* [수정] 티어 배지: 변수 적용 */
 .tier-badge {
     font-size: 14px;
     font-weight: 800;
@@ -387,7 +517,6 @@ body {
     align-items: center;
     gap: 6px;
     margin-bottom: 16px;
-    /* 기본값 (JS에서 클래스 못찾을 경우 대비) */
     background: var(--bg-tertiary);
     color: var(--text-secondary);
     transform: translateZ(25px);
@@ -395,6 +524,7 @@ body {
     backface-visibility: hidden;
 }
 
+/* Tier Color Classes */
 .tier-badge.CHALLENGER {
     background: var(--tier-bg-challenger);
     color: var(--tier-challenger);
@@ -655,7 +785,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* Stat Item Colors */
 [data-theme="dark"] .stat-item.merged {
     background: rgba(49, 130, 246, 0.15);
     color: #5C9EFF;
@@ -944,7 +1073,7 @@ body {
     }
 }
 
-/* Report Export Styles */
+/* Simple Report Styles */
 #report-export-view {
     position: fixed;
     top: -9999px;

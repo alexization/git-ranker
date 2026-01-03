@@ -1,9 +1,9 @@
 import * as Api from './api.js';
 import * as Ui from './ui.js';
+import * as Utils from './utils.js'; // Utils import 추가
 
 let userDetailModal = null;
 
-// [신규] 테마 관리 로직
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -25,7 +25,6 @@ function toggleTheme() {
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme === 'dark');
 
-    // 차트 업데이트 트리거 (Ui.js에 있는 함수 호출)
     Ui.updateChartTheme();
 }
 
@@ -35,6 +34,54 @@ function updateThemeIcon(isDark) {
         btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     }
 }
+
+// [신규] 최근 검색어 렌더링
+function renderRecentSearches() {
+    const listEl = document.getElementById('recentList');
+    const boxEl = document.getElementById('recentSearchBox');
+    const searches = Utils.getRecentSearches();
+
+    if (searches.length === 0) {
+        boxEl.classList.add('hidden');
+        return;
+    }
+
+    listEl.innerHTML = '';
+    searches.forEach(username => {
+        const li = document.createElement('li');
+        li.className = 'recent-item';
+        li.innerHTML = `
+            <span class="recent-name">${username}</span>
+            <button class="btn-delete-item" data-user="${username}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // 이름 클릭 시 검색
+        li.querySelector('.recent-name').onclick = () => {
+            document.getElementById('usernameInput').value = username;
+            handleRegisterUser();
+            boxEl.classList.add('hidden');
+        };
+
+        // 삭제 버튼 클릭
+        li.querySelector('.btn-delete-item').onclick = (e) => {
+            e.stopPropagation(); // 부모 클릭 방지
+            Utils.removeRecentSearch(username);
+            renderRecentSearches(); // 재렌더링
+        };
+
+        listEl.appendChild(li);
+    });
+
+    boxEl.classList.remove('hidden');
+}
+
+// [신규] 전체 삭제 핸들러
+window.clearAllRecentSearches = () => {
+    Utils.clearAllRecentSearches();
+    renderRecentSearches();
+};
 
 async function handleLoadRankings(page) {
     try {
@@ -56,10 +103,16 @@ async function handleRegisterUser() {
         return;
     }
 
+    // 드롭다운 숨기기
+    document.getElementById('recentSearchBox').classList.add('hidden');
+
     Ui.showLoading(true);
     try {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
+            // [신규] 검색 성공 시 저장
+            Utils.saveRecentSearch(username);
+
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
             const resultSection = document.getElementById('resultSection');
@@ -126,14 +179,42 @@ window.copyBadgeMarkdown = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // [신규] 테마 초기화
     initTheme();
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
     window.registerUser = handleRegisterUser;
 
-    document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+    const input = document.getElementById('usernameInput');
+    const btnClear = document.getElementById('btnClear');
+    const recentBox = document.getElementById('recentSearchBox');
+
+    // [신규] 입력창 이벤트 바인딩
+    input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleRegisterUser();
+    });
+
+    input.addEventListener('input', () => {
+        // X 버튼 토글
+        if (input.value.length > 0) btnClear.classList.remove('hidden');
+        else btnClear.classList.add('hidden');
+    });
+
+    input.addEventListener('focus', () => {
+        renderRecentSearches();
+    });
+
+    // [신규] X 버튼 클릭 시 초기화
+    btnClear.addEventListener('click', () => {
+        input.value = '';
+        input.focus();
+        btnClear.classList.add('hidden');
+    });
+
+    // [신규] 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !recentBox.contains(e.target)) {
+            recentBox.classList.add('hidden');
+        }
     });
 
     document.addEventListener('requestRefreshUser', handleRefreshUser);
