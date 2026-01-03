@@ -9,6 +9,22 @@ import {
 
 let radarChartInstance = null;
 
+// [신규] 차트 테마 업데이트 함수
+export function updateChartTheme() {
+    if (!radarChartInstance) return;
+
+    // CSS 변수에서 현재 색상 값을 읽어옴
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim();
+
+    // 차트 옵션 업데이트
+    radarChartInstance.options.scales.r.grid.color = gridColor;
+    radarChartInstance.options.scales.r.angleLines.color = gridColor;
+    radarChartInstance.options.scales.r.pointLabels.color = textColor;
+
+    radarChartInstance.update();
+}
+
 // [고도화] 심플 리포트 생성 및 다운로드
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
@@ -37,7 +53,7 @@ window.captureAndDownload = async () => {
         reportContainer.id = 'report-export-view';
         document.body.appendChild(reportContainer);
 
-        // [수정] 요청하신 심플한 레이아웃 적용
+        // 요청하신 심플한 레이아웃 적용
         reportContainer.innerHTML = `
             <div class="simple-report-card">
                 <div class="sim-header">
@@ -100,7 +116,7 @@ window.captureAndDownload = async () => {
     }
 };
 
-// [수정] 3D 효과: Blur 방지를 위해 scale3d 제거
+// [수정] 3D 효과: Blur 방지를 위해 scale3d 제거 및 회전만 적용
 function apply3DEffect(cardElement) {
     if (!cardElement) return;
     if (window.matchMedia("(max-width: 768px)").matches) return;
@@ -128,7 +144,7 @@ function apply3DEffect(cardElement) {
         const rotateY = ((center.x / bounds.width) * 4).toFixed(2);
 
         requestAnimationFrame(() => {
-            // [중요] scale3d 제거 - 확대 시 비트맵 래스터화로 인한 흐림 현상 방지
+            // scale3d를 제거하여 텍스트 선명도 유지
             cardElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
     });
@@ -158,7 +174,6 @@ export function showLoading(isLoading) {
 export function showResultSection() {
     const resultSection = document.getElementById('resultSection');
     resultSection.classList.remove('hidden');
-
     apply3DEffect(document.getElementById('profileCard'));
 }
 
@@ -244,6 +259,10 @@ function createRadarChart(data) {
 
     const chartData = rawData.map(v => Math.log10(v + 1));
 
+    // 초기 색상 로드 (다크모드 지원을 위해 CSS 변수 참조)
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim();
+
     radarChartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
@@ -266,11 +285,11 @@ function createRadarChart(data) {
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    angleLines: {color: '#E5E8EB'},
-                    grid: {color: '#E5E8EB'},
+                    angleLines: {color: gridColor},
+                    grid: {color: gridColor},
                     pointLabels: {
                         font: {family: 'Pretendard', size: 12, weight: '600'},
-                        color: '#4E5968'
+                        color: textColor
                     },
                     ticks: {display: false, maxTicksLimit: 5},
                     suggestedMin: 0
@@ -396,6 +415,7 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
     pagination.appendChild(createItem('<i class="fas fa-chevron-right"></i>', currentPage + 1, isLast));
 }
 
+// [수정] 모달에도 증감 데이터 반영
 export function renderUserDetailModal(data, modalInstance) {
     document.getElementById('modalProfileImage').src = data.profileImage;
     document.getElementById('modalUsername').innerText = data.username;

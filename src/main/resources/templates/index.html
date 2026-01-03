@@ -26,10 +26,18 @@
 
 <main class="container">
     <div class="top-nav fade-in-up">
-        <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn-ghost"
-           style="width: auto; padding: 8px 16px;">
-            <i class="fas fa-book"></i> 사용 가이드
-        </a>
+        <div></div>
+
+        <div class="nav-right">
+            <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+
+            <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn-ghost"
+               style="width: auto; padding: 8px 16px;">
+                <i class="fas fa-book"></i> 사용 가이드
+            </a>
+        </div>
     </div>
 
     <header class="header-area fade-in-up">
@@ -74,7 +82,6 @@
                     <button onclick="captureAndDownload()" class="btn-black">
                         <i class="fas fa-camera"></i> 이미지로 저장
                     </button>
-
                     <div class="sub-actions">
                         <button onclick="copyBadgeMarkdown()" class="btn-ghost">
                             <i class="fab fa-markdown"></i> 배지 복사
@@ -256,7 +263,6 @@
                         <i class="fab fa-github me-1"></i> GitHub
                     </a>
                 </div>
-
                 <div class="stats-grid text-start">
                     <div class="stat-item merged p-3">
                         <span class="stat-header mb-1">PR Merged <i class="fas fa-code-merge ms-1"
@@ -266,7 +272,6 @@
                             <span id="modalDiffPrMerged" class="diff-badge"></span>
                         </div>
                     </div>
-
                     <div class="stat-item open p-3">
                         <span class="stat-header mb-1">PR Open <i class="fas fa-code-pull-request ms-1"
                                                                   style="color: #9C27B0;"></i></span>
@@ -275,7 +280,6 @@
                             <span id="modalDiffPrOpen" class="diff-badge"></span>
                         </div>
                     </div>
-
                     <div class="stat-item review p-3">
                         <span class="stat-header mb-1">Reviews <i class="far fa-message ms-1"
                                                                   style="color: #009688;"></i></span>
@@ -284,7 +288,6 @@
                             <span id="modalDiffReview" class="diff-badge"></span>
                         </div>
                     </div>
-
                     <div class="stat-item issue p-3">
                         <span class="stat-header mb-1">Issues <i class="fas fa-exclamation-circle ms-1"
                                                                  style="color: #FF9800;"></i></span>
@@ -293,7 +296,6 @@
                             <span id="modalDiffIssue" class="diff-badge"></span>
                         </div>
                     </div>
-
                     <div class="stat-item commit p-3" style="grid-column: span 2;">
                         <span class="stat-header mb-1">Commits <i
                                 class="fas fa-code-commit ms-1 text-secondary"></i></span>

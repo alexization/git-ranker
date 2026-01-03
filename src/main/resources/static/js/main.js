@@ -3,6 +3,39 @@ import * as Ui from './ui.js';
 
 let userDetailModal = null;
 
+// [신규] 테마 관리 로직
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        updateThemeIcon(true);
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        updateThemeIcon(false);
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme === 'dark');
+
+    // 차트 업데이트 트리거 (Ui.js에 있는 함수 호출)
+    Ui.updateChartTheme();
+}
+
+function updateThemeIcon(isDark) {
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+}
+
 async function handleLoadRankings(page) {
     try {
         const result = await Api.fetchRankings(page);
@@ -28,14 +61,10 @@ async function handleRegisterUser() {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
             Ui.renderUserResult(result.data);
-
-            // [수정] 성공했을 때만 결과 섹션을 표시
             Ui.showResultSection();
-
             const resultSection = document.getElementById('resultSection');
             resultSection.scrollIntoView({behavior: 'smooth', block: 'center'});
         } else {
-            // 실패 시 Toast만 띄우고 결과창은 띄우지 않음
             Ui.showToast(`오류: ${result.error.message}`);
         }
     } catch (error) {
@@ -57,7 +86,7 @@ async function handleRefreshUser() {
         if (result.result === 'SUCCESS') {
             Ui.showToast('✅ 갱신이 완료되었습니다!');
             Ui.renderUserResult(result.data);
-            Ui.showResultSection(); // 갱신 성공 시에도 표시 보장
+            Ui.showResultSection();
         } else {
             Ui.showToast(result.error.message);
         }
@@ -97,6 +126,10 @@ window.copyBadgeMarkdown = () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // [신규] 테마 초기화
+    initTheme();
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
     window.registerUser = handleRegisterUser;
 
     document.getElementById('usernameInput').addEventListener('keypress', (e) => {
