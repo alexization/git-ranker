@@ -4,6 +4,13 @@ import * as Utils from './utils.js';
 
 let userDetailModal = null;
 let currentFocus = -1;
+let currentTier = 'ALL';
+
+// [New] Drag Scrolling Variables
+let isDown = false;
+let startX;
+let scrollLeft;
+let isDragging = false;
 
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
@@ -120,10 +127,10 @@ function checkUrlParams() {
 
 async function handleLoadRankings(page) {
     try {
-        const result = await Api.fetchRankings(page);
+        const result = await Api.fetchRankings(page, currentTier);
         if (result.result === 'SUCCESS') {
             Ui.renderRankingTable(result.data.rankings);
-            Ui.renderPagination(result.data.pageInfo, handleLoadRankings);
+            Ui.renderPagination(result.data.pageInfo, (newPage) => handleLoadRankings(newPage));
         }
     } catch (error) {
         console.error('Ranking Load Error:', error);
@@ -224,7 +231,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
 
-    // [수정] 키보드 내비게이션 로직 전면 개편 (2D Spatial Navigation)
+    const tabsContainer = document.getElementById('tierTabs');
+    const scrollHintLeft = document.getElementById('scrollHintLeft');
+    const scrollHintRight = document.getElementById('scrollHintRight');
+
+    const tabs = document.querySelectorAll('.tab-item');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                return;
+            }
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentTier = tab.getAttribute('data-tier');
+            handleLoadRankings(0);
+        });
+    });
+
+    if (tabsContainer) {
+        tabsContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            isDragging = false;
+            tabsContainer.classList.add('active');
+            startX = e.pageX - tabsContainer.offsetLeft;
+            scrollLeft = tabsContainer.scrollLeft;
+        });
+
+        tabsContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            tabsContainer.classList.remove('active');
+        });
+
+        tabsContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            tabsContainer.classList.remove('active');
+            setTimeout(() => isDragging = false, 50);
+        });
+
+        tabsContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - tabsContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            tabsContainer.scrollLeft = scrollLeft - walk;
+            if (Math.abs(walk) > 5) {
+                isDragging = true;
+            }
+        });
+
+        const updateScrollHints = () => {
+            const maxScrollLeft = tabsContainer.scrollWidth - tabsContainer.clientWidth;
+
+            if (tabsContainer.scrollLeft > 5) {
+                scrollHintLeft.style.opacity = '1';
+                scrollHintLeft.classList.add('visible');
+            } else {
+                scrollHintLeft.style.opacity = '0';
+                scrollHintLeft.classList.remove('visible');
+            }
+
+            if (maxScrollLeft - tabsContainer.scrollLeft > 2) {
+                scrollHintRight.style.opacity = '1';
+                scrollHintRight.classList.add('visible');
+            } else {
+                scrollHintRight.style.opacity = '0';
+                scrollHintRight.classList.remove('visible');
+            }
+        };
+
+        tabsContainer.addEventListener('scroll', updateScrollHints);
+        window.addEventListener('resize', updateScrollHints);
+
+        scrollHintLeft.addEventListener('click', () => {
+            tabsContainer.scrollBy({left: -200, behavior: 'smooth'});
+        });
+        scrollHintRight.addEventListener('click', () => {
+            tabsContainer.scrollBy({left: 200, behavior: 'smooth'});
+        });
+
+        updateScrollHints();
+    }
+
     input.addEventListener('keydown', (e) => {
         const list = document.getElementById('recentList');
         if (!list || list.classList.contains('hidden')) return;
@@ -232,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const items = Array.from(list.getElementsByTagName('li'));
         if (items.length === 0) return;
 
-        // 1. 좌우 방향키: 순차 이동
         if (e.key === 'ArrowRight') {
             e.preventDefault();
             currentFocus++;
@@ -243,9 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentFocus--;
             if (currentFocus < 0) currentFocus = items.length - 1;
             addActive(items);
-        }
-        // 2. 상하 방향키: 시각적 위치 기반 이동 (Spatial Navigation)
-        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
 
             if (currentFocus === -1) {
@@ -268,7 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetCenterX = targetRect.left + targetRect.width / 2;
                 const targetCenterY = targetRect.top + targetRect.height / 2;
 
-                // 방향 판단 (약간의 오차 허용)
                 const isBelow = targetRect.top >= currentRect.bottom - 5;
                 const isAbove = targetRect.bottom <= currentRect.top + 5;
 
@@ -277,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.key === 'ArrowUp' && isAbove) isValidCandidate = true;
 
                 if (isValidCandidate) {
-                    // 유클리드 거리 계산 + X축 페널티 (바로 위/아래 우선)
                     const dist = Math.hypot(targetCenterX - currentCenterX, targetCenterY - currentCenterY);
                     const weightedDist = dist + Math.abs(targetCenterX - currentCenterX) * 0.5;
 
@@ -292,23 +375,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentFocus = closestIndex;
                 addActive(items);
             }
-        }
-        // 3. 엔터키: 선택
-        else if (e.key === 'Enter') {
+        } else if (e.key === 'Enter') {
             e.preventDefault();
             if (currentFocus > -1) {
                 if (items[currentFocus]) items[currentFocus].click();
             } else {
                 handleRegisterUser(true);
             }
-        }
-        // 4. ESC: 닫기
-        else if (e.key === 'Escape') {
+        } else if (e.key === 'Escape') {
             recentBox.classList.add('hidden');
             currentFocus = -1;
-        }
-        // 5. Delete: 삭제
-        else if ((e.key === 'Delete' || (e.shiftKey && e.key === 'Delete')) && currentFocus > -1) {
+        } else if ((e.key === 'Delete' || (e.shiftKey && e.key === 'Delete')) && currentFocus > -1) {
             e.preventDefault();
             const targetUser = items[currentFocus].querySelector('.btn-delete-item').getAttribute('data-user');
             Utils.removeRecentSearch(targetUser);

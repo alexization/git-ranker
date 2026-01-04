@@ -10,9 +10,7 @@
     <meta name="author" content="Git Ranker Team">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#F2F4F6" id="metaThemeColor">
-
     <link rel="canonical" href="https://www.git-ranker.com/">
-
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.git-ranker.com/">
     <meta property="og:site_name" content="Git Ranker">
@@ -21,21 +19,17 @@
     <meta property="og:image" content="/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://www.git-ranker.com/">
     <meta name="twitter:title" content="Git Ranker - 개발자 전투력 측정기">
     <meta name="twitter:description" content="코드의 품질과 기여도로 당신의 진짜 티어를 증명하세요.">
     <meta name="twitter:image" content="/og-image.png">
-
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
     <link rel="modulepreload" href="/js/utils.js">
     <link rel="modulepreload" href="/js/api.js">
     <link rel="modulepreload" href="/js/ui.js">
     <link rel="modulepreload" href="/js/main.js">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"/>
@@ -43,77 +37,59 @@
           rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script type="module" src="/js/main.js"></script>
 </head>
 <body>
-
 <div id="toast-container"></div>
-
 <main class="container">
     <div class="top-nav fade-in-up">
         <div></div>
         <div class="nav-right">
-            <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
+            <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode"><i class="fas fa-moon"></i>
             </button>
             <a href="https://github.com/alexization/git-ranker" target="_blank" class="btn-ghost"
-               style="width: auto; padding: 8px 16px;">
-                <i class="fas fa-book"></i> 사용 가이드
-            </a>
+               style="width: auto; padding: 8px 16px;"><i class="fas fa-book"></i> 사용 가이드</a>
         </div>
     </div>
-
     <header class="header-area fade-in-up">
         <a href="/" style="text-decoration: none; color: inherit; display: inline-block;">
-            <h1 class="brand-title">
-                <i class="fab fa-github logo-icon"></i> Git Ranker
-            </h1>
+            <h1 class="brand-title"><i class="fab fa-github logo-icon"></i> Git Ranker</h1>
         </a>
         <p class="brand-subtitle">코드의 품질로 증명하는 개발자 전투력 측정기</p>
     </header>
-
     <div class="search-section fade-in-up delay-1">
         <div class="search-wrapper">
             <div class="toss-input-group">
                 <i class="fab fa-github input-icon"></i>
-
                 <div class="input-wrapper">
                     <input type="text" id="usernameInput" class="toss-input" placeholder="GitHub ID 입력 (예: alexization)"
                            aria-label="Username" autocomplete="off">
                     <button id="btnClear" class="btn-clear hidden"><i class="fas fa-times-circle"></i></button>
                 </div>
-
                 <button class="btn-search" onclick="registerUser()">분석하기</button>
             </div>
-
             <div id="recentSearchBox" class="recent-search-box hidden">
                 <div class="recent-header">
                     <span>최근 검색</span>
                     <button onclick="clearAllRecentSearches()" class="btn-text-sm">전체 삭제</button>
                 </div>
-                <ul id="recentList" class="recent-list">
-                </ul>
+                <ul id="recentList" class="recent-list"></ul>
             </div>
         </div>
     </div>
-
     <div id="captureArea">
         <section id="resultSection" class="dashboard-grid hidden fade-in-up delay-2">
             <div class="card-box profile-section" id="profileCard">
                 <img id="resProfileImage" src="" alt="Profile" class="profile-img">
-                <div id="resTierBadgeWrapper" class="tier-badge">
-                    <i id="resTierIcon" class="fas fa-crown"></i> <span id="resTierText">IRON</span>
-                </div>
-
+                <div id="resTierBadgeWrapper" class="tier-badge"><i id="resTierIcon" class="fas fa-crown"></i> <span
+                        id="resTierText">IRON</span></div>
                 <div class="text-center w-100 mt-2">
-                    <div class="rank-info">
-                        상위 <span id="resPercentile" class="font-code fw-bold text-primary">0.00</span>% • <span
+                    <div class="rank-info">상위 <span id="resPercentile"
+                                                    class="font-code fw-bold text-primary">0.00</span>% • <span
                             id="resRanking" class="font-code fw-bold">0</span>위
                     </div>
-
                     <div class="d-flex align-items-center justify-content-center gap-2 my-2">
                         <div id="resTotalScore" class="score-display font-code">0</div>
                         <i class="far fa-question-circle info-icon" data-bs-toggle="modal"
@@ -121,74 +97,58 @@
                     </div>
                     <div class="rank-info" style="font-size: 14px;">Total Score</div>
                 </div>
-
                 <div class="action-buttons" data-html2canvas-ignore="true">
-                    <button onclick="captureAndDownload()" class="btn-black">
-                        <i class="fas fa-share-alt"></i> 이미지 공유/저장
+                    <button onclick="captureAndDownload()" class="btn-black"><i class="fas fa-share-alt"></i> 이미지 공유/저장
                     </button>
-
                     <div class="sub-actions">
-                        <button onclick="copyBadgeMarkdown()" class="btn-ghost">
-                            <i class="fab fa-markdown"></i> 배지 복사
+                        <button onclick="copyBadgeMarkdown()" class="btn-ghost"><i class="fab fa-markdown"></i> 배지 복사
                         </button>
-                        <a id="resGithubLink" href="#" target="_blank" class="btn-ghost">
-                            <i class="fab fa-github"></i> GitHub
-                        </a>
+                        <a id="resGithubLink" href="#" target="_blank" class="btn-ghost"><i class="fab fa-github"></i>
+                            GitHub</a>
                     </div>
                 </div>
-
                 <div class="refresh-box" data-html2canvas-ignore="true">
                     <div id="refreshStatusText" class="refresh-text"></div>
-                    <button id="btnRefresh" class="btn-refresh-sm">
-                        <i class="fas fa-sync-alt"></i> 갱신하기
-                    </button>
+                    <button id="btnRefresh" class="btn-refresh-sm"><i class="fas fa-sync-alt"></i> 갱신하기</button>
                 </div>
-
                 <input type="hidden" id="resNodeId">
                 <input type="hidden" id="resUsername">
             </div>
-
             <div class="right-column" style="display: flex; flex-direction: column; gap: 16px;">
                 <div class="card-box chart-container"
                      style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative;">
                     <canvas id="statRadarChart"></canvas>
                 </div>
-
                 <div class="card-box" style="padding: 20px;">
                     <div class="stats-grid">
                         <div class="stat-item merged">
                             <div class="stat-header">PR Merged <i class="fas fa-code-merge"></i></div>
-                            <div class="stat-value font-code">
-                                <span id="statPrMerged">0</span>
-                                <span id="diffPrMerged" class="diff-badge"></span>
+                            <div class="stat-value font-code"><span id="statPrMerged">0</span><span id="diffPrMerged"
+                                                                                                    class="diff-badge"></span>
                             </div>
                         </div>
                         <div class="stat-item open">
                             <div class="stat-header">PR Open <i class="fas fa-code-pull-request"></i></div>
-                            <div class="stat-value font-code">
-                                <span id="statPrOpen">0</span>
-                                <span id="diffPrOpen" class="diff-badge"></span>
+                            <div class="stat-value font-code"><span id="statPrOpen">0</span><span id="diffPrOpen"
+                                                                                                  class="diff-badge"></span>
                             </div>
                         </div>
                         <div class="stat-item review">
                             <div class="stat-header">Reviews <i class="far fa-message"></i></div>
-                            <div class="stat-value font-code">
-                                <span id="statReview">0</span>
-                                <span id="diffReview" class="diff-badge"></span>
+                            <div class="stat-value font-code"><span id="statReview">0</span><span id="diffReview"
+                                                                                                  class="diff-badge"></span>
                             </div>
                         </div>
                         <div class="stat-item issue">
                             <div class="stat-header">Issues <i class="fas fa-exclamation-circle"></i></div>
-                            <div class="stat-value font-code">
-                                <span id="statIssue">0</span>
-                                <span id="diffIssue" class="diff-badge"></span>
+                            <div class="stat-value font-code"><span id="statIssue">0</span><span id="diffIssue"
+                                                                                                 class="diff-badge"></span>
                             </div>
                         </div>
                         <div class="stat-item commit" style="grid-column: span 2;">
                             <div class="stat-header">Commits <i class="fas fa-code-commit"></i></div>
-                            <div class="stat-value font-code">
-                                <span id="statCommit">0</span>
-                                <span id="diffCommit" class="diff-badge"></span>
+                            <div class="stat-value font-code"><span id="statCommit">0</span><span id="diffCommit"
+                                                                                                  class="diff-badge"></span>
                             </div>
                         </div>
                     </div>
@@ -196,7 +156,6 @@
             </div>
         </section>
     </div>
-
     <section id="skeletonSection" class="dashboard-grid hidden fade-in-up">
         <div class="card-box profile-section">
             <div class="skeleton" style="width: 110px; height: 110px; border-radius: 50%; margin-bottom: 24px;"></div>
@@ -218,13 +177,27 @@
             </div>
         </div>
     </section>
-
     <section class="ranking-section fade-in-up delay-3">
         <div class="section-header">
-            <span class="section-title">🏆 전체 순위</span>
-            <div class="timer-badge">
-                <i class="fas fa-stopwatch"></i> <span id="countdownTimer" class="font-code">--:--</span>
+            <span class="section-title">🏆 개발자 랭킹</span>
+            <div class="timer-badge"><i class="fas fa-stopwatch"></i> <span id="countdownTimer"
+                                                                            class="font-code">--:--</span></div>
+        </div>
+        <div class="ranking-tabs-wrapper">
+            <button id="scrollHintLeft" class="scroll-hint-left" aria-label="Scroll Left"></button>
+            <div class="ranking-tabs" id="tierTabs">
+                <button class="tab-item active" data-tier="ALL">ALL</button>
+                <button class="tab-item" data-tier="CHALLENGER">CHALLENGER</button>
+                <button class="tab-item" data-tier="MASTER">MASTER</button>
+                <button class="tab-item" data-tier="DIAMOND">DIAMOND</button>
+                <button class="tab-item" data-tier="EMERALD">EMERALD</button>
+                <button class="tab-item" data-tier="PLATINUM">PLATINUM</button>
+                <button class="tab-item" data-tier="GOLD">GOLD</button>
+                <button class="tab-item" data-tier="SILVER">SILVER</button>
+                <button class="tab-item" data-tier="BRONZE">BRONZE</button>
+                <button class="tab-item" data-tier="IRON">IRON</button>
             </div>
+            <button id="scrollHintRight" class="scroll-hint-right" aria-label="Scroll Right"></button>
         </div>
         <div class="ranking-list" id="rankingHeader">
             <div style="display: flex; padding: 12px 8px; border-bottom: 1px solid #E5E8EB; color: #8B95A1; font-size: 13px; font-weight: 600;">
@@ -239,15 +212,12 @@
             <ul class="pagination" id="pagination" style="display: flex; gap: 6px; list-style: none; padding: 0;"></ul>
         </div>
     </section>
-
     <footer class="footer fade-in-up delay-3">
         <p>&copy; 2026 Git Ranker. All rights reserved.</p>
-        <a href="https://github.com/alexization" target="_blank" class="footer-link">
-            <i class="fab fa-github"></i> alexization
-        </a>
+        <a href="https://github.com/alexization" target="_blank" class="footer-link"><i class="fab fa-github"></i>
+            alexization</a>
     </footer>
 </main>
-
 <div class="modal fade" id="scoreInfoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -286,7 +256,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -304,73 +273,60 @@
                 <h2 id="modalTotalScore" class="fw-bold font-code mb-4" style="font-size: 36px;"></h2>
                 <div class="mb-4">
                     <a id="modalGithubLink" href="#" target="_blank" class="btn btn-dark rounded-pill px-4 py-2 fw-bold"
-                       style="font-size: 15px;">
-                        <i class="fab fa-github me-1"></i> GitHub
-                    </a>
+                       style="font-size: 15px;"><i class="fab fa-github me-1"></i> GitHub</a>
                 </div>
-
                 <div class="stats-grid text-start">
                     <div class="stat-item merged p-3">
                         <span class="stat-header mb-1">PR Merged <i class="fas fa-code-merge ms-1"
                                                                     style="color: #3182F6;"></i></span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="modalStatPrMerged" class="font-code fw-bold h5 m-0"></span>
-                            <span id="modalDiffPrMerged" class="diff-badge"></span>
-                        </div>
+                        <div class="d-flex align-items-center gap-2"><span id="modalStatPrMerged"
+                                                                           class="font-code fw-bold h5 m-0"></span><span
+                                id="modalDiffPrMerged" class="diff-badge"></span></div>
                     </div>
                     <div class="stat-item open p-3">
                         <span class="stat-header mb-1">PR Open <i class="fas fa-code-pull-request ms-1"
                                                                   style="color: #9C27B0;"></i></span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="modalStatPrOpen" class="font-code fw-bold h5 m-0"></span>
-                            <span id="modalDiffPrOpen" class="diff-badge"></span>
-                        </div>
+                        <div class="d-flex align-items-center gap-2"><span id="modalStatPrOpen"
+                                                                           class="font-code fw-bold h5 m-0"></span><span
+                                id="modalDiffPrOpen" class="diff-badge"></span></div>
                     </div>
                     <div class="stat-item review p-3">
                         <span class="stat-header mb-1">Reviews <i class="far fa-message ms-1"
                                                                   style="color: #009688;"></i></span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="modalStatReview" class="font-code fw-bold h5 m-0"></span>
-                            <span id="modalDiffReview" class="diff-badge"></span>
-                        </div>
+                        <div class="d-flex align-items-center gap-2"><span id="modalStatReview"
+                                                                           class="font-code fw-bold h5 m-0"></span><span
+                                id="modalDiffReview" class="diff-badge"></span></div>
                     </div>
                     <div class="stat-item issue p-3">
                         <span class="stat-header mb-1">Issues <i class="fas fa-exclamation-circle ms-1"
                                                                  style="color: #FF9800;"></i></span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="modalStatIssue" class="font-code fw-bold h5 m-0"></span>
-                            <span id="modalDiffIssue" class="diff-badge"></span>
-                        </div>
+                        <div class="d-flex align-items-center gap-2"><span id="modalStatIssue"
+                                                                           class="font-code fw-bold h5 m-0"></span><span
+                                id="modalDiffIssue" class="diff-badge"></span></div>
                     </div>
                     <div class="stat-item commit p-3" style="grid-column: span 2;">
                         <span class="stat-header mb-1">Commits <i
                                 class="fas fa-code-commit ms-1 text-secondary"></i></span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="modalStatCommit" class="font-code fw-bold h5 m-0"></span>
-                            <span id="modalDiffCommit" class="diff-badge"></span>
-                        </div>
+                        <div class="d-flex align-items-center gap-2"><span id="modalStatCommit"
+                                                                           class="font-code fw-bold h5 m-0"></span><span
+                                id="modalDiffCommit" class="diff-badge"></span></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <div id="customConfirmModal" class="custom-modal hidden">
     <div class="custom-modal-backdrop"></div>
     <div class="custom-modal-content">
         <h3 class="custom-modal-title">데이터를 갱신할까요?</h3>
-        <p class="custom-modal-desc">
-            갱신 후에는 7일 동안 다시 갱신할 수 없어요.<br>
-            지금 최신 정보를 가져올까요?
-        </p>
+        <p class="custom-modal-desc">갱신 후에는 7일 동안 다시 갱신할 수 없어요.<br>지금 최신 정보를 가져올까요?</p>
         <div class="custom-modal-actions">
             <button id="btnModalCancel" class="btn-modal-secondary">아니요</button>
             <button id="btnModalConfirm" class="btn-modal-primary">네, 갱신할게요</button>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="/js/main.js"></script>
 </body>
