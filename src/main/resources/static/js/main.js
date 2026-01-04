@@ -6,11 +6,13 @@ let userDetailModal = null;
 let currentFocus = -1;
 let currentTier = 'ALL';
 
-// [New] Drag Scrolling Variables
+// Drag Scrolling Variables
 let isDown = false;
 let startX;
 let scrollLeft;
 let isDragging = false;
+
+// ... (initTheme, toggleTheme, updateThemeUI, renderRecentSearches, addActive, removeActive, triggerShake, window.clearAllRecentSearches, updateUrlState, checkUrlParams 함수들은 기존과 동일하므로 생략 가능하나, 전체 복붙을 위해 포함) ...
 
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
@@ -245,17 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const clickedTier = tab.getAttribute('data-tier');
 
-            // [Modified] Toggle Logic: Active 탭 클릭 시 ALL로 복귀
             if (tab.classList.contains('active')) {
-                if (clickedTier === 'ALL') return; // ALL 클릭 시엔 동작 없음
-
-                // ALL 탭 활성화
+                if (clickedTier === 'ALL') return;
                 tabs.forEach(t => t.classList.remove('active'));
                 const allTab = document.querySelector('.tab-item[data-tier="ALL"]');
                 if (allTab) allTab.classList.add('active');
                 currentTier = 'ALL';
             } else {
-                // 일반 탭 전환
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentTier = clickedTier;
@@ -329,7 +327,26 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScrollHints();
     }
 
+    // [핵심 수정] 키보드 이벤트 핸들러 개선
     input.addEventListener('keydown', (e) => {
+        // 1. Enter 키는 언제나 동작해야 함 (최근 검색어 유무와 상관없이)
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1) {
+                const list = document.getElementById('recentList');
+                if (list && !list.classList.contains('hidden')) {
+                    const items = list.getElementsByTagName('li');
+                    if (items[currentFocus]) {
+                        items[currentFocus].click();
+                        return;
+                    }
+                }
+            }
+            handleRegisterUser(true);
+            return;
+        }
+
+        // 2. 방향키 및 기타 키는 최근 검색어가 있을 때만 동작
         const list = document.getElementById('recentList');
         if (!list || list.classList.contains('hidden')) return;
 
@@ -390,13 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (closestIndex !== -1) {
                 currentFocus = closestIndex;
                 addActive(items);
-            }
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (currentFocus > -1) {
-                if (items[currentFocus]) items[currentFocus].click();
-            } else {
-                handleRegisterUser(true);
             }
         } else if (e.key === 'Escape') {
             recentBox.classList.add('hidden');

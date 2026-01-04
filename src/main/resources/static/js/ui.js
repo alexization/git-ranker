@@ -26,6 +26,8 @@ export function updateChartTheme() {
 
 export function showToast(message) {
     const container = document.getElementById('toast-container');
+    container.innerHTML = '';
+
     const toast = document.createElement('div');
     toast.className = 'toss-toast';
     toast.innerHTML = message;
@@ -59,7 +61,6 @@ export function showConfirmModal(onConfirm) {
     };
 }
 
-// [성능 최적화] 스크립트 동적 로더
 function loadScript(src) {
     return new Promise((resolve, reject) => {
         if (document.querySelector(`script[src="${src}"]`)) {
@@ -74,22 +75,166 @@ function loadScript(src) {
     });
 }
 
+function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+        try {
+            canvas.toBlob((blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error("Blob creation failed"));
+            }, 'image/png');
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+// 이미지 로딩 (PC용 안정성 확보)
+async function loadImageAsBase64(url) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+
+    try {
+        const response = await fetch(url, {signal: controller.signal});
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.warn("Image load failed or timed out, using original url", e);
+        return url;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+// 공유 프리뷰 모달
+function showSharePreviewModal(file, filename) {
+    const existingModal = document.getElementById('sharePreviewModal');
+    if (existingModal) existingModal.remove();
+
+    const imageUrl = URL.createObjectURL(file);
+
+    const modalHtml = `
+        <div id="sharePreviewModal" class="custom-modal">
+            <div class="custom-modal-backdrop"></div>
+            <div class="custom-modal-content" style="max-width: 360px; width: 90%;">
+                <h3 class="custom-modal-title" style="margin-bottom:12px;">리포트가 준비되었어요</h3>
+                <p class="custom-modal-desc" style="margin-bottom:20px;">친구들에게 내 개발 전투력을 자랑해보세요!</p>
+                <div style="margin: 0 auto 24px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e8eb; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <img src="${imageUrl}" style="width: 100%; height: auto; display: block;" alt="Report Preview">
+                </div>
+                <div class="custom-modal-actions">
+                    <button id="btnShareCancel" class="btn-modal-secondary">닫기</button>
+                    <button id="btnShareAction" class="btn-modal-primary"><i class="fas fa-share-alt"></i> 공유하기</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    const modal = document.getElementById('sharePreviewModal');
+    const btnCancel = document.getElementById('btnShareCancel');
+    const btnShare = document.getElementById('btnShareAction');
+
+    requestAnimationFrame(() => {
+        const backdrop = modal.querySelector('.custom-modal-backdrop');
+        const content = modal.querySelector('.custom-modal-content');
+        if (backdrop) backdrop.style.opacity = '1';
+        if (content) content.style.transform = 'scale(1)';
+    });
+
+    const closeModal = () => {
+        modal.remove();
+        URL.revokeObjectURL(imageUrl);
+    };
+
+    btnCancel.onclick = closeModal;
+
+    btnShare.onclick = async () => {
+        // 더블 클릭 방지
+        btnShare.disabled = true;
+
+        try {
+            if (navigator.canShare && navigator.canShare({files: [file]})) {
+
+                // [핵심 수정] 모바일/PC 분기 처리
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                let shareData = {files: [file]};
+
+                // 모바일일 때만 텍스트/타이틀 추가 (PC에서는 파일 중복 복사 방지를 위해 파일만 전송)
+                if (isMobile) {
+                    shareData.title = 'Git Ranker Report';
+                    shareData.text = '나의 개발자 전투력을 확인해보세요! \n https://git-ranker.com';
+                }
+
+                await navigator.share(shareData);
+
+                showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 공유에 성공했어요');
+                closeModal();
+            } else {
+                throw new Error('Share API not supported');
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                showToast('공유할 수 없어 이미지를 저장합니다.');
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = imageUrl;
+                link.click();
+                closeModal();
+            }
+        } finally {
+            btnShare.disabled = false;
+        }
+    };
+}
+
+// 하이브리드 생성 방식
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리 중...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
     btn.disabled = true;
 
+    // 모바일 여부 확인
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // 타임아웃 설정: 모바일은 15초, PC는 20초
+    const timeoutDuration = isMobile ? 15000 : 20000;
+
+    const safetyTimer = setTimeout(() => {
+        if (btn.disabled) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showToast('생성 시간이 초과되었습니다.');
+            const el = document.getElementById('report-export-view');
+            if (el) el.remove();
+        }
+    }, timeoutDuration);
+
     try {
-        // [성능 최적화] html2canvas가 없을 때만 로드
         if (typeof html2canvas === 'undefined') {
             await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
         }
 
         const username = document.getElementById('resUsername').value;
-        const profileSrc = document.getElementById('resProfileImage').src;
+        const originalProfileSrc = document.getElementById('resProfileImage').src;
         const chartBase64 = radarChartInstance.toBase64Image();
+
+        // [전략 분기]
+        // 모바일: 원본 URL 사용 (속도 최우선)
+        // PC: Base64 변환 사용 (안정성 최우선)
+        let profileSrc;
+        if (isMobile) {
+            profileSrc = originalProfileSrc;
+        } else {
+            profileSrc = await loadImageAsBase64(originalProfileSrc);
+        }
 
         const stats = [
             {label: 'Commits', value: document.getElementById('statCommit').innerText},
@@ -101,6 +246,9 @@ window.captureAndDownload = async () => {
 
         const reportContainer = document.createElement('div');
         reportContainer.id = 'report-export-view';
+        reportContainer.style.position = 'fixed';
+        reportContainer.style.left = '-9999px';
+        reportContainer.style.top = '0';
         document.body.appendChild(reportContainer);
 
         reportContainer.innerHTML = `
@@ -111,7 +259,7 @@ window.captureAndDownload = async () => {
                 </div>
                 <div class="sim-body">
                     <div class="sim-profile">
-                        <img src="${profileSrc}" class="sim-avatar">
+                        <img src="${profileSrc}" class="sim-avatar" crossorigin="anonymous" alt="profile">
                         <div class="sim-username">${username}</div>
                     </div>
                     <div class="sim-chart">
@@ -130,59 +278,33 @@ window.captureAndDownload = async () => {
             </div>
         `;
 
+        // 렌더링 스케일: 모바일 1.5배, PC 2배
+        const scale = isMobile ? 1.5 : 2;
+
         const canvas = await html2canvas(reportContainer, {
-            backgroundColor: null,
-            scale: 2,
+            backgroundColor: '#ffffff',
+            scale: scale,
             useCORS: true,
-            logging: false
+            allowTaint: false,
+            logging: false,
+            imageTimeout: 5000
         });
 
-        canvas.toBlob(async (blob) => {
-            try {
-                if (!blob) throw new Error("Blob creation failed");
+        const blob = await canvasToBlob(canvas);
+        const filename = `GitRanker_${username}.png`;
+        const file = new File([blob], filename, {type: 'image/png'});
 
-                const file = new File([blob], `GitRanker_${username}.png`, {type: 'image/png'});
-
-                if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
-                    try {
-                        await navigator.share({
-                            title: 'Git Ranker 결과',
-                            text: `${username}님의 개발자 전투력입니다!`,
-                            files: [file]
-                        });
-                        showToast('<i class="fas fa-share-alt"></i> 공유 화면을 열었어요');
-                    } catch (err) {
-                        if (err.name !== 'AbortError') showToast('공유하기를 실패했어요.');
-                    }
-                } else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
-                    try {
-                        await navigator.clipboard.write([
-                            new ClipboardItem({'image/png': blob})
-                        ]);
-                        showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 이미지를 복사했어요! (Ctrl+V)');
-                    } catch (err) {
-                        console.warn("Clipboard failed, falling back to download", err);
-                        triggerDownload(canvas, username);
-                    }
-                } else {
-                    triggerDownload(canvas, username);
-                }
-            } catch (innerErr) {
-                console.error(innerErr);
-                showToast("이미지 처리에 실패했어요.");
-            } finally {
-                const el = document.getElementById('report-export-view');
-                if (el) el.remove();
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }, 'image/png');
+        // PC/모바일 모두 모달 띄우기
+        showSharePreviewModal(file, filename);
 
     } catch (err) {
         console.error(err);
-        showToast("리포트 생성 중 오류가 발생했어요.");
+        showToast("이미지 생성에 실패했어요. 다시 시도해주세요.");
+    } finally {
+        clearTimeout(safetyTimer);
         const el = document.getElementById('report-export-view');
         if (el) el.remove();
+
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
@@ -267,7 +389,7 @@ function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
 
     if (statEl) {
         if (isReducedMotion) statEl.innerText = (totalValue || 0).toLocaleString();
-        else animateCountUp(statEl, totalValue || 0, 3000);
+        else animateCountUp(statEl, totalValue || 0, 2000);
     }
 
     if (diffEl) {
@@ -305,7 +427,7 @@ export function renderUserResult(data) {
 
     const scoreEl = document.getElementById('resTotalScore');
     if (isReducedMotion) scoreEl.innerText = data.totalScore.toLocaleString();
-    else animateCountUp(scoreEl, data.totalScore, 3000);
+    else animateCountUp(scoreEl, data.totalScore, 2000);
 
     updateStatWithDiff('statCommit', 'diffCommit', data.commitCount, data.diffCommitCount);
     updateStatWithDiff('statIssue', 'diffIssue', data.issueCount, data.diffIssueCount);
@@ -414,24 +536,20 @@ export function renderRefreshButton(lastFullScanAt) {
     }
 }
 
-// [핵심 최적화 적용] DocumentFragment를 사용한 배치 렌더링
 export function renderRankingTable(users) {
     const listContainer = document.getElementById('rankingList');
-    listContainer.innerHTML = ''; // 초기화
+    listContainer.innerHTML = '';
 
     if (!users || users.length === 0) {
         listContainer.innerHTML = `<div class="text-center py-5 text-secondary">랭킹 데이터가 없습니다.</div>`;
         return;
     }
 
-    // [최적화] 메모리상에 가상의 DOM 컨테이너 생성 (Reflow 방지)
     const fragment = document.createDocumentFragment();
 
     users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row stagger-item';
-
-        // [UX] 20명으로 줄었으므로 등장 속도를 약간 더 빠르게(0.05s -> 0.03s) 조정
         row.style.animationDelay = `${index * 0.03}s`;
 
         let tierColor = '#6B7684';
@@ -460,21 +578,16 @@ export function renderRankingTable(users) {
         `;
         row.onclick = () => document.dispatchEvent(new CustomEvent('requestUserDetail', {detail: user.username}));
 
-        // 메모리에 추가
         fragment.appendChild(row);
     });
 
-    // [최적화] 실제 DOM에는 단 한 번만 부착
     listContainer.appendChild(fragment);
 }
 
-// [UX 개선] 20명 단위 페이지네이션
 export function renderPagination(pageInfo, loadRankingsCallback) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
     const {currentPage, totalPages, isFirst, isLast} = pageInfo;
-
-    // 모바일에서는 한 번에 5개, 데스크탑에서도 5개 (버튼 크기가 작아 적절함)
     const pageSize = 5;
     const startPage = Math.floor(currentPage / pageSize) * pageSize;
     const endPage = Math.min(startPage + pageSize, totalPages);
@@ -483,10 +596,7 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.innerHTML = text;
-
-        // 스타일은 기존 유지 (CSS 클래스로 분리하면 더 좋지만, 현재 구조상 인라인 유지)
         btn.style.cssText = `border:none; background:${active ? 'var(--toss-blue)' : 'transparent'}; color:${active ? 'white' : 'var(--text-secondary)'}; width:32px; height:32px; border-radius:10px; font-weight:600; cursor:pointer; transition:all 0.2s;`;
-
         if (!disabled) {
             btn.onclick = (e) => {
                 e.preventDefault();
@@ -500,15 +610,10 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
         return li;
     };
 
-    // 이전 버튼 (<)
     pagination.appendChild(createItem('<i class="fas fa-chevron-left"></i>', currentPage - 1, isFirst));
-
-    // 페이지 번호 (1 2 3 4 5)
     for (let i = startPage; i < endPage; i++) {
         pagination.appendChild(createItem(i + 1, i, false, i === currentPage));
     }
-
-    // 다음 버튼 (>)
     pagination.appendChild(createItem('<i class="fas fa-chevron-right"></i>', currentPage + 1, isLast));
 }
 

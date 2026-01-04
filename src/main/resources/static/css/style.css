@@ -40,6 +40,7 @@
     --font-number: 'JetBrains Mono', 'Pretendard', monospace;
     --tracking-heading: -0.025em;
     --tracking-body: -0.005em;
+    --gradient-scroll-hint: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%);
 }
 
 [data-theme="dark"] {
@@ -1102,13 +1103,16 @@ body {
     font-weight: 600;
 }
 
+/* [Modified] Toast Container Style */
 #toast-container {
     position: fixed;
     bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
     z-index: 2000;
-    width: max-content;
     pointer-events: none;
 }
 
@@ -1127,6 +1131,10 @@ body {
     align-items: center;
     gap: 8px;
     animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    max-width: 90%;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
 }
 
 .toss-toast.hide {
@@ -1135,27 +1143,28 @@ body {
 
 .toss-toast i {
     font-size: 18px;
+    flex-shrink: 0;
 }
 
 @keyframes slideUpFade {
     from {
         opacity: 0;
-        transform: translate(-50%, 20px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
-        transform: translate(-50%, 0);
+        transform: translateY(0);
     }
 }
 
 @keyframes slideDownFade {
     from {
         opacity: 1;
-        transform: translate(-50%, 0);
+        transform: translateY(0);
     }
     to {
         opacity: 0;
-        transform: translate(-50%, 20px);
+        transform: translateY(20px);
     }
 }
 
