@@ -62,9 +62,11 @@
     </div>
 
     <header class="header-area fade-in-up">
-        <h1 class="brand-title">
-            <i class="fab fa-github logo-icon"></i> Git Ranker
-        </h1>
+        <a href="/" style="text-decoration: none; color: inherit; display: inline-block;">
+            <h1 class="brand-title">
+                <i class="fab fa-github logo-icon"></i> Git Ranker
+            </h1>
+        </a>
         <p class="brand-subtitle">코드의 품질로 증명하는 개발자 전투력 측정기</p>
     </header>
 
@@ -117,7 +119,7 @@
 
                 <div class="action-buttons" data-html2canvas-ignore="true">
                     <button onclick="captureAndDownload()" class="btn-black">
-                        <i class="fas fa-camera"></i> 이미지로 저장
+                        <i class="fas fa-share-alt"></i> 이미지 공유/저장
                     </button>
 
                     <div class="sub-actions">
@@ -345,6 +347,21 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="customConfirmModal" class="custom-modal hidden">
+    <div class="custom-modal-backdrop"></div>
+    <div class="custom-modal-content">
+        <h3 class="custom-modal-title">데이터를 갱신할까요?</h3>
+        <p class="custom-modal-desc">
+            갱신 후에는 7일 동안 다시 갱신할 수 없어요.<br>
+            지금 최신 정보를 가져올까요?
+        </p>
+        <div class="custom-modal-actions">
+            <button id="btnModalCancel" class="btn-modal-secondary">아니요</button>
+            <button id="btnModalConfirm" class="btn-modal-primary">네, 갱신할게요</button>
         </div>
     </div>
 </div>

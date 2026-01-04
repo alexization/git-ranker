@@ -1,29 +1,20 @@
 :root {
-    /* [Light Mode Variables] */
     --toss-blue: #3182F6;
     --toss-blue-dark: #1B64DA;
-
     --bg-primary: #F2F4F6;
     --bg-secondary: #FFFFFF;
     --bg-tertiary: #FAFAFA;
-    --bg-info: #F9FAFB; /* 안내 박스 배경 */
-
+    --bg-info: #F9FAFB;
     --text-primary: #191F28;
     --text-secondary: #4E5968;
     --text-tertiary: #8B95A1;
     --text-weak: #B0B8C1;
     --text-inverse: #FFFFFF;
-
     --border-color: #F2F4F6;
     --border-hover: #B0B8C1;
-
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
-
-    /* Chart Colors */
     --chart-grid: #E5E8EB;
     --chart-text: #4E5968;
-
-    /* [Tier Colors - Light Mode] */
     --tier-challenger: #3182F6;
     --tier-master: #9B59B6;
     --tier-diamond: #00B4FC;
@@ -33,19 +24,15 @@
     --tier-silver: #9EAAB5;
     --tier-bronze: #CD7F32;
     --tier-iron: #6B7684;
-
-    /* Tier Backgrounds - Light Mode */
-    --tier-bg-challenger: rgba(49, 130, 246, 0.1);
-    --tier-bg-master: rgba(155, 89, 182, 0.1);
-    --tier-bg-diamond: rgba(0, 180, 252, 0.1);
-    --tier-bg-platinum: rgba(0, 199, 190, 0.1);
-    --tier-bg-emerald: rgba(46, 204, 113, 0.1);
-    --tier-bg-gold: rgba(255, 215, 0, 0.15);
-    --tier-bg-silver: rgba(158, 170, 181, 0.15);
-    --tier-bg-bronze: rgba(205, 127, 50, 0.1);
-    --tier-bg-iron: rgba(107, 118, 132, 0.1);
-
-    /* UI Specs */
+    --tier-bg-challenger: rgba(49, 130, 246, 0.3);
+    --tier-bg-master: rgba(155, 89, 182, 0.3);
+    --tier-bg-diamond: rgba(0, 180, 252, 0.3);
+    --tier-bg-platinum: rgba(0, 199, 190, 0.3);
+    --tier-bg-emerald: rgba(46, 204, 113, 0.3);
+    --tier-bg-gold: rgba(255, 215, 0, 0.35);
+    --tier-bg-silver: rgba(158, 170, 181, 0.35);
+    --tier-bg-bronze: rgba(205, 127, 50, 0.3);
+    --tier-bg-iron: rgba(107, 118, 132, 0.3);
     --radius-xl: 24px;
     --radius-lg: 20px;
     --radius-md: 16px;
@@ -55,30 +42,22 @@
     --tracking-body: -0.005em;
 }
 
-/* [Dark Mode Overrides] */
 [data-theme="dark"] {
     --toss-blue: #3182F6;
     --toss-blue-dark: #5C9EFF;
-
     --bg-primary: #101010;
     --bg-secondary: #202020;
     --bg-tertiary: #2C2C2C;
-    --bg-info: #2C2C2C; /* 다크모드 안내 박스 배경 */
-
+    --bg-info: #2C2C2C;
     --text-primary: #FFFFFF;
     --text-secondary: #B0B8C1;
     --text-tertiary: #6B7684;
     --text-weak: #4E5968;
-
     --border-color: #333333;
     --border-hover: #505050;
-
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-
     --chart-grid: #333333;
     --chart-text: #B0B8C1;
-
-    /* Tier Colors - Dark Mode (Neon/Pastel) */
     --tier-challenger: #5C9EFF;
     --tier-master: #D68BF5;
     --tier-diamond: #4FC3F7;
@@ -88,8 +67,6 @@
     --tier-silver: #CFD8DC;
     --tier-bronze: #E0A678;
     --tier-iron: #90A4AE;
-
-    /* Tier Backgrounds - Dark Mode */
     --tier-bg-challenger: rgba(92, 158, 255, 0.15);
     --tier-bg-master: rgba(214, 139, 245, 0.15);
     --tier-bg-diamond: rgba(79, 195, 247, 0.15);
@@ -136,7 +113,6 @@ body {
     display: none !important;
 }
 
-/* Animations */
 .fade-in-up {
     animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -164,7 +140,6 @@ body {
     }
 }
 
-/* Header & Nav */
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -226,7 +201,6 @@ body {
     background: var(--bg-tertiary);
 }
 
-/* Search Section Layout */
 .search-section {
     position: relative;
     max-width: 720px;
@@ -264,7 +238,6 @@ body {
     min-width: 48px;
 }
 
-/* Input Wrapper & Clear Button */
 .input-wrapper {
     position: relative;
     flex: 1;
@@ -327,7 +300,6 @@ body {
     background-color: var(--toss-blue-dark);
 }
 
-/* Shake Animation */
 .shake {
     animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
     border-color: #EF4444 !important;
@@ -348,7 +320,6 @@ body {
     }
 }
 
-/* Recent Search Dropdown */
 .recent-search-box {
     position: absolute;
     top: calc(100% + 8px);
@@ -427,7 +398,6 @@ body {
     transform: scale(1.02);
 }
 
-/* Keyboard Focus Style */
 .recent-item.active {
     border-color: var(--toss-blue);
     background: var(--toss-blue);
@@ -464,7 +434,6 @@ body {
     color: #EF4444;
 }
 
-/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 320px 1fr;
@@ -483,7 +452,6 @@ body {
     transition: transform 0.1s ease-out, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* 3D Profile Card */
 .profile-section {
     display: flex;
     flex-direction: column;
@@ -495,7 +463,6 @@ body {
     perspective: 1000px;
 }
 
-/* Glow Effects */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
     border: 2px solid var(--tier-bg-challenger);
@@ -570,7 +537,6 @@ body {
     backface-visibility: hidden;
 }
 
-/* Tier Color Classes */
 .tier-badge.CHALLENGER {
     background: var(--tier-bg-challenger);
     color: var(--tier-challenger);
@@ -650,7 +616,6 @@ body {
     margin-left: 6px;
 }
 
-/* Buttons */
 .action-buttons {
     margin-top: 24px;
     width: 100%;
@@ -780,7 +745,6 @@ body {
     }
 }
 
-/* Stats */
 .right-column {
     display: flex;
     flex-direction: column;
@@ -908,7 +872,6 @@ body {
     border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* Ranking List */
 .ranking-section {
     background: var(--bg-secondary);
     border-radius: var(--radius-xl);
@@ -1012,7 +975,6 @@ body {
     white-space: nowrap;
 }
 
-/* Modal */
 .modal-content {
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -1045,7 +1007,6 @@ body {
     color: #FFFFFF !important;
 }
 
-/* [수정] Info Box (다크모드 대응) */
 .info-box {
     padding: 16px;
     background: var(--bg-info);
@@ -1077,7 +1038,6 @@ body {
     font-size: 13px;
 }
 
-/* Footer & Toast */
 .footer {
     text-align: center;
     padding: 40px 0;
@@ -1113,7 +1073,6 @@ body {
     pointer-events: none;
 }
 
-/* [수정] Toast Style (Trendy) */
 .toss-toast {
     background: rgba(25, 31, 40, 0.9);
     backdrop-filter: blur(10px);
@@ -1128,13 +1087,125 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toss-toast.hide {
+    animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .toss-toast i {
     font-size: 18px;
 }
 
-/* Skeleton */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+}
+
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.custom-modal-content {
+    background: var(--bg-secondary);
+    width: 90%;
+    max-width: 360px;
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 3001;
+    text-align: center;
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--border-color);
+}
+
+.custom-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+}
+
+.custom-modal-desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.custom-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-modal-primary, .btn-modal-secondary {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-modal-primary {
+    background: var(--toss-blue);
+    color: white;
+}
+
+.btn-modal-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .skeleton {
     background: var(--border-color);
     border-radius: 12px;
@@ -1153,7 +1224,6 @@ body {
     }
 }
 
-/* Report Styles */
 #report-export-view {
     position: fixed;
     top: -9999px;
@@ -1262,7 +1332,6 @@ body {
     margin-top: 10px;
 }
 
-/* Mobile Optimization */
 @media (max-width: 768px) {
     .container {
         padding: 0 16px;
@@ -1387,7 +1456,6 @@ body {
     }
 }
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;

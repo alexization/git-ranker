@@ -24,10 +24,47 @@ export function updateChartTheme() {
     radarChartInstance.update();
 }
 
+export function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toss-toast';
+    toast.innerHTML = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('hide');
+        toast.addEventListener('animationend', () => {
+            toast.remove();
+        });
+    }, 3000);
+}
+
+export function showConfirmModal(onConfirm) {
+    const modal = document.getElementById('customConfirmModal');
+    const btnCancel = document.getElementById('btnModalCancel');
+    const btnConfirm = document.getElementById('btnModalConfirm');
+
+    modal.classList.remove('hidden');
+
+    const closeModal = () => {
+        modal.classList.add('hidden');
+        btnCancel.onclick = null;
+        btnConfirm.onclick = null;
+    };
+
+    btnCancel.onclick = closeModal;
+    btnConfirm.onclick = () => {
+        closeModal();
+        onConfirm();
+    };
+}
+
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
+
+    // 로딩 상태 표시
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리 중...';
     btn.disabled = true;
 
     try {
@@ -74,6 +111,7 @@ window.captureAndDownload = async () => {
             </div>
         `;
 
+        // 이미지 생성 (html2canvas)
         const canvas = await html2canvas(reportContainer, {
             backgroundColor: null,
             scale: 2,
@@ -81,24 +119,78 @@ window.captureAndDownload = async () => {
             logging: false
         });
 
-        const link = document.createElement('a');
-        link.download = `GitRanker_${username}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // Blob 변환 후 처리 (비동기 콜백 내부에서 에러 발생 시 멈춤 방지를 위해 Promise로 감싸지 않고 직접 처리하되 finally 보장)
+        canvas.toBlob(async (blob) => {
+            try {
+                if (!blob) throw new Error("Blob creation failed");
 
-        // [수정] 성공 토스트 메시지 개선
-        showToast('<i class="fas fa-image" style="color:#FFD700"></i> 이미지를 저장했어요');
+                const file = new File([blob], `GitRanker_${username}.png`, {type: 'image/png'});
+
+                // Case A: 모바일/지원 브라우저 (Web Share API 사용)
+                if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
+                    try {
+                        await navigator.share({
+                            title: 'Git Ranker 결과',
+                            text: `${username}님의 개발자 전투력입니다!`,
+                            files: [file]
+                        });
+                        showToast('<i class="fas fa-share-alt"></i> 공유 화면을 열었어요');
+                    } catch (err) {
+                        if (err.name !== 'AbortError') showToast('공유하기를 실패했어요.');
+                    }
+                }
+                // Case B: PC (클립보드 복사 시도) - HTTPS 환경 필요
+                else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+                    try {
+                        await navigator.clipboard.write([
+                            new ClipboardItem({'image/png': blob})
+                        ]);
+                        showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 이미지를 복사했어요! (Ctrl+V)');
+                    } catch (err) {
+                        // 클립보드 실패 시(보안 정책 등) 다운로드로 Fallback
+                        console.warn("Clipboard failed, falling back to download", err);
+                        triggerDownload(canvas, username);
+                    }
+                }
+                // Case C: 그 외 (다운로드)
+                else {
+                    triggerDownload(canvas, username);
+                }
+            } catch (innerErr) {
+                console.error(innerErr);
+                showToast("이미지 처리에 실패했어요.");
+            } finally {
+                // 어떤 상황에서도 버튼 상태 복구 및 DOM 정리
+                const el = document.getElementById('report-export-view');
+                if (el) el.remove();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }, 'image/png');
 
     } catch (err) {
         console.error(err);
-        showToast("리포트 생성에 실패했어요.");
-    } finally {
+        showToast("리포트 생성 중 오류가 발생했어요.");
         const el = document.getElementById('report-export-view');
         if (el) el.remove();
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 };
+
+function triggerDownload(canvas, username) {
+    try {
+        const link = document.createElement('a');
+        link.download = `GitRanker_${username}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('<i class="fas fa-download"></i> 이미지를 저장했어요');
+    } catch (e) {
+        showToast("다운로드에 실패했어요.");
+    }
+}
 
 function apply3DEffect(cardElement) {
     if (!cardElement) return;
@@ -157,19 +249,6 @@ export function showResultSection() {
     const resultSection = document.getElementById('resultSection');
     resultSection.classList.remove('hidden');
     apply3DEffect(document.getElementById('profileCard'));
-}
-
-export function showToast(message) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toss-toast';
-    toast.innerHTML = message;
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(10px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
 
 function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
@@ -315,7 +394,8 @@ export function renderRefreshButton(lastFullScanAt) {
         newBtn.style.cursor = "pointer";
         newBtn.disabled = false;
         newBtn.onclick = () => document.dispatchEvent(new CustomEvent('requestRefreshUser'));
-        statusText.innerHTML = `<span style="color:var(--toss-blue); font-weight:600;">⚡ 지금 갱신 가능</span>`;
+        // [수정] Toss 스타일의 심플한 상태 표시 (번개 이모지 제거, 파란 점 사용)
+        statusText.innerHTML = `<span style="color:var(--toss-blue); font-weight:700; font-size:13px;"><i class="fas fa-circle" style="font-size:8px; vertical-align:middle; margin-right:4px;"></i>업데이트 가능</span>`;
     } else {
         const nextTime = calculateNextRefreshTime(lastFullScanAt);
         newBtn.style.opacity = "0.5";

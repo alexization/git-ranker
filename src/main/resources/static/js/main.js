@@ -8,7 +8,6 @@ let currentFocus = -1;
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         document.documentElement.setAttribute('data-theme', 'dark');
         updateThemeIcon(true);
@@ -21,50 +20,36 @@ function initTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme === 'dark');
-
     Ui.updateChartTheme();
 }
 
 function updateThemeIcon(isDark) {
     const btn = document.getElementById('themeToggle');
-    if (btn) {
-        btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    }
+    if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 }
 
 function renderRecentSearches() {
     const listEl = document.getElementById('recentList');
     const boxEl = document.getElementById('recentSearchBox');
     const searches = Utils.getRecentSearches();
-
     if (searches.length === 0) {
         boxEl.classList.add('hidden');
         return;
     }
-
     listEl.innerHTML = '';
     searches.forEach((username, index) => {
         const li = document.createElement('li');
         li.className = 'recent-item';
         li.setAttribute('data-index', index);
-
-        li.innerHTML = `
-            <span class="recent-name">${username}</span>
-            <button class="btn-delete-item" data-user="${username}" tabindex="-1">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
+        li.innerHTML = `<span class="recent-name">${username}</span><button class="btn-delete-item" data-user="${username}" tabindex="-1"><i class="fas fa-times"></i></button>`;
         li.onclick = () => {
             document.getElementById('usernameInput').value = username;
             handleRegisterUser();
             boxEl.classList.add('hidden');
         };
-
         const delBtn = li.querySelector('.btn-delete-item');
         delBtn.onclick = (e) => {
             e.stopPropagation();
@@ -72,10 +57,8 @@ function renderRecentSearches() {
             renderRecentSearches();
             document.getElementById('usernameInput').focus();
         };
-
         listEl.appendChild(li);
     });
-
     boxEl.classList.remove('hidden');
 }
 
@@ -140,34 +123,27 @@ async function handleLoadRankings(page) {
 async function handleRegisterUser(pushHistory = true) {
     const usernameInput = document.getElementById('usernameInput');
     const username = usernameInput.value.trim();
-
     if (!username) {
         triggerShake();
         usernameInput.focus();
         return;
     }
-
     document.getElementById('recentSearchBox').classList.add('hidden');
     currentFocus = -1;
-
     Ui.showLoading(true);
     try {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
             Utils.saveRecentSearch(username);
             if (pushHistory) updateUrlState(username);
-
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
-
             requestAnimationFrame(() => {
                 Ui.createRadarChart(result.data);
             });
-
             const resultSection = document.getElementById('resultSection');
             resultSection.scrollIntoView({behavior: 'smooth', block: 'start'});
         } else {
-            // [수정] 에러 메시지 개선 (사용자 없음 안내)
             if (result.error && (result.error.message.includes("존재하지 않는") || result.error.message.includes("found"))) {
                 Ui.showToast('계정을 찾을 수 없어요. 아이디를 확인해주세요.');
             } else {
@@ -184,37 +160,31 @@ async function handleRegisterUser(pushHistory = true) {
 async function handleRefreshUser() {
     const username = document.getElementById('resUsername').value;
     if (!username) return;
-
-    if (!confirm('데이터를 갱신하시겠습니까? (갱신 후 7일간 쿨타임)')) return;
-
-    Ui.showLoading(true);
-    try {
-        const result = await Api.refreshUser(username);
-        if (result.result === 'SUCCESS') {
-            // [수정] 성공 토스트 메시지 개선
-            Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 데이터를 갱신했어요');
-            Ui.renderUserResult(result.data);
-            Ui.showResultSection();
-
-            requestAnimationFrame(() => {
-                Ui.createRadarChart(result.data);
-            });
-        } else {
-            Ui.showToast(result.error.message);
+    Ui.showConfirmModal(async () => {
+        Ui.showLoading(true);
+        try {
+            const result = await Api.refreshUser(username);
+            if (result.result === 'SUCCESS') {
+                Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 데이터를 갱신했어요');
+                Ui.renderUserResult(result.data);
+                Ui.showResultSection();
+                requestAnimationFrame(() => {
+                    Ui.createRadarChart(result.data);
+                });
+            } else {
+                Ui.showToast(result.error.message);
+            }
+        } catch (error) {
+            Ui.showToast('갱신 요청 중 오류가 발생했어요.');
+        } finally {
+            Ui.showLoading(false);
         }
-    } catch (error) {
-        Ui.showToast('갱신 요청 중 오류가 발생했어요.');
-    } finally {
-        Ui.showLoading(false);
-    }
+    });
 }
 
 async function handleUserDetail(username) {
     const modalElement = document.getElementById('userDetailModal');
-    if (!userDetailModal) {
-        userDetailModal = new bootstrap.Modal(modalElement);
-    }
-
+    if (!userDetailModal) userDetailModal = new bootstrap.Modal(modalElement);
     try {
         const result = await Api.getUserDetail(username);
         if (result.result === 'SUCCESS') {
@@ -231,26 +201,22 @@ window.copyBadgeMarkdown = () => {
     const nodeId = document.getElementById('resNodeId').value;
     const origin = window.location.origin;
     const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
-
     navigator.clipboard.writeText(markdown)
-        .then(() => Ui.showToast('README 코드를 복사했어요'))
+        // [수정] 배지 복사 성공 시 체크 아이콘 추가
+        .then(() => Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> README 코드를 복사했어요'))
         .catch(() => Ui.showToast('복사에 실패했어요.'));
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-
     window.registerUser = () => handleRegisterUser(true);
-
     const input = document.getElementById('usernameInput');
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
-
     input.addEventListener('keydown', (e) => {
         const list = document.getElementById('recentList');
         let items = list ? list.getElementsByTagName('li') : null;
-
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             currentFocus++;
@@ -276,41 +242,33 @@ document.addEventListener('DOMContentLoaded', () => {
             renderRecentSearches();
             items = list.getElementsByTagName('li');
             if (currentFocus >= items.length) currentFocus = items.length - 1;
-            if (items.length > 0) addActive(items);
-            else {
+            if (items.length > 0) addActive(items); else {
                 currentFocus = -1;
                 recentBox.classList.add('hidden');
             }
         }
     });
-
     input.addEventListener('input', () => {
-        if (input.value.length > 0) btnClear.classList.remove('hidden');
-        else btnClear.classList.add('hidden');
+        if (input.value.length > 0) btnClear.classList.remove('hidden'); else btnClear.classList.add('hidden');
         currentFocus = -1;
     });
-
     input.addEventListener('focus', () => {
         renderRecentSearches();
     });
-
     btnClear.addEventListener('click', () => {
         input.value = '';
         input.focus();
         btnClear.classList.add('hidden');
         renderRecentSearches();
     });
-
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target) && !recentBox.contains(e.target)) {
             recentBox.classList.add('hidden');
             currentFocus = -1;
         }
     });
-
     document.addEventListener('requestRefreshUser', handleRefreshUser);
     document.addEventListener('requestUserDetail', (e) => handleUserDetail(e.detail));
-
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.username) {
             document.getElementById('usernameInput').value = event.state.username;
@@ -319,7 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
             location.reload();
         }
     });
-
     handleLoadRankings(0);
     startCountdownTimer();
     checkUrlParams();
