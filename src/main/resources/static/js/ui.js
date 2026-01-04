@@ -414,19 +414,25 @@ export function renderRefreshButton(lastFullScanAt) {
     }
 }
 
+// [핵심 최적화 적용] DocumentFragment를 사용한 배치 렌더링
 export function renderRankingTable(users) {
     const listContainer = document.getElementById('rankingList');
-    listContainer.innerHTML = '';
+    listContainer.innerHTML = ''; // 초기화
 
     if (!users || users.length === 0) {
         listContainer.innerHTML = `<div class="text-center py-5 text-secondary">랭킹 데이터가 없습니다.</div>`;
         return;
     }
 
+    // [최적화] 메모리상에 가상의 DOM 컨테이너 생성 (Reflow 방지)
+    const fragment = document.createDocumentFragment();
+
     users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row stagger-item';
-        row.style.animationDelay = `${index * 0.05}s`;
+
+        // [UX] 20명으로 줄었으므로 등장 속도를 약간 더 빠르게(0.05s -> 0.03s) 조정
+        row.style.animationDelay = `${index * 0.03}s`;
 
         let tierColor = '#6B7684';
         if (user.tier === 'CHALLENGER') tierColor = '#3182F6';
@@ -439,7 +445,7 @@ export function renderRankingTable(users) {
         row.innerHTML = `
             <div class="col-rank font-code">${user.ranking}</div>
             <div class="col-user">
-                <img src="${user.profileImage}" class="user-avatar">
+                <img src="${user.profileImage}" class="user-avatar" loading="lazy" alt="${user.username}">
                 <div style="min-width:0;">
                     <div class="user-name">
                         <span class="mobile-tier-dot" style="background:${tierColor};"></span>
@@ -453,14 +459,22 @@ export function renderRankingTable(users) {
             <div class="col-score font-code">${formatNumber(user.totalScore)}</div>
         `;
         row.onclick = () => document.dispatchEvent(new CustomEvent('requestUserDetail', {detail: user.username}));
-        listContainer.appendChild(row);
+
+        // 메모리에 추가
+        fragment.appendChild(row);
     });
+
+    // [최적화] 실제 DOM에는 단 한 번만 부착
+    listContainer.appendChild(fragment);
 }
 
+// [UX 개선] 20명 단위 페이지네이션
 export function renderPagination(pageInfo, loadRankingsCallback) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
     const {currentPage, totalPages, isFirst, isLast} = pageInfo;
+
+    // 모바일에서는 한 번에 5개, 데스크탑에서도 5개 (버튼 크기가 작아 적절함)
     const pageSize = 5;
     const startPage = Math.floor(currentPage / pageSize) * pageSize;
     const endPage = Math.min(startPage + pageSize, totalPages);
@@ -469,7 +483,10 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.innerHTML = text;
+
+        // 스타일은 기존 유지 (CSS 클래스로 분리하면 더 좋지만, 현재 구조상 인라인 유지)
         btn.style.cssText = `border:none; background:${active ? 'var(--toss-blue)' : 'transparent'}; color:${active ? 'white' : 'var(--text-secondary)'}; width:32px; height:32px; border-radius:10px; font-weight:600; cursor:pointer; transition:all 0.2s;`;
+
         if (!disabled) {
             btn.onclick = (e) => {
                 e.preventDefault();
@@ -482,10 +499,16 @@ export function renderPagination(pageInfo, loadRankingsCallback) {
         li.appendChild(btn);
         return li;
     };
+
+    // 이전 버튼 (<)
     pagination.appendChild(createItem('<i class="fas fa-chevron-left"></i>', currentPage - 1, isFirst));
+
+    // 페이지 번호 (1 2 3 4 5)
     for (let i = startPage; i < endPage; i++) {
         pagination.appendChild(createItem(i + 1, i, false, i === currentPage));
     }
+
+    // 다음 버튼 (>)
     pagination.appendChild(createItem('<i class="fas fa-chevron-right"></i>', currentPage + 1, isLast));
 }
 

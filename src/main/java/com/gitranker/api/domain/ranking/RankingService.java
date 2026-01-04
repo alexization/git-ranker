@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
-    private static final int DEFAULT_PAGE_SIZE = 50;
+    private static final int DEFAULT_PAGE_SIZE = 20;
     private final UserRepository userRepository;
     private final TierCalculator tierCalculator;
 

@@ -30,15 +30,12 @@ function toggleTheme() {
     Ui.updateChartTheme();
 }
 
-// [수정] 아이콘과 브라우저 테마 컬러를 함께 업데이트
 function updateThemeUI(isDark) {
     const btn = document.getElementById('themeToggle');
     const metaThemeColor = document.getElementById('metaThemeColor');
 
-    // 아이콘 변경
     if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 
-    // 모바일 브라우저 상단 바 색상 변경 (Light: #F2F4F6, Dark: #101010)
     if (metaThemeColor) {
         metaThemeColor.setAttribute('content', isDark ? '#101010' : '#F2F4F6');
     }
@@ -226,40 +223,107 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('usernameInput');
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
+
+    // [수정] 키보드 내비게이션 로직 전면 개편 (2D Spatial Navigation)
     input.addEventListener('keydown', (e) => {
         const list = document.getElementById('recentList');
-        let items = list ? list.getElementsByTagName('li') : null;
-        if (e.key === 'ArrowDown') {
+        if (!list || list.classList.contains('hidden')) return;
+
+        const items = Array.from(list.getElementsByTagName('li'));
+        if (items.length === 0) return;
+
+        // 1. 좌우 방향키: 순차 이동
+        if (e.key === 'ArrowRight') {
             e.preventDefault();
             currentFocus++;
+            if (currentFocus >= items.length) currentFocus = 0;
             addActive(items);
-        } else if (e.key === 'ArrowUp') {
+        } else if (e.key === 'ArrowLeft') {
             e.preventDefault();
             currentFocus--;
+            if (currentFocus < 0) currentFocus = items.length - 1;
             addActive(items);
-        } else if (e.key === 'Enter') {
+        }
+        // 2. 상하 방향키: 시각적 위치 기반 이동 (Spatial Navigation)
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
-            if (currentFocus > -1 && items) {
+
+            if (currentFocus === -1) {
+                currentFocus = 0;
+                addActive(items);
+                return;
+            }
+
+            const currentRect = items[currentFocus].getBoundingClientRect();
+            const currentCenterX = currentRect.left + currentRect.width / 2;
+            const currentCenterY = currentRect.top + currentRect.height / 2;
+
+            let closestIndex = -1;
+            let minDistance = Number.MAX_VALUE;
+
+            items.forEach((item, index) => {
+                if (index === currentFocus) return;
+
+                const targetRect = item.getBoundingClientRect();
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const targetCenterY = targetRect.top + targetRect.height / 2;
+
+                // 방향 판단 (약간의 오차 허용)
+                const isBelow = targetRect.top >= currentRect.bottom - 5;
+                const isAbove = targetRect.bottom <= currentRect.top + 5;
+
+                let isValidCandidate = false;
+                if (e.key === 'ArrowDown' && isBelow) isValidCandidate = true;
+                if (e.key === 'ArrowUp' && isAbove) isValidCandidate = true;
+
+                if (isValidCandidate) {
+                    // 유클리드 거리 계산 + X축 페널티 (바로 위/아래 우선)
+                    const dist = Math.hypot(targetCenterX - currentCenterX, targetCenterY - currentCenterY);
+                    const weightedDist = dist + Math.abs(targetCenterX - currentCenterX) * 0.5;
+
+                    if (weightedDist < minDistance) {
+                        minDistance = weightedDist;
+                        closestIndex = index;
+                    }
+                }
+            });
+
+            if (closestIndex !== -1) {
+                currentFocus = closestIndex;
+                addActive(items);
+            }
+        }
+        // 3. 엔터키: 선택
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1) {
                 if (items[currentFocus]) items[currentFocus].click();
             } else {
                 handleRegisterUser(true);
             }
-        } else if (e.key === 'Escape') {
+        }
+        // 4. ESC: 닫기
+        else if (e.key === 'Escape') {
             recentBox.classList.add('hidden');
             currentFocus = -1;
-        } else if ((e.key === 'Delete' || (e.shiftKey && e.key === 'Delete')) && currentFocus > -1) {
+        }
+        // 5. Delete: 삭제
+        else if ((e.key === 'Delete' || (e.shiftKey && e.key === 'Delete')) && currentFocus > -1) {
             e.preventDefault();
             const targetUser = items[currentFocus].querySelector('.btn-delete-item').getAttribute('data-user');
             Utils.removeRecentSearch(targetUser);
             renderRecentSearches();
-            items = list.getElementsByTagName('li');
-            if (currentFocus >= items.length) currentFocus = items.length - 1;
-            if (items.length > 0) addActive(items); else {
+
+            const newItems = list.getElementsByTagName('li');
+            if (currentFocus >= newItems.length) currentFocus = newItems.length - 1;
+            if (newItems.length > 0) addActive(newItems);
+            else {
                 currentFocus = -1;
                 recentBox.classList.add('hidden');
             }
         }
     });
+
     input.addEventListener('input', () => {
         if (input.value.length > 0) btnClear.classList.remove('hidden'); else btnClear.classList.add('hidden');
         currentFocus = -1;
