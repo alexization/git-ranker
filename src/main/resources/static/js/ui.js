@@ -9,7 +9,8 @@ import {
 
 let radarChartInstance = null;
 
-// [유지] 차트 테마 업데이트
+const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export function updateChartTheme() {
     if (!radarChartInstance) return;
 
@@ -23,7 +24,6 @@ export function updateChartTheme() {
     radarChartInstance.update();
 }
 
-// [유지] 리포트 캡처
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
@@ -99,10 +99,9 @@ window.captureAndDownload = async () => {
     }
 };
 
-// [유지] 3D 효과
 function apply3DEffect(cardElement) {
     if (!cardElement) return;
-    if (window.matchMedia("(max-width: 768px)").matches) return;
+    if (window.matchMedia("(max-width: 768px)").matches || isReducedMotion) return;
 
     let bounds;
 
@@ -176,7 +175,10 @@ function updateStatWithDiff(statId, diffId, totalValue, diffValue) {
     const statEl = document.getElementById(statId);
     const diffEl = document.getElementById(diffId);
 
-    if (statEl) animateCountUp(statEl, totalValue || 0, 1000);
+    if (statEl) {
+        if (isReducedMotion) statEl.innerText = (totalValue || 0).toLocaleString();
+        else animateCountUp(statEl, totalValue || 0, 3000);
+    }
 
     if (diffEl) {
         if (diffValue > 0) {
@@ -211,7 +213,9 @@ export function renderUserResult(data) {
     document.getElementById('resPercentile').innerText = data.percentile ? data.percentile.toFixed(2) : '0.00';
     document.getElementById('resRanking').innerText = data.ranking;
 
-    animateCountUp(document.getElementById('resTotalScore'), data.totalScore, 1500);
+    const scoreEl = document.getElementById('resTotalScore');
+    if (isReducedMotion) scoreEl.innerText = data.totalScore.toLocaleString();
+    else animateCountUp(scoreEl, data.totalScore, 3000);
 
     updateStatWithDiff('statCommit', 'diffCommit', data.commitCount, data.diffCommitCount);
     updateStatWithDiff('statIssue', 'diffIssue', data.issueCount, data.diffIssueCount);
@@ -222,12 +226,8 @@ export function renderUserResult(data) {
     document.title = `${data.username} (${data.tier}) | Git Ranker`;
 
     renderRefreshButton(data.lastFullScanAt);
-
-    // [중요] 여기서 차트를 그리지 않고, main.js에서 화면이 뜬 뒤에 호출하도록 변경함
-    // createRadarChart(data); <- 제거됨
 }
 
-// [수정] 외부에서 호출 가능하도록 export 처리
 export function createRadarChart(data) {
     const ctx = document.getElementById('statRadarChart');
     if (!ctx) return;
@@ -293,10 +293,9 @@ export function createRadarChart(data) {
                     }
                 }
             },
-            // [중요] 애니메이션 설정 강화 (서서히 차오르도록)
             animation: {
-                duration: 2000,
-                easing: 'easeInOutQuart', // 시작과 끝을 부드럽게
+                duration: isReducedMotion ? 0 : 2000,
+                easing: 'easeInOutQuart',
                 loop: false
             }
         }
@@ -337,8 +336,8 @@ export function renderRankingTable(users) {
     users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
-        row.style.animation = `fadeInStagger 0.4s forwards`;
-        row.style.animationDelay = `${index * 0.05}s`;
+        // [수정] 렉 방지를 위해 애니메이션 제거
+        // row.style.animation = ... (삭제됨)
 
         let tierColor = '#6B7684';
         if (user.tier === 'CHALLENGER') tierColor = '#3182F6';

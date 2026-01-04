@@ -246,6 +246,7 @@ body {
     align-items: center;
     transition: transform 0.2s;
     border: 1px solid var(--border-color);
+    width: 100%; /* 너비 보장 */
 }
 
 .toss-input-group:focus-within {
@@ -267,6 +268,7 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
+    min-width: 0; /* [중요] flex 자식 넘침 방지 */
 }
 
 .toss-input {
@@ -278,7 +280,8 @@ body {
     font-weight: 500;
     outline: none;
     color: var(--text-primary);
-    min-width: 0;
+    min-width: 0; /* [중요] flex 자식 넘침 방지 */
+    width: 100%;
 }
 
 .toss-input::placeholder {
@@ -315,6 +318,7 @@ body {
     cursor: pointer;
     transition: background 0.2s;
     white-space: nowrap;
+    flex-shrink: 0; /* [중요] 버튼이 찌그러지지 않도록 고정 */
 }
 
 .btn-search:hover {
@@ -426,10 +430,16 @@ body {
     border-color: var(--toss-blue);
     background: var(--toss-blue);
     color: white;
+    z-index: 1;
 }
 
 .recent-item.active .btn-delete-item {
     color: rgba(255, 255, 255, 0.8);
+}
+
+.recent-item.active .btn-delete-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .recent-name {
@@ -459,6 +469,8 @@ body {
     gap: 24px;
     margin-bottom: 48px;
     align-items: start;
+    /* [중요] 스크롤 포커싱 시 상단 여백 확보 */
+    scroll-margin-top: 24px;
 }
 
 .card-box {
@@ -482,7 +494,7 @@ body {
     perspective: 1000px;
 }
 
-/* Glow Effects */
+/* Glow Effects - Variable Based */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
     border: 2px solid var(--tier-bg-challenger);
@@ -557,6 +569,7 @@ body {
     backface-visibility: hidden;
 }
 
+/* Tier Color Classes */
 .tier-badge.CHALLENGER {
     background: var(--tier-bg-challenger);
     color: var(--tier-challenger);
@@ -612,7 +625,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
+    /* [수정] width: 100% 제거하여 (?) 아이콘이 옆에 붙도록 수정 */
+    width: auto;
+    max-width: 100%;
     transform: translateZ(35px);
     z-index: 20;
     backface-visibility: hidden;
@@ -932,6 +947,7 @@ body {
     gap: 0;
 }
 
+/* [수정] 렉 걸림 방지 - 애니메이션 제거 */
 .ranking-row {
     display: flex;
     align-items: center;
@@ -939,17 +955,10 @@ body {
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background 0.1s;
-    opacity: 0;
-    transform: translateY(10px);
+    /* opacity: 0; transform: translateY(10px);  <- 제거됨 */
 }
 
-@keyframes fadeInStagger {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* @keyframes fadeInStagger ... <- 제거됨 */
 .ranking-row:hover {
     background-color: var(--bg-tertiary);
 }
@@ -1037,6 +1046,29 @@ body {
 
 [data-theme="dark"] .modal-body .text-dark {
     color: #FFFFFF !important;
+}
+
+/* [수정] Score Info Modal List Styling */
+.score-modal-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.score-modal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 정렬 수정 */
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 15px;
+}
+
+.score-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
 }
 
 /* Footer & Toast */
@@ -1214,10 +1246,42 @@ body {
     margin-top: 10px;
 }
 
-/* Mobile Optimization */
+/* [수정] Mobile Optimization: 작은 화면 대응 강화 */
 @media (max-width: 768px) {
     .container {
         padding: 0 16px;
+    }
+
+    .search-wrapper {
+        max-width: 100%;
+        margin-bottom: 24px;
+    }
+
+    /* [수정] 검색바 버튼 튀어나감 해결: flex-wrap 방지 및 너비 보장 */
+    .toss-input-group {
+        padding: 4px;
+        border-radius: 16px;
+        flex-wrap: nowrap; /* 줄바꿈 절대 방지 */
+    }
+
+    .btn-search {
+        padding: 10px 14px; /* 패딩 축소 */
+        font-size: 14px;
+        border-radius: 12px;
+        flex-shrink: 0; /* 버튼 크기 유지 */
+        white-space: nowrap;
+    }
+
+    .toss-input {
+        font-size: 15px;
+        padding: 12px 8px;
+        min-width: 0; /* flex box 안에서 텍스트 오버플로우 시 줄어들 수 있게 함 */
+    }
+
+    .input-icon {
+        font-size: 18px;
+        padding-left: 12px;
+        min-width: 30px;
     }
 
     .dashboard-grid {
@@ -1299,16 +1363,31 @@ body {
         margin-right: 6px;
     }
 
-    .search-wrapper {
-        max-width: 100%;
-        margin-bottom: 32px;
-    }
-
     .action-buttons {
         flex-direction: column;
     }
 
     .sub-actions {
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* [성능] 동작 줄이기 */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .fade-in-up {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .card-box {
+        transition: none !important;
     }
 }
