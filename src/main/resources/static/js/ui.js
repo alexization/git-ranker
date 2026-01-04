@@ -59,15 +59,34 @@ export function showConfirmModal(onConfirm) {
     };
 }
 
+// [성능 최적화] 스크립트 동적 로더
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
 
-    // 로딩 상태 표시
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리 중...';
     btn.disabled = true;
 
     try {
+        // [성능 최적화] html2canvas가 없을 때만 로드
+        if (typeof html2canvas === 'undefined') {
+            await loadScript('https://html2canvas.hertzen.com/dist/html2canvas.min.js');
+        }
+
         const username = document.getElementById('resUsername').value;
         const profileSrc = document.getElementById('resProfileImage').src;
         const chartBase64 = radarChartInstance.toBase64Image();
@@ -111,7 +130,6 @@ window.captureAndDownload = async () => {
             </div>
         `;
 
-        // 이미지 생성 (html2canvas)
         const canvas = await html2canvas(reportContainer, {
             backgroundColor: null,
             scale: 2,
@@ -119,14 +137,12 @@ window.captureAndDownload = async () => {
             logging: false
         });
 
-        // Blob 변환 후 처리 (비동기 콜백 내부에서 에러 발생 시 멈춤 방지를 위해 Promise로 감싸지 않고 직접 처리하되 finally 보장)
         canvas.toBlob(async (blob) => {
             try {
                 if (!blob) throw new Error("Blob creation failed");
 
                 const file = new File([blob], `GitRanker_${username}.png`, {type: 'image/png'});
 
-                // Case A: 모바일/지원 브라우저 (Web Share API 사용)
                 if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
                     try {
                         await navigator.share({
@@ -138,29 +154,23 @@ window.captureAndDownload = async () => {
                     } catch (err) {
                         if (err.name !== 'AbortError') showToast('공유하기를 실패했어요.');
                     }
-                }
-                // Case B: PC (클립보드 복사 시도) - HTTPS 환경 필요
-                else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+                } else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
                     try {
                         await navigator.clipboard.write([
                             new ClipboardItem({'image/png': blob})
                         ]);
                         showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 이미지를 복사했어요! (Ctrl+V)');
                     } catch (err) {
-                        // 클립보드 실패 시(보안 정책 등) 다운로드로 Fallback
                         console.warn("Clipboard failed, falling back to download", err);
                         triggerDownload(canvas, username);
                     }
-                }
-                // Case C: 그 외 (다운로드)
-                else {
+                } else {
                     triggerDownload(canvas, username);
                 }
             } catch (innerErr) {
                 console.error(innerErr);
                 showToast("이미지 처리에 실패했어요.");
             } finally {
-                // 어떤 상황에서도 버튼 상태 복구 및 DOM 정리
                 const el = document.getElementById('report-export-view');
                 if (el) el.remove();
                 btn.innerHTML = originalText;
@@ -394,7 +404,6 @@ export function renderRefreshButton(lastFullScanAt) {
         newBtn.style.cursor = "pointer";
         newBtn.disabled = false;
         newBtn.onclick = () => document.dispatchEvent(new CustomEvent('requestRefreshUser'));
-        // [수정] Toss 스타일의 심플한 상태 표시 (번개 이모지 제거, 파란 점 사용)
         statusText.innerHTML = `<span style="color:var(--toss-blue); font-weight:700; font-size:13px;"><i class="fas fa-circle" style="font-size:8px; vertical-align:middle; margin-right:4px;"></i>업데이트 가능</span>`;
     } else {
         const nextTime = calculateNextRefreshTime(lastFullScanAt);
@@ -416,7 +425,8 @@ export function renderRankingTable(users) {
 
     users.forEach((user, index) => {
         const row = document.createElement('div');
-        row.className = 'ranking-row';
+        row.className = 'ranking-row stagger-item';
+        row.style.animationDelay = `${index * 0.05}s`;
 
         let tierColor = '#6B7684';
         if (user.tier === 'CHALLENGER') tierColor = '#3182F6';

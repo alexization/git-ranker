@@ -8,27 +8,40 @@ let currentFocus = -1;
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+    if (isDark) {
         document.documentElement.setAttribute('data-theme', 'dark');
-        updateThemeIcon(true);
     } else {
         document.documentElement.setAttribute('data-theme', 'light');
-        updateThemeIcon(false);
     }
+    updateThemeUI(isDark);
 }
 
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    const isDark = newTheme === 'dark';
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme === 'dark');
+
+    updateThemeUI(isDark);
     Ui.updateChartTheme();
 }
 
-function updateThemeIcon(isDark) {
+// [수정] 아이콘과 브라우저 테마 컬러를 함께 업데이트
+function updateThemeUI(isDark) {
     const btn = document.getElementById('themeToggle');
+    const metaThemeColor = document.getElementById('metaThemeColor');
+
+    // 아이콘 변경
     if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+
+    // 모바일 브라우저 상단 바 색상 변경 (Light: #F2F4F6, Dark: #101010)
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', isDark ? '#101010' : '#F2F4F6');
+    }
 }
 
 function renderRecentSearches() {
@@ -202,7 +215,6 @@ window.copyBadgeMarkdown = () => {
     const origin = window.location.origin;
     const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
     navigator.clipboard.writeText(markdown)
-        // [수정] 배지 복사 성공 시 체크 아이콘 추가
         .then(() => Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> README 코드를 복사했어요'))
         .catch(() => Ui.showToast('복사에 실패했어요.'));
 };
