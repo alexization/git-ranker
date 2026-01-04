@@ -242,9 +242,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 return;
             }
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentTier = tab.getAttribute('data-tier');
+
+            const clickedTier = tab.getAttribute('data-tier');
+
+            // [Modified] Toggle Logic: Active 탭 클릭 시 ALL로 복귀
+            if (tab.classList.contains('active')) {
+                if (clickedTier === 'ALL') return; // ALL 클릭 시엔 동작 없음
+
+                // ALL 탭 활성화
+                tabs.forEach(t => t.classList.remove('active'));
+                const allTab = document.querySelector('.tab-item[data-tier="ALL"]');
+                if (allTab) allTab.classList.add('active');
+                currentTier = 'ALL';
+            } else {
+                // 일반 탭 전환
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTier = clickedTier;
+            }
+
             handleLoadRankings(0);
         });
     });

@@ -76,6 +76,7 @@
     --tier-bg-silver: rgba(207, 216, 220, 0.15);
     --tier-bg-bronze: rgba(224, 166, 120, 0.15);
     --tier-bg-iron: rgba(144, 164, 174, 0.15);
+    --gradient-scroll-hint: linear-gradient(90deg, rgba(32, 32, 32, 0) 0%, #202020 100%);
 }
 
 * {
@@ -1509,6 +1510,9 @@ body {
         margin: 0;
         width: 100%;
         max-width: 100%;
+        height: auto;
+        align-items: flex-end;
+        min-height: 0;
     }
 
     .modal-content {
@@ -1517,6 +1521,15 @@ body {
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
         padding-bottom: calc(30px + env(safe-area-inset-bottom));
+        max-height: 85vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 }
 
