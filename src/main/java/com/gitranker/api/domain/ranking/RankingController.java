@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.ranking;
 
 import com.gitranker.api.domain.ranking.dto.RankingList;
+import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +17,10 @@ public class RankingController {
 
     @GetMapping
     public ApiResponse<RankingList> getRankings(
-            @RequestParam(defaultValue = "0") int page
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Tier tier
     ) {
-        RankingList response = rankingService.getRankingList(page);
+        RankingList response = rankingService.getRankingList(page, tier);
 
         return ApiResponse.success(response);
     }

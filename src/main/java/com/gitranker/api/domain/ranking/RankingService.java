@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -47,17 +46,22 @@ public class RankingService {
 
     @Transactional(readOnly = true)
     @LogExecutionTime
-    public RankingList getRankingList(int page) {
-        log.info("[Domain Event] 랭킹 리스트 조회 - Page: {}", page + 1);
+    public RankingList getRankingList(int page, Tier tier) {
+        log.info("[Domain Event] 랭킹 리스트 조회 - Page: {}, Tier: {}", page + 1, tier);
 
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
-        Page<User> userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
+        Page<User> userPage;
+
+        if (tier == null) {
+            userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
+        } else {
+            userPage = userRepository.findAllByTierOrderByTotalScoreDesc(tier, pageable);
+        }
 
         List<User> userList = userPage.getContent();
-        long startRank = pageable.getOffset() + 1;
 
-        List<RankingList.UserInfo> userInfo = IntStream.range(0, userList.size())
-                .mapToObj(i -> RankingList.UserInfo.from(userList.get(i), startRank + i))
+        List<RankingList.UserInfo> userInfo = userList.stream()
+                .map(user -> RankingList.UserInfo.from(user, user.getRanking()))
                 .toList();
 
         Page<RankingList.UserInfo> rankingPage = new PageImpl<>(userInfo, pageable, userPage.getTotalElements());
