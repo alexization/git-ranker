@@ -5,7 +5,6 @@ import * as Utils from './utils.js';
 let userDetailModal = null;
 let currentFocus = -1;
 
-// === Theme Logic ===
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -27,7 +26,6 @@ function toggleTheme() {
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme === 'dark');
 
-    // 테마 변경 시 차트 색상도 업데이트
     Ui.updateChartTheme();
 }
 
@@ -38,7 +36,6 @@ function updateThemeIcon(isDark) {
     }
 }
 
-// === Recent Search Logic ===
 function renderRecentSearches() {
     const listEl = document.getElementById('recentList');
     const boxEl = document.getElementById('recentSearchBox');
@@ -62,14 +59,12 @@ function renderRecentSearches() {
             </button>
         `;
 
-        // 아이템 클릭 시 검색
         li.onclick = () => {
             document.getElementById('usernameInput').value = username;
             handleRegisterUser();
             boxEl.classList.add('hidden');
         };
 
-        // 삭제 버튼 클릭
         const delBtn = li.querySelector('.btn-delete-item');
         delBtn.onclick = (e) => {
             e.stopPropagation();
@@ -84,7 +79,6 @@ function renderRecentSearches() {
     boxEl.classList.remove('hidden');
 }
 
-// 키보드 네비게이션: 활성 상태 추가
 function addActive(items) {
     if (!items) return false;
     removeActive(items);
@@ -93,31 +87,27 @@ function addActive(items) {
     items[currentFocus].classList.add('active');
 }
 
-// 키보드 네비게이션: 활성 상태 제거
 function removeActive(items) {
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
     }
 }
 
-// 입력값 없을 때 흔들림 효과
 function triggerShake() {
     const wrapper = document.querySelector('.toss-input-group');
     wrapper.classList.remove('shake');
-    void wrapper.offsetWidth; // 리플로우 강제
+    void wrapper.offsetWidth;
     wrapper.classList.add('shake');
     setTimeout(() => {
         wrapper.classList.remove('shake');
     }, 400);
 }
 
-// 전체 삭제 (HTML에서 호출됨)
 window.clearAllRecentSearches = () => {
     Utils.clearAllRecentSearches();
     renderRecentSearches();
 };
 
-// === Deep Linking Logic ===
 function updateUrlState(username) {
     const currentUrlParams = new URLSearchParams(window.location.search);
     if (currentUrlParams.get('username') !== username) {
@@ -131,11 +121,10 @@ function checkUrlParams() {
     const username = params.get('username');
     if (username) {
         document.getElementById('usernameInput').value = username;
-        handleRegisterUser(false); // 초기 로드 시에는 History Push 안 함
+        handleRegisterUser(false);
     }
 }
 
-// === API Handlers ===
 async function handleLoadRankings(page) {
     try {
         const result = await Api.fetchRankings(page);
@@ -158,7 +147,6 @@ async function handleRegisterUser(pushHistory = true) {
         return;
     }
 
-    // 검색 시작 시 드롭다운 닫기
     document.getElementById('recentSearchBox').classList.add('hidden');
     currentFocus = -1;
 
@@ -166,26 +154,28 @@ async function handleRegisterUser(pushHistory = true) {
     try {
         const result = await Api.registerUser(username);
         if (result.result === 'SUCCESS') {
-            // 성공 시 로직
             Utils.saveRecentSearch(username);
             if (pushHistory) updateUrlState(username);
 
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
 
-            // [중요] 레이아웃이 잡힌 뒤 차트를 그려야 애니메이션이 정상 동작함
             requestAnimationFrame(() => {
                 Ui.createRadarChart(result.data);
             });
 
-            // [중요] 모바일 UX 개선: 스크롤을 섹션 최상단으로 이동 (start)
             const resultSection = document.getElementById('resultSection');
             resultSection.scrollIntoView({behavior: 'smooth', block: 'start'});
         } else {
-            Ui.showToast(`오류: ${result.error.message}`);
+            // [수정] 에러 메시지 개선 (사용자 없음 안내)
+            if (result.error && (result.error.message.includes("존재하지 않는") || result.error.message.includes("found"))) {
+                Ui.showToast('계정을 찾을 수 없어요. 아이디를 확인해주세요.');
+            } else {
+                Ui.showToast(result.error.message || '일시적인 오류가 발생했어요.');
+            }
         }
     } catch (error) {
-        Ui.showToast('서버와 통신 중 오류가 발생했습니다.');
+        Ui.showToast('서버와 연결할 수 없어요.');
     } finally {
         Ui.showLoading(false);
     }
@@ -201,11 +191,11 @@ async function handleRefreshUser() {
     try {
         const result = await Api.refreshUser(username);
         if (result.result === 'SUCCESS') {
-            Ui.showToast('✅ 갱신이 완료되었습니다!');
+            // [수정] 성공 토스트 메시지 개선
+            Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 데이터를 갱신했어요');
             Ui.renderUserResult(result.data);
             Ui.showResultSection();
 
-            // 갱신 시에도 차트 다시 그리기
             requestAnimationFrame(() => {
                 Ui.createRadarChart(result.data);
             });
@@ -213,7 +203,7 @@ async function handleRefreshUser() {
             Ui.showToast(result.error.message);
         }
     } catch (error) {
-        Ui.showToast('갱신 요청 중 오류가 발생했습니다.');
+        Ui.showToast('갱신 요청 중 오류가 발생했어요.');
     } finally {
         Ui.showLoading(false);
     }
@@ -230,10 +220,10 @@ async function handleUserDetail(username) {
         if (result.result === 'SUCCESS') {
             Ui.renderUserDetailModal(result.data, userDetailModal);
         } else {
-            Ui.showToast('사용자 정보를 불러올 수 없습니다.');
+            Ui.showToast('사용자 정보를 불러올 수 없어요.');
         }
     } catch (error) {
-        Ui.showToast('상세 정보를 불러오는 중 오류가 발생했습니다.');
+        Ui.showToast('상세 정보를 불러오는 중 오류가 발생했어요.');
     }
 }
 
@@ -243,23 +233,20 @@ window.copyBadgeMarkdown = () => {
     const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
 
     navigator.clipboard.writeText(markdown)
-        .then(() => Ui.showToast('README 마크다운 코드가 복사되었습니다!'))
-        .catch(() => Ui.showToast('복사에 실패했습니다.'));
+        .then(() => Ui.showToast('README 코드를 복사했어요'))
+        .catch(() => Ui.showToast('복사에 실패했어요.'));
 };
 
-// === Initialization ===
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
-    // 전역 함수 바인딩 (HTML onclick 지원)
     window.registerUser = () => handleRegisterUser(true);
 
     const input = document.getElementById('usernameInput');
     const btnClear = document.getElementById('btnClear');
     const recentBox = document.getElementById('recentSearchBox');
 
-    // [키보드 조작] 화살표 이동, 엔터, 삭제
     input.addEventListener('keydown', (e) => {
         const list = document.getElementById('recentList');
         let items = list ? list.getElementsByTagName('li') : null;
@@ -287,8 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetUser = items[currentFocus].querySelector('.btn-delete-item').getAttribute('data-user');
             Utils.removeRecentSearch(targetUser);
             renderRecentSearches();
-
-            // 삭제 후 포커스 유지 로직
             items = list.getElementsByTagName('li');
             if (currentFocus >= items.length) currentFocus = items.length - 1;
             if (items.length > 0) addActive(items);
@@ -299,19 +284,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 입력 중 X 버튼 토글 및 포커스 초기화
     input.addEventListener('input', () => {
         if (input.value.length > 0) btnClear.classList.remove('hidden');
         else btnClear.classList.add('hidden');
         currentFocus = -1;
     });
 
-    // 포커스 시 최근 검색어 노출
     input.addEventListener('focus', () => {
         renderRecentSearches();
     });
 
-    // X 버튼 클릭
     btnClear.addEventListener('click', () => {
         input.value = '';
         input.focus();
@@ -319,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRecentSearches();
     });
 
-    // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', (e) => {
         if (!input.contains(e.target) && !recentBox.contains(e.target)) {
             recentBox.classList.add('hidden');
@@ -327,11 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 커스텀 이벤트 수신
     document.addEventListener('requestRefreshUser', handleRefreshUser);
     document.addEventListener('requestUserDetail', (e) => handleUserDetail(e.detail));
 
-    // 뒤로 가기 처리
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.username) {
             document.getElementById('usernameInput').value = event.state.username;
@@ -341,10 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 초기 실행
     handleLoadRankings(0);
     startCountdownTimer();
-    checkUrlParams(); // 딥링킹 확인
+    checkUrlParams();
 });
 
 function startCountdownTimer() {

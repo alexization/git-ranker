@@ -86,11 +86,12 @@ window.captureAndDownload = async () => {
         link.href = canvas.toDataURL('image/png');
         link.click();
 
-        showToast("리포트가 저장되었습니다! 📄");
+        // [수정] 성공 토스트 메시지 개선
+        showToast('<i class="fas fa-image" style="color:#FFD700"></i> 이미지를 저장했어요');
 
     } catch (err) {
         console.error(err);
-        showToast("리포트 생성에 실패했습니다.");
+        showToast("리포트 생성에 실패했어요.");
     } finally {
         const el = document.getElementById('report-export-view');
         if (el) el.remove();
@@ -336,8 +337,6 @@ export function renderRankingTable(users) {
     users.forEach((user, index) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
-        // [수정] 렉 방지를 위해 애니메이션 제거
-        // row.style.animation = ... (삭제됨)
 
         let tierColor = '#6B7684';
         if (user.tier === 'CHALLENGER') tierColor = '#3182F6';

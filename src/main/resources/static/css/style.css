@@ -6,6 +6,7 @@
     --bg-primary: #F2F4F6;
     --bg-secondary: #FFFFFF;
     --bg-tertiary: #FAFAFA;
+    --bg-info: #F9FAFB; /* 안내 박스 배경 */
 
     --text-primary: #191F28;
     --text-secondary: #4E5968;
@@ -62,6 +63,7 @@
     --bg-primary: #101010;
     --bg-secondary: #202020;
     --bg-tertiary: #2C2C2C;
+    --bg-info: #2C2C2C; /* 다크모드 안내 박스 배경 */
 
     --text-primary: #FFFFFF;
     --text-secondary: #B0B8C1;
@@ -246,7 +248,7 @@ body {
     align-items: center;
     transition: transform 0.2s;
     border: 1px solid var(--border-color);
-    width: 100%; /* 너비 보장 */
+    width: 100%;
 }
 
 .toss-input-group:focus-within {
@@ -268,7 +270,7 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    min-width: 0; /* [중요] flex 자식 넘침 방지 */
+    min-width: 0;
 }
 
 .toss-input {
@@ -280,7 +282,7 @@ body {
     font-weight: 500;
     outline: none;
     color: var(--text-primary);
-    min-width: 0; /* [중요] flex 자식 넘침 방지 */
+    min-width: 0;
     width: 100%;
 }
 
@@ -318,7 +320,7 @@ body {
     cursor: pointer;
     transition: background 0.2s;
     white-space: nowrap;
-    flex-shrink: 0; /* [중요] 버튼이 찌그러지지 않도록 고정 */
+    flex-shrink: 0;
 }
 
 .btn-search:hover {
@@ -469,7 +471,6 @@ body {
     gap: 24px;
     margin-bottom: 48px;
     align-items: start;
-    /* [중요] 스크롤 포커싱 시 상단 여백 확보 */
     scroll-margin-top: 24px;
 }
 
@@ -494,7 +495,7 @@ body {
     perspective: 1000px;
 }
 
-/* Glow Effects - Variable Based */
+/* Glow Effects */
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
     border: 2px solid var(--tier-bg-challenger);
@@ -625,7 +626,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* [수정] width: 100% 제거하여 (?) 아이콘이 옆에 붙도록 수정 */
     width: auto;
     max-width: 100%;
     transform: translateZ(35px);
@@ -947,7 +947,6 @@ body {
     gap: 0;
 }
 
-/* [수정] 렉 걸림 방지 - 애니메이션 제거 */
 .ranking-row {
     display: flex;
     align-items: center;
@@ -955,10 +954,8 @@ body {
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background 0.1s;
-    /* opacity: 0; transform: translateY(10px);  <- 제거됨 */
 }
 
-/* @keyframes fadeInStagger ... <- 제거됨 */
 .ranking-row:hover {
     background-color: var(--bg-tertiary);
 }
@@ -1048,7 +1045,16 @@ body {
     color: #FFFFFF !important;
 }
 
-/* [수정] Score Info Modal List Styling */
+/* [수정] Info Box (다크모드 대응) */
+.info-box {
+    padding: 16px;
+    background: var(--bg-info);
+    color: var(--text-secondary);
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
 .score-modal-list {
     list-style: none;
     padding: 0;
@@ -1058,7 +1064,7 @@ body {
 .score-modal-item {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* 정렬 수정 */
+    align-items: center;
     padding: 14px 0;
     border-bottom: 1px solid var(--border-color);
     font-size: 15px;
@@ -1107,15 +1113,25 @@ body {
     pointer-events: none;
 }
 
+/* [수정] Toast Style (Trendy) */
 .toss-toast {
-    background: var(--text-primary);
-    color: var(--bg-secondary);
+    background: rgba(25, 31, 40, 0.9);
+    backdrop-filter: blur(10px);
+    color: white;
     padding: 14px 24px;
     border-radius: 30px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     margin-bottom: 10px;
     pointer-events: auto;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toss-toast i {
+    font-size: 18px;
 }
 
 /* Skeleton */
@@ -1137,7 +1153,7 @@ body {
     }
 }
 
-/* Report Export Styles */
+/* Report Styles */
 #report-export-view {
     position: fixed;
     top: -9999px;
@@ -1246,7 +1262,7 @@ body {
     margin-top: 10px;
 }
 
-/* [수정] Mobile Optimization: 작은 화면 대응 강화 */
+/* Mobile Optimization */
 @media (max-width: 768px) {
     .container {
         padding: 0 16px;
@@ -1257,25 +1273,24 @@ body {
         margin-bottom: 24px;
     }
 
-    /* [수정] 검색바 버튼 튀어나감 해결: flex-wrap 방지 및 너비 보장 */
     .toss-input-group {
         padding: 4px;
         border-radius: 16px;
-        flex-wrap: nowrap; /* 줄바꿈 절대 방지 */
+        flex-wrap: nowrap;
     }
 
     .btn-search {
-        padding: 10px 14px; /* 패딩 축소 */
+        padding: 10px 14px;
         font-size: 14px;
         border-radius: 12px;
-        flex-shrink: 0; /* 버튼 크기 유지 */
+        flex-shrink: 0;
         white-space: nowrap;
     }
 
     .toss-input {
         font-size: 15px;
         padding: 12px 8px;
-        min-width: 0; /* flex box 안에서 텍스트 오버플로우 시 줄어들 수 있게 함 */
+        min-width: 0;
     }
 
     .input-icon {
@@ -1372,7 +1387,7 @@ body {
     }
 }
 
-/* [성능] 동작 줄이기 */
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;
