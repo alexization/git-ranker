@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.badge;
 
+import com.gitranker.api.domain.user.Tier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -30,6 +31,15 @@ public class BadgeController {
                 .cacheControl(cacheControl)
                 .header("Pragma", "no-cache")
                 .header("Expires", "0")
+                .body(svgContent);
+    }
+
+    @GetMapping(value = "/{tier}/badge", produces = "image/svg+xml")
+    public ResponseEntity<String> getBadgeByTier(@PathVariable Tier tier) {
+        String svgContent = badgeService.generateBadgeByTier(tier);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("image/svg+xml"))
                 .body(svgContent);
     }
 }

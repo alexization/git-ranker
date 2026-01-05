@@ -26,18 +26,47 @@ public class BadgeService {
     @Transactional(readOnly = true)
     @LogExecutionTime
     public String generateBadge(String nodeId) {
-        User user = userRepository.findByNodeId(nodeId).orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
+        User user = userRepository.findByNodeId(nodeId)
+                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
 
         MdcUtils.setUserContext(user.getUsername(), nodeId);
 
         log.info("[Domain Event] Badge 생성 - 사용자:{}", user.getUsername());
 
-        return createSvgContent(user, activityLog);
+        return createSvgContent(user, user.getTier(), activityLog);
     }
 
-    private String createSvgContent(User user, ActivityLog activityLog) {
-        Tier tier = user.getTier();
+    @Transactional(readOnly = true)
+    public String generateBadgeByTier(Tier tier) {
+        User user = User.builder()
+                .nodeId("temp-nodeId")
+                .username(tier.toString())
+                .profileImage(null)
+                .githubCreatedAt(null)
+                .build();
+
+        ActivityLog activityLog = ActivityLog.builder()
+                .user(user)
+                .activityDate(null)
+                .commitCount(0)
+                .prCount(0)
+                .mergedPrCount(0)
+                .prCount(0)
+                .mergedPrCount(0)
+                .issueCount(0)
+                .reviewCount(0)
+                .diffCommitCount(0)
+                .diffPrCount(0)
+                .diffMergedPrCount(0)
+                .diffIssueCount(0)
+                .diffReviewCount(0)
+                .build();
+
+        return createSvgContent(user, tier, activityLog);
+    }
+
+    private String createSvgContent(User user, Tier tier, ActivityLog activityLog) {
         String gradientDefs = getTierGradientDefs(tier);
 
         int tierFontSize = 28;
@@ -152,7 +181,7 @@ public class BadgeService {
                         </g>
                     </g>
                 </svg>
-                """, gradientDefs, GITHUB_LOGO_PATH, tierFontSize, animationStyle, user.getUsername(), user.getTier().name(), user.getTotalScore(), user.getPercentile(), user.getRanking(), formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()), formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()), formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()), formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()), formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount()));
+                """, gradientDefs, GITHUB_LOGO_PATH, tierFontSize, animationStyle, user.getUsername(), tier.name(), user.getTotalScore(), user.getPercentile(), user.getRanking(), formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()), formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()), formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()), formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()), formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount()));
     }
 
     private String formatCount(int count) {
