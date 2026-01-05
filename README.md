@@ -18,7 +18,7 @@
 </div>
 
 ```Markdown
-[![Git Ranker](https://git-ranker.com/api/v1/badges/{your_node_id})](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/{your_node_id})](https://git-ranker.com)
 ```
 
 ## 공정한 전투력 측정 시스템
@@ -39,36 +39,36 @@
 
 ### CHALLENGER (상위 1.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/CHALLENGER/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/CHALLENGER/badge)](https://git-ranker.com)
 
 ### MASTER (상위 5.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/MASTER/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/MASTER/badge)](https://git-ranker.com)
    
 ### DIAMOND (상위 10.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/DIAMOND/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/DIAMOND/badge)](https://git-ranker.com)
 
 ### EMERALD (상위 25.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/EMERALD/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/EMERALD/badge)](https://git-ranker.com)
 
 ### PLATINUM (상위 40.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/PLATINUM/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/PLATINUM/badge)](https://git-ranker.com)
 
 ### GOLD (상위 55.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/GOLD/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/GOLD/badge)](https://git-ranker.com)
 
 ### SILVER (상위 70.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/SILVER/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/SILVER/badge)](https://git-ranker.com)
 
 ### BRONZE (상위 90.0% 이내)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/BRONZE/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/BRONZE/badge)](https://git-ranker.com)
 
 ### IRON (기본 등급)
 
-[![Git Ranker](https://git-ranker.com/api/v1/badges/IRON/badge)](https://git-ranker.com)
+[![Git Ranker](https://www.git-ranker.com/api/v1/badges/IRON/badge)](https://git-ranker.com)
