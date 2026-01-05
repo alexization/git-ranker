@@ -166,9 +166,12 @@ async function handleRegisterUser(pushHistory = true) {
                 Ui.createRadarChart(result.data);
             });
         } else {
-            // 백엔드 에러 메시지 사용 및 에러 상태(true) 전달
-            const msg = result.error ? result.error.message : '일시적인 오류가 발생했어요.';
-            Ui.showToast(msg, true);
+            if (result.error.type === "GITHUB_API_TIMEOUT") {
+                Ui.showToast(result.error.data, true);
+            } else {
+                const msg = result.error ? result.error.message : '일시적인 오류가 발생했어요.';
+                Ui.showToast(msg, true);
+            }
         }
     } catch (error) {
         Ui.showToast('서버와 연결할 수 없어요. 잠시 후 다시 시도해주세요.', true);

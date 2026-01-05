@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 public class GitHubGraphQLClient {
     private static final Duration API_TIMEOUT = Duration.ofSeconds(20);
     private static final int CONCURRENCY_LIMIT = 5;
-    private static final int SAFE_REMAINING_THRESHOLD = 50;
+    private static final int SAFE_REMAINING_THRESHOLD = 5000;
 
     private final WebClient webClient;
     private final GraphQLQueryBuilder queryBuilder;

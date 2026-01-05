@@ -54,6 +54,7 @@ public class GlobalExceptionHandler {
         MdcUtils.setError(errorType.name(), e.getMessage());
 
         String resetTimeStr = e.getResetAt()
+                .plusHours(9)
                 .plusMinutes(1)
                 .format(DateTimeFormatter.ofPattern("HH:mm"));
         String message = String.format("%s 이후에 다시 시도해주세요.", resetTimeStr);
