@@ -201,10 +201,8 @@ window.captureAndDownload = async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
     btn.disabled = true;
 
-    // 모바일 여부 확인
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // 타임아웃 설정: 모바일은 15초, PC는 20초
     const timeoutDuration = isMobile ? 15000 : 20000;
 
     const safetyTimer = setTimeout(() => {
@@ -226,9 +224,6 @@ window.captureAndDownload = async () => {
         const originalProfileSrc = document.getElementById('resProfileImage').src;
         const chartBase64 = radarChartInstance.toBase64Image();
 
-        // [전략 분기]
-        // 모바일: 원본 URL 사용 (속도 최우선)
-        // PC: Base64 변환 사용 (안정성 최우선)
         let profileSrc;
         if (isMobile) {
             profileSrc = originalProfileSrc;
@@ -251,11 +246,14 @@ window.captureAndDownload = async () => {
         reportContainer.style.top = '0';
         document.body.appendChild(reportContainer);
 
+        const today = new Date();
+        const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         reportContainer.innerHTML = `
             <div class="simple-report-card">
                 <div class="sim-header">
                     <div class="sim-brand"><i class="fab fa-github"></i> Git Ranker</div>
-                    <div class="sim-date">${new Date().toISOString().split('T')[0]}</div>
+                    <div class="sim-date">${localDate}</div>
                 </div>
                 <div class="sim-body">
                     <div class="sim-profile">
@@ -278,7 +276,6 @@ window.captureAndDownload = async () => {
             </div>
         `;
 
-        // 렌더링 스케일: 모바일 1.5배, PC 2배
         const scale = isMobile ? 1.5 : 2;
 
         const canvas = await html2canvas(reportContainer, {
