@@ -1,6 +1,6 @@
 package com.gitranker.api.domain.failure;
 
-import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

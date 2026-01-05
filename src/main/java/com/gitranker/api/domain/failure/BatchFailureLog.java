@@ -1,13 +1,12 @@
 package com.gitranker.api.domain.failure;
 
-import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.error.ErrorType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 

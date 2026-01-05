@@ -1,5 +1,7 @@
-package com.gitranker.api.global.exception;
+package com.gitranker.api.global.error;
 
+import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;

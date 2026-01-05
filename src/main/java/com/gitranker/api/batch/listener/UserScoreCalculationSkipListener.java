@@ -2,9 +2,9 @@ package com.gitranker.api.batch.listener;
 
 import com.gitranker.api.domain.failure.BatchFailureLogService;
 import com.gitranker.api.domain.user.User;
-import com.gitranker.api.global.exception.ErrorType;
-import com.gitranker.api.global.exception.GitHubApiNonRetryableException;
-import com.gitranker.api.global.exception.GitHubApiRetryableException;
+import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
+import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.SkipListener;

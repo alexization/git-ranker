@@ -1,4 +1,4 @@
-package com.gitranker.api.global.exception;
+package com.gitranker.api.global.error;
 
 import lombok.Getter;
 

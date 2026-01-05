@@ -1,7 +1,7 @@
 package com.gitranker.api.global.response;
 
-import com.gitranker.api.global.exception.ErrorMessage;
-import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.error.ErrorMessage;
+import com.gitranker.api.global.error.ErrorType;
 import lombok.Getter;
 
 @Getter

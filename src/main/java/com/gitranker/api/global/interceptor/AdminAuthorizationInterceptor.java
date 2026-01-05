@@ -1,7 +1,7 @@
 package com.gitranker.api.global.interceptor;
 
-import com.gitranker.api.global.exception.BusinessException;
-import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.error.ErrorType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

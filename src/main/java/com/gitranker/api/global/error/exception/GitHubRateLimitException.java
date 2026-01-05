@@ -1,5 +1,6 @@
-package com.gitranker.api.global.exception;
+package com.gitranker.api.global.error.exception;
 
+import com.gitranker.api.global.error.ErrorType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

@@ -2,8 +2,8 @@ package com.gitranker.api.batch.tasklet;
 
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.aop.LogExecutionTime;
-import com.gitranker.api.global.exception.BusinessException;
-import com.gitranker.api.global.exception.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;

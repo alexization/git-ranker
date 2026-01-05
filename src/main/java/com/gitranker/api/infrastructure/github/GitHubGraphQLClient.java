@@ -1,6 +1,10 @@
 package com.gitranker.api.infrastructure.github;
 
-import com.gitranker.api.global.exception.*;
+import com.gitranker.api.global.error.*;
+import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
+import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
+import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
