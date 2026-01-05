@@ -27,7 +27,7 @@ public class BatchScheduler {
     private final Job dailyScoreRecalculationJob;
     private final Job hourlyRankingJob;
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
+    @Scheduled(cron = "0 0 6 * * *", zone = "${app.timezone}")
     @LogExecutionTime
     public void runDailyScoreRecalculationJob() {
         MdcUtils.setupBatchJobContext("DailyScoreRecalculation");
@@ -51,7 +51,7 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * *", zone = "UTC")
+    @Scheduled(cron = "0 0 * * * *", zone = "${app.timezone}")
     @LogExecutionTime
     public void runHourlyRankingRecalculation() {
         MdcUtils.setupBatchJobContext("HourlyRankingRecalculation");

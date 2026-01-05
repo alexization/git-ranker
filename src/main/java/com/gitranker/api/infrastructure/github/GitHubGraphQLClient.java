@@ -9,7 +9,6 @@ import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -32,11 +31,16 @@ import java.util.stream.IntStream;
 public class GitHubGraphQLClient {
     private static final Duration API_TIMEOUT = Duration.ofSeconds(20);
     private static final int CONCURRENCY_LIMIT = 5;
+
     private final WebClient webClient;
+    private final GraphQLQueryBuilder queryBuilder;
+    private final ZoneId appZoneId;
 
     public GitHubGraphQLClient(
             @Value("${github.api.graphql-url}") String graphqlUrl,
-            @Value("${github.api.token}") String token
+            @Value("${github.api.token}") String token,
+            GraphQLQueryBuilder queryBuilder,
+            ZoneId appZoneId
     ) {
         if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("GitHub Token is required for GraphQL API");
@@ -47,10 +51,12 @@ public class GitHubGraphQLClient {
                 .defaultHeader("Authorization", "Bearer " + token)
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .build();
+        this.queryBuilder = queryBuilder;
+        this.appZoneId = appZoneId;
     }
 
     public GitHubUserInfoResponse getUserInfo(String username) {
-        String query = GraphQLQueryBuilder.buildUserCreatedAtQuery(username);
+        String query = queryBuilder.buildUserCreatedAtQuery(username);
 
         GitHubUserInfoResponse response = executeQuery(query, GitHubUserInfoResponse.class);
 
@@ -62,7 +68,7 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubAllActivitiesResponse getActivitiesForYear(String username, int year) {
-        String query = GraphQLQueryBuilder.buildBatchQuery(username, year);
+        String query = queryBuilder.buildBatchQuery(username, year);
 
         GitHubAllActivitiesResponse response = executeQuery(query, GitHubAllActivitiesResponse.class);
 
@@ -75,12 +81,12 @@ public class GitHubGraphQLClient {
 
     public GitHubAllActivitiesResponse getAllActivities(String username, LocalDateTime githubJoinDate) {
         int joinYear = githubJoinDate.getYear();
-        int currentYear = LocalDateTime.now(ZoneId.of("UTC")).getYear();
+        int currentYear = LocalDateTime.now(appZoneId).getYear();
 
         Flux<String> queries = Flux.concat(
-                Flux.just(GraphQLQueryBuilder.buildMergedPRBlock(username)),
+                Flux.just(queryBuilder.buildMergedPRBlock(username)),
                 Flux.fromStream(IntStream.rangeClosed(joinYear, currentYear).boxed())
-                        .map(year -> GraphQLQueryBuilder.buildYearlyContributionQuery(username, year, githubJoinDate))
+                        .map(year -> queryBuilder.buildYearlyContributionQuery(username, year, githubJoinDate))
         );
 
         GitHubAllActivitiesResponse aggregatedResponse = queries

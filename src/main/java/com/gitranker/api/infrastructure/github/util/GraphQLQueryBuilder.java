@@ -1,63 +1,24 @@
 package com.gitranker.api.infrastructure.github.util;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class GraphQLQueryBuilder {
 
-    private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+    private final ZoneId appZoneId;
 
-    public static String buildYearlyContributionQuery(String username, int year, LocalDateTime githubJoinDate) {
-        int joinYear = githubJoinDate.getYear();
-        int currentYear = LocalDate.now(ZoneId.of("UTC")).getYear();
-
-        String fromDate = buildFromDate(year, joinYear, githubJoinDate);
-        String toDate = buildToDate(year, currentYear);
-
-        return String.format("""
-                {
-                    rateLimit {
-                        limit
-                        remaining
-                        resetAt
-                        cost
-                    }
-                    %s
-                }
-                """, buildYearContributionBlock(year, username, fromDate, toDate));
-    }
-
-    public static String buildBatchQuery(String username, int year) {
-        int currentYear = LocalDate.now(ZoneId.of("UTC")).getYear();
-
-        String fromDate = String.format("%d-01-01T00:00:00Z", year);
-        String toDate = buildToDate(year, currentYear);
-
-        return String.format("""
-                {
-                    rateLimit {
-                        limit
-                        remaining
-                        resetAt
-                        cost
-                    }
-                    mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
-                      issueCount
-                    }
-                    %s
-                }
-                """,
-                username,
-                buildYearContributionBlock(year, username, fromDate, toDate)
-        );
-    }
-
-    public static String buildMergedPRBlock(String username) {
+    public String buildMergedPRBlock(String username) {
         return String.format("""
                 {
                     mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
@@ -67,7 +28,7 @@ public class GraphQLQueryBuilder {
                 """, username);
     }
 
-    public static String buildUserCreatedAtQuery(String username) {
+    public String buildUserCreatedAtQuery(String username) {
         return String.format("""
                 {
                   rateLimit {
@@ -86,7 +47,7 @@ public class GraphQLQueryBuilder {
                 """, username);
     }
 
-    private static String buildYearContributionBlock(
+    private String buildYearContributionBlock(
             int year, String username, String fromDate, String toDate
     ) {
         return String.format("""
@@ -101,21 +62,70 @@ public class GraphQLQueryBuilder {
                 """, year, username, fromDate, toDate);
     }
 
-    private static String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
-        if (year == joinYear) {
-            return toISOString(githubJoinDate);
-        }
-        return String.format("%d-01-01T00:00:00Z", year);
+    private String toISOString(ZonedDateTime zonedDateTime) {
+        return zonedDateTime.format(ISO_FORMATTER);
     }
 
-    private static String buildToDate(int year, int currentYear) {
+    public String buildYearlyContributionQuery(String username, int year, LocalDateTime githubJoinDate) {
+        int joinYear = githubJoinDate.getYear();
+        int currentYear = LocalDate.now(appZoneId).getYear();
+
+        String fromDate = buildFromDate(year, joinYear, githubJoinDate);
+        String toDate = buildToDate(year, currentYear);
+
+        return String.format("""
+                {
+                    rateLimit {
+                        limit
+                        remaining
+                        resetAt
+                        cost
+                    }
+                    %s
+                }
+                """, buildYearContributionBlock(year, username, fromDate, toDate));
+    }
+
+    public String buildBatchQuery(String username, int year) {
+        int currentYear = LocalDate.now(appZoneId).getYear();
+
+        String fromDate = buildFromDate(year, -1, null);
+        String toDate = buildToDate(year, currentYear);
+
+        return String.format("""
+                        {
+                            rateLimit {
+                                limit
+                                remaining
+                                resetAt
+                                cost
+                            }
+                            mergedPRs: search(query: "author:%s type:pr is:merged", type: ISSUE, first: 1) {
+                              issueCount
+                            }
+                            %s
+                        }
+                        """,
+                username,
+                buildYearContributionBlock(year, username, fromDate, toDate)
+        );
+    }
+
+    private String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
+        if (year == joinYear && githubJoinDate != null) {
+            return toISOString(githubJoinDate.atZone(appZoneId));
+        }
+
+        ZonedDateTime zdt = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, appZoneId);
+        return toISOString(zdt);
+    }
+
+    private String buildToDate(int year, int currentYear) {
         if (year == currentYear) {
-            return toISOString(LocalDateTime.now(ZoneId.of("UTC")));
+            return toISOString(ZonedDateTime.now(appZoneId));
         }
-        return String.format("%d-12-31T23:59:59Z", year);
-    }
 
-    private static String toISOString(LocalDateTime dateTime) {
-        return dateTime.format(ISO_FORMATTER);
+        ZonedDateTime zdt = ZonedDateTime.of(year, 12, 31, 23, 59, 59, 0, appZoneId);
+        return toISOString(zdt);
     }
 }
