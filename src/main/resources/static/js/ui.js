@@ -24,20 +24,42 @@ export function updateChartTheme() {
     radarChartInstance.update();
 }
 
-export function showToast(message) {
+/**
+ * Toss Style Toast Message (Fix: Vertical Stack & Auto Remove)
+ */
+export function showToast(message, isError = false) {
     const container = document.getElementById('toast-container');
-    container.innerHTML = '';
 
     const toast = document.createElement('div');
     toast.className = 'toss-toast';
-    toast.innerHTML = message;
+
+    let iconHtml = '';
+    if (message.includes('<i class=')) {
+        toast.innerHTML = message;
+    } else {
+        if (isError) {
+            iconHtml = `<i class="fas fa-times-circle" style="color:#EF4444; font-size: 20px;"></i>`;
+        } else {
+            iconHtml = `<i class="fas fa-check-circle" style="color:#4ADE80; font-size: 20px;"></i>`;
+        }
+        toast.innerHTML = `${iconHtml}<span>${message}</span>`;
+    }
+
     container.appendChild(toast);
 
+    // 등장 애니메이션
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // 3초 후 사라짐 (CSS transition 시간 0.4초 고려)
     setTimeout(() => {
-        toast.classList.add('hide');
-        toast.addEventListener('animationend', () => {
-            toast.remove();
-        });
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 400); // CSS transition duration과 일치
     }, 3000);
 }
 
@@ -88,10 +110,9 @@ function canvasToBlob(canvas) {
     });
 }
 
-// 이미지 로딩 (PC용 안정성 확보)
 async function loadImageAsBase64(url) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     try {
         const response = await fetch(url, {signal: controller.signal});
@@ -109,7 +130,6 @@ async function loadImageAsBase64(url) {
     }
 }
 
-// 공유 프리뷰 모달
 function showSharePreviewModal(file, filename) {
     const existingModal = document.getElementById('sharePreviewModal');
     if (existingModal) existingModal.remove();
@@ -154,18 +174,14 @@ function showSharePreviewModal(file, filename) {
     btnCancel.onclick = closeModal;
 
     btnShare.onclick = async () => {
-        // 더블 클릭 방지
         btnShare.disabled = true;
 
         try {
             if (navigator.canShare && navigator.canShare({files: [file]})) {
-
-                // [핵심 수정] 모바일/PC 분기 처리
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
                 let shareData = {files: [file]};
 
-                // 모바일일 때만 텍스트/타이틀 추가 (PC에서는 파일 중복 복사 방지를 위해 파일만 전송)
                 if (isMobile) {
                     shareData.title = 'Git Ranker Report';
                     shareData.text = '나의 개발자 전투력을 확인해보세요! \n https://git-ranker.com';
@@ -173,7 +189,7 @@ function showSharePreviewModal(file, filename) {
 
                 await navigator.share(shareData);
 
-                showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 공유에 성공했어요');
+                showToast('공유에 성공했어요');
                 closeModal();
             } else {
                 throw new Error('Share API not supported');
@@ -193,7 +209,6 @@ function showSharePreviewModal(file, filename) {
     };
 }
 
-// 하이브리드 생성 방식
 window.captureAndDownload = async () => {
     const btn = document.querySelector('.btn-black');
     const originalText = btn.innerHTML;
@@ -202,14 +217,13 @@ window.captureAndDownload = async () => {
     btn.disabled = true;
 
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
     const timeoutDuration = isMobile ? 15000 : 20000;
 
     const safetyTimer = setTimeout(() => {
         if (btn.disabled) {
             btn.innerHTML = originalText;
             btn.disabled = false;
-            showToast('생성 시간이 초과되었습니다.');
+            showToast('생성 시간이 초과되었어요. 다시 시도해주세요.', true);
             const el = document.getElementById('report-export-view');
             if (el) el.remove();
         }
@@ -291,12 +305,11 @@ window.captureAndDownload = async () => {
         const filename = `GitRanker_${username}.png`;
         const file = new File([blob], filename, {type: 'image/png'});
 
-        // PC/모바일 모두 모달 띄우기
         showSharePreviewModal(file, filename);
 
     } catch (err) {
         console.error(err);
-        showToast("이미지 생성에 실패했어요. 다시 시도해주세요.");
+        showToast("이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.", true);
     } finally {
         clearTimeout(safetyTimer);
         const el = document.getElementById('report-export-view');
@@ -306,20 +319,6 @@ window.captureAndDownload = async () => {
         btn.disabled = false;
     }
 };
-
-function triggerDownload(canvas, username) {
-    try {
-        const link = document.createElement('a');
-        link.download = `GitRanker_${username}.png`;
-        link.href = canvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('<i class="fas fa-download"></i> 이미지를 저장했어요');
-    } catch (e) {
-        showToast("다운로드에 실패했어요.");
-    }
-}
 
 function apply3DEffect(cardElement) {
     if (!cardElement) return;

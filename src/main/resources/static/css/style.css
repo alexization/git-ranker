@@ -40,7 +40,7 @@
     --font-number: 'JetBrains Mono', 'Pretendard', monospace;
     --tracking-heading: -0.025em;
     --tracking-body: -0.005em;
-    --gradient-scroll-hint: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%);
+    --gradient-scroll-hint: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%)
 }
 
 [data-theme="dark"] {
@@ -77,23 +77,23 @@
     --tier-bg-silver: rgba(207, 216, 220, 0.15);
     --tier-bg-bronze: rgba(224, 166, 120, 0.15);
     --tier-bg-iron: rgba(144, 164, 174, 0.15);
-    --gradient-scroll-hint: linear-gradient(90deg, rgba(32, 32, 32, 0) 0%, #202020 100%);
+    --gradient-scroll-hint: linear-gradient(90deg, rgba(32, 32, 32, 0) 0%, #202020 100%)
 }
 
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent
 }
 
 :focus-visible {
     outline: 2px solid var(--toss-blue);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 4px
 }
 
 ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+    width: 0;
+    background: transparent
 }
 
 body {
@@ -108,55 +108,55 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color .3s ease, color .3s ease
 }
 
 .container {
     max-width: 960px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 24px
 }
 
 .font-code {
     font-family: var(--font-number);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.02em
 }
 
 .hidden {
-    display: none !important;
+    display: none !important
 }
 
 .fade-in-up {
-    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeInUp .6s cubic-bezier(.16, 1, .3, 1) forwards
 }
 
 .delay-1 {
-    animation-delay: 0.1s;
+    animation-delay: .1s
 }
 
 .delay-2 {
-    animation-delay: 0.2s;
+    animation-delay: .2s
 }
 
 .delay-3 {
-    animation-delay: 0.3s;
+    animation-delay: .3s
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(20px)
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0)
     }
 }
 
 .stagger-item {
     opacity: 0;
-    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeInUp .5s cubic-bezier(.16, 1, .3, 1) forwards
 }
 
 .top-nav {
@@ -164,17 +164,17 @@ body {
     justify-content: space-between;
     align-items: center;
     padding-top: 24px;
-    margin-bottom: 32px;
+    margin-bottom: 32px
 }
 
 .nav-right {
     display: flex;
-    gap: 8px;
+    gap: 8px
 }
 
 .header-area {
     padding: 30px 0 40px;
-    text-align: center;
+    text-align: center
 }
 
 .brand-title {
@@ -186,18 +186,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 12px
 }
 
 .logo-icon {
-    font-size: 1em;
+    font-size: 1em
 }
 
 .brand-subtitle {
     font-size: 17px;
     color: var(--text-secondary);
     font-weight: 500;
-    margin: 0;
+    margin: 0
 }
 
 .btn-theme-toggle {
@@ -211,29 +211,29 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
-    font-size: 18px;
+    transition: all .2s;
+    font-size: 18px
 }
 
 .btn-theme-toggle:hover {
     border-color: var(--border-hover);
-    background: var(--bg-tertiary);
+    background: var(--bg-tertiary)
 }
 
 .btn-theme-toggle:active {
-    transform: scale(0.92);
+    transform: scale(.92)
 }
 
 .search-section {
     position: relative;
     max-width: 720px;
     margin: 0 auto 40px;
-    z-index: 100;
+    z-index: 100
 }
 
 .search-wrapper {
     width: 100%;
-    margin: 0;
+    margin: 0
 }
 
 .toss-input-group {
@@ -243,22 +243,22 @@ body {
     box-shadow: var(--shadow-card);
     display: flex;
     align-items: center;
-    transition: transform 0.2s;
+    transition: transform .2s;
     border: 1px solid var(--border-color);
-    width: 100%;
+    width: 100%
 }
 
 .toss-input-group:focus-within {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-    border-color: rgba(49, 130, 246, 0.5);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+    border-color: rgba(49, 130, 246, .5)
 }
 
 .input-icon {
     padding-left: 20px;
     color: var(--text-tertiary);
     font-size: 20px;
-    min-width: 48px;
+    min-width: 48px
 }
 
 .input-wrapper {
@@ -266,7 +266,7 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    min-width: 0;
+    min-width: 0
 }
 
 .toss-input {
@@ -279,11 +279,11 @@ body {
     outline: none;
     color: var(--text-primary);
     min-width: 0;
-    width: 100%;
+    width: 100%
 }
 
 .toss-input::placeholder {
-    color: var(--text-weak);
+    color: var(--text-weak)
 }
 
 .btn-clear {
@@ -298,52 +298,52 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color .2s
 }
 
 .btn-clear:hover {
-    color: var(--text-secondary);
+    color: var(--text-secondary)
 }
 
 .btn-search {
     background-color: var(--toss-blue);
-    color: white;
+    color: #fff;
     border: none;
     padding: 14px 28px;
     border-radius: 14px;
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition: background .2s, transform .1s;
     white-space: nowrap;
-    flex-shrink: 0;
+    flex-shrink: 0
 }
 
 .btn-search:hover {
-    background-color: var(--toss-blue-dark);
+    background-color: var(--toss-blue-dark)
 }
 
 .btn-search:active {
-    transform: scale(0.96);
+    transform: scale(.96)
 }
 
 .shake {
-    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
-    border-color: #EF4444 !important;
+    animation: shake .4s cubic-bezier(.36, .07, .19, .97) both;
+    border-color: #EF4444 !important
 }
 
 @keyframes shake {
     10%, 90% {
-        transform: translate3d(-1px, 0, 0);
+        transform: translate3d(-1px, 0, 0)
     }
     20%, 80% {
-        transform: translate3d(2px, 0, 0);
+        transform: translate3d(2px, 0, 0)
     }
     30%, 50%, 70% {
-        transform: translate3d(-4px, 0, 0);
+        transform: translate3d(-4px, 0, 0)
     }
     40%, 60% {
-        transform: translate3d(4px, 0, 0);
+        transform: translate3d(4px, 0, 0)
     }
 }
 
@@ -354,21 +354,21 @@ body {
     right: 0;
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
     border: 1px solid var(--border-color);
     padding: 16px;
     z-index: 1000;
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeIn .2s ease-out
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-5px);
+        transform: translateY(-5px)
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0)
     }
 }
 
@@ -380,7 +380,7 @@ body {
     font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
-    padding: 0 8px;
+    padding: 0 8px
 }
 
 .btn-text-sm {
@@ -390,11 +390,11 @@ body {
     color: var(--text-tertiary);
     cursor: pointer;
     padding: 0;
-    text-decoration: underline;
+    text-decoration: underline
 }
 
 .btn-text-sm:hover {
-    color: var(--text-secondary);
+    color: var(--text-secondary)
 }
 
 .recent-list {
@@ -403,7 +403,7 @@ body {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 8px
 }
 
 .recent-item {
@@ -417,32 +417,32 @@ body {
     font-size: 14px;
     color: var(--text-primary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all .2s
 }
 
 .recent-item:hover, .recent-item.active {
     background: var(--border-color);
-    transform: scale(1.02);
+    transform: scale(1.02)
 }
 
 .recent-item.active {
     border-color: var(--toss-blue);
     background: var(--toss-blue);
-    color: white;
-    z-index: 1;
+    color: #fff;
+    z-index: 1
 }
 
 .recent-item.active .btn-delete-item {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, .8)
 }
 
 .recent-item.active .btn-delete-item:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    background: rgba(255, 255, 255, .2)
 }
 
 .recent-name {
-    font-weight: 500;
+    font-weight: 500
 }
 
 .btn-delete-item {
@@ -454,20 +454,20 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    border-radius: 50%;
+    border-radius: 50%
 }
 
 .btn-delete-item:hover {
-    color: #EF4444;
+    color: #EF4444
 }
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns:320px 1fr;
     gap: 24px;
     margin-bottom: 48px;
     align-items: start;
-    scroll-margin-top: 24px;
+    scroll-margin-top: 24px
 }
 
 .card-box {
@@ -476,7 +476,7 @@ body {
     padding: 28px;
     box-shadow: var(--shadow-card);
     border: 1px solid var(--border-color);
-    transition: transform 0.1s ease-out, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition: transform .1s ease-out, box-shadow .3s ease, background-color .3s ease, border-color .3s ease
 }
 
 .profile-section {
@@ -487,52 +487,52 @@ body {
     text-align: center;
     position: relative;
     transform-style: preserve-3d;
-    perspective: 1000px;
+    perspective: 1000px
 }
 
 .glow-CHALLENGER {
     box-shadow: 0 0 40px var(--tier-bg-challenger);
-    border: 2px solid var(--tier-bg-challenger);
+    border: 2px solid var(--tier-bg-challenger)
 }
 
 .glow-MASTER {
     box-shadow: 0 0 40px var(--tier-bg-master);
-    border: 2px solid var(--tier-bg-master);
+    border: 2px solid var(--tier-bg-master)
 }
 
 .glow-DIAMOND {
     box-shadow: 0 0 40px var(--tier-bg-diamond);
-    border: 2px solid var(--tier-bg-diamond);
+    border: 2px solid var(--tier-bg-diamond)
 }
 
 .glow-PLATINUM {
     box-shadow: 0 0 40px var(--tier-bg-platinum);
-    border: 2px solid var(--tier-bg-platinum);
+    border: 2px solid var(--tier-bg-platinum)
 }
 
 .glow-EMERALD {
     box-shadow: 0 0 40px var(--tier-bg-emerald);
-    border: 2px solid var(--tier-bg-emerald);
+    border: 2px solid var(--tier-bg-emerald)
 }
 
 .glow-GOLD {
     box-shadow: 0 0 40px var(--tier-bg-gold);
-    border: 2px solid var(--tier-bg-gold);
+    border: 2px solid var(--tier-bg-gold)
 }
 
 .glow-SILVER {
     box-shadow: 0 0 30px var(--tier-bg-silver);
-    border: 1px solid var(--tier-bg-silver);
+    border: 1px solid var(--tier-bg-silver)
 }
 
 .glow-BRONZE {
     box-shadow: 0 0 30px var(--tier-bg-bronze);
-    border: 1px solid var(--tier-bg-bronze);
+    border: 1px solid var(--tier-bg-bronze)
 }
 
 .glow-IRON {
     box-shadow: var(--shadow-card);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color)
 }
 
 .profile-img {
@@ -540,12 +540,12 @@ body {
     height: 120px;
     border-radius: 50%;
     margin-bottom: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
     object-fit: cover;
     border: 4px solid var(--bg-secondary);
     transform: translateZ(30px);
     z-index: 20;
-    backface-visibility: hidden;
+    backface-visibility: hidden
 }
 
 .tier-badge {
@@ -561,52 +561,52 @@ body {
     color: var(--text-secondary);
     transform: translateZ(25px);
     z-index: 20;
-    backface-visibility: hidden;
+    backface-visibility: hidden
 }
 
 .tier-badge.CHALLENGER {
     background: var(--tier-bg-challenger);
-    color: var(--tier-challenger);
+    color: var(--tier-challenger)
 }
 
 .tier-badge.MASTER {
     background: var(--tier-bg-master);
-    color: var(--tier-master);
+    color: var(--tier-master)
 }
 
 .tier-badge.DIAMOND {
     background: var(--tier-bg-diamond);
-    color: var(--tier-diamond);
+    color: var(--tier-diamond)
 }
 
 .tier-badge.PLATINUM {
     background: var(--tier-bg-platinum);
-    color: var(--tier-platinum);
+    color: var(--tier-platinum)
 }
 
 .tier-badge.EMERALD {
     background: var(--tier-bg-emerald);
-    color: var(--tier-emerald);
+    color: var(--tier-emerald)
 }
 
 .tier-badge.GOLD {
     background: var(--tier-bg-gold);
-    color: var(--tier-gold);
+    color: var(--tier-gold)
 }
 
 .tier-badge.SILVER {
     background: var(--tier-bg-silver);
-    color: var(--tier-silver);
+    color: var(--tier-silver)
 }
 
 .tier-badge.BRONZE {
     background: var(--tier-bg-bronze);
-    color: var(--tier-bronze);
+    color: var(--tier-bronze)
 }
 
 .tier-badge.IRON {
     background: var(--tier-bg-iron);
-    color: var(--tier-iron);
+    color: var(--tier-iron)
 }
 
 .score-display {
@@ -623,7 +623,7 @@ body {
     max-width: 100%;
     transform: translateZ(35px);
     z-index: 20;
-    backface-visibility: hidden;
+    backface-visibility: hidden
 }
 
 .rank-info {
@@ -633,14 +633,14 @@ body {
     font-weight: 500;
     transform: translateZ(20px);
     z-index: 20;
-    backface-visibility: hidden;
+    backface-visibility: hidden
 }
 
 .info-icon {
     font-size: 18px;
     color: var(--text-tertiary);
     cursor: pointer;
-    margin-left: 6px;
+    margin-left: 6px
 }
 
 .action-buttons {
@@ -650,7 +650,7 @@ body {
     flex-direction: column;
     gap: 12px;
     transform: translateZ(20px);
-    z-index: 20;
+    z-index: 20
 }
 
 .btn-black {
@@ -666,24 +666,24 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: all .2s;
     width: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15)
 }
 
 .btn-black:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
+    opacity: .9;
+    transform: translateY(-2px)
 }
 
 .btn-black:active {
-    transform: scale(0.96);
+    transform: scale(.96)
 }
 
 .sub-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns:1fr 1fr;
+    gap: 12px
 }
 
 .btn-ghost {
@@ -700,18 +700,18 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    transition: all 0.2s;
+    transition: all .2s;
     white-space: nowrap;
-    width: 100%;
+    width: 100%
 }
 
 .btn-ghost:hover {
     background: var(--bg-tertiary);
-    color: var(--text-primary);
+    color: var(--text-primary)
 }
 
 .btn-ghost:active {
-    transform: scale(0.96);
+    transform: scale(.96)
 }
 
 .refresh-box {
@@ -726,13 +726,13 @@ body {
     border: 1px solid var(--border-color);
     flex-wrap: wrap;
     transform: translateZ(10px);
-    z-index: 20;
+    z-index: 20
 }
 
 .refresh-text {
     font-size: 13px;
     color: var(--text-tertiary);
-    font-weight: 500;
+    font-weight: 500
 }
 
 .btn-refresh-sm {
@@ -744,43 +744,43 @@ body {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all .2s;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 4px
 }
 
 .btn-refresh-sm:hover {
     border-color: var(--text-weak);
-    color: var(--text-primary);
+    color: var(--text-primary)
 }
 
 .btn-refresh-sm:active {
-    transform: scale(0.92);
+    transform: scale(.92)
 }
 
 .btn-refresh-sm:disabled {
-    opacity: 0.5;
+    opacity: .5;
     cursor: not-allowed;
-    background: var(--bg-tertiary);
+    background: var(--bg-tertiary)
 }
 
 @media (min-width: 769px) {
     .profile-section .refresh-box {
         flex-direction: column;
         gap: 8px;
-        text-align: center;
+        text-align: center
     }
 
     .profile-section .refresh-text {
         width: 100%;
-        margin-bottom: 2px;
+        margin-bottom: 2px
     }
 
     .profile-section .btn-refresh-sm {
         width: 100%;
         justify-content: center;
-        padding: 8px 12px;
+        padding: 8px 12px
     }
 }
 
@@ -788,13 +788,13 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    min-width: 0;
+    min-width: 0
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns:1fr 1fr;
+    gap: 16px
 }
 
 .stat-item {
@@ -804,13 +804,13 @@ body {
     flex-direction: column;
     justify-content: center;
     min-height: 100px;
-    transition: transform 0.2s;
+    transition: transform .2s;
     position: relative;
-    border: 1px solid transparent;
+    border: 1px solid transparent
 }
 
 .stat-item:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px)
 }
 
 .stat-header {
@@ -821,7 +821,7 @@ body {
     font-weight: 600;
     margin-bottom: 8px;
     color: var(--text-secondary);
-    opacity: 0.9;
+    opacity: .9
 }
 
 .stat-value {
@@ -832,59 +832,59 @@ body {
     align-items: center;
     gap: 8px;
     letter-spacing: -0.02em;
-    flex-wrap: wrap;
+    flex-wrap: wrap
 }
 
 [data-theme="dark"] .stat-item.merged {
-    background: rgba(49, 130, 246, 0.15);
-    color: #5C9EFF;
+    background: rgba(49, 130, 246, .15);
+    color: #5C9EFF
 }
 
 [data-theme="dark"] .stat-item.open {
-    background: rgba(155, 89, 182, 0.15);
-    color: #C633F2;
+    background: rgba(155, 89, 182, .15);
+    color: #C633F2
 }
 
 [data-theme="dark"] .stat-item.review {
-    background: rgba(0, 150, 136, 0.15);
-    color: #4DB6AC;
+    background: rgba(0, 150, 136, .15);
+    color: #4DB6AC
 }
 
 [data-theme="dark"] .stat-item.issue {
-    background: rgba(255, 152, 0, 0.15);
-    color: #FFB74D;
+    background: rgba(255, 152, 0, .15);
+    color: #FFB74D
 }
 
 [data-theme="dark"] .stat-item.commit {
     background: var(--bg-tertiary);
     color: var(--text-secondary);
-    border-color: var(--border-color);
+    border-color: var(--border-color)
 }
 
 .stat-item.merged {
     background: #E8F3FF;
-    color: #3182F6;
+    color: #3182F6
 }
 
 .stat-item.open {
     background: #F3E5F5;
-    color: #9C27B0;
+    color: #9C27B0
 }
 
 .stat-item.review {
     background: #E0F2F1;
-    color: #009688;
+    color: #009688
 }
 
 .stat-item.issue {
     background: #FFF3E0;
-    color: #FF9800;
+    color: #FF9800
 }
 
 .stat-item.commit {
     background: #FAFAFA;
     color: #5F6368;
-    border: 1px solid #EEEEEE;
+    border: 1px solid #EEE
 }
 
 .diff-badge {
@@ -896,19 +896,19 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    white-space: nowrap;
+    white-space: nowrap
 }
 
 .diff-plus {
     color: #21C45D;
-    background: rgba(33, 196, 93, 0.15);
-    border: 1px solid rgba(33, 196, 93, 0.2);
+    background: rgba(33, 196, 93, .15);
+    border: 1px solid rgba(33, 196, 93, .2)
 }
 
 .diff-minus {
     color: #EF4444;
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, .15);
+    border: 1px solid rgba(239, 68, 68, .2)
 }
 
 .ranking-section {
@@ -917,21 +917,21 @@ body {
     padding: 32px;
     box-shadow: var(--shadow-card);
     margin-top: 48px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color)
 }
 
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 24px
 }
 
 .section-title {
     font-size: 22px;
     font-weight: 800;
     color: var(--text-primary);
-    letter-spacing: var(--tracking-heading);
+    letter-spacing: var(--tracking-heading)
 }
 
 .timer-badge {
@@ -940,13 +940,13 @@ body {
     border-radius: 12px;
     font-size: 14px;
     color: var(--text-secondary);
-    font-weight: 600;
+    font-weight: 600
 }
 
 .ranking-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 0
 }
 
 .ranking-row {
@@ -955,15 +955,15 @@ body {
     padding: 16px 8px;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
-    transition: background 0.1s;
+    transition: background .1s
 }
 
 .ranking-row:hover {
-    background-color: var(--bg-tertiary);
+    background-color: var(--bg-tertiary)
 }
 
 .ranking-row:last-child {
-    border-bottom: none;
+    border-bottom: none
 }
 
 .col-rank {
@@ -971,7 +971,7 @@ body {
     font-weight: 700;
     color: var(--text-secondary);
     font-size: 16px;
-    text-align: center;
+    text-align: center
 }
 
 .col-user {
@@ -979,13 +979,13 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 0;
+    min-width: 0
 }
 
 .col-tier {
     width: 100px;
     display: flex;
-    justify-content: center;
+    justify-content: center
 }
 
 .col-score {
@@ -993,7 +993,7 @@ body {
     text-align: right;
     font-weight: 800;
     font-size: 16px;
-    color: var(--text-primary);
+    color: var(--text-primary)
 }
 
 .user-avatar {
@@ -1002,7 +1002,7 @@ body {
     border-radius: 50%;
     border: 1px solid var(--border-color);
     object-fit: cover;
-    flex-shrink: 0;
+    flex-shrink: 0
 }
 
 .user-name {
@@ -1011,7 +1011,7 @@ body {
     font-size: 16px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: nowrap
 }
 
 .modal-content {
@@ -1019,32 +1019,32 @@ body {
     color: var(--text-primary);
     border-radius: 28px;
     border: 1px solid var(--border-color);
-    padding: 24px;
+    padding: 24px
 }
 
 .modal-header {
-    border: none;
+    border: none
 }
 
 .modal-dialog {
     max-width: 500px;
-    transition: transform 0.3s ease-out;
+    transition: transform .3s ease-out
 }
 
 .btn-close {
-    filter: var(--btn-close-filter, none);
+    filter: var(--btn-close-filter, none)
 }
 
 [data-theme="dark"] .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
+    filter: invert(1) grayscale(100%) brightness(200%)
 }
 
 [data-theme="dark"] .modal-body .text-secondary {
-    color: #B0B8C1 !important;
+    color: #B0B8C1 !important
 }
 
 [data-theme="dark"] .modal-body .text-dark {
-    color: #FFFFFF !important;
+    color: #FFF !important
 }
 
 .info-box {
@@ -1053,13 +1053,13 @@ body {
     color: var(--text-secondary);
     border-radius: 12px;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.6
 }
 
 .score-modal-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0
 }
 
 .score-modal-item {
@@ -1068,14 +1068,14 @@ body {
     align-items: center;
     padding: 14px 0;
     border-bottom: 1px solid var(--border-color);
-    font-size: 15px;
+    font-size: 15px
 }
 
 .score-badge {
     padding: 4px 10px;
     border-radius: 8px;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 13px
 }
 
 .footer {
@@ -1083,13 +1083,13 @@ body {
     padding: 40px 0;
     margin-top: 60px;
     border-top: 1px solid var(--border-color);
-    color: var(--text-tertiary);
+    color: var(--text-tertiary)
 }
 
 .footer p {
     margin: 0;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 500
 }
 
 .footer-link {
@@ -1100,10 +1100,9 @@ body {
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 600
 }
 
-/* [Modified] Toast Container Style */
 #toast-container {
     position: fixed;
     bottom: 32px;
@@ -1111,61 +1110,45 @@ body {
     right: 0;
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     z-index: 2000;
-    pointer-events: none;
+    pointer-events: none
 }
 
 .toss-toast {
-    background: rgba(25, 31, 40, 0.9);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 14px 24px;
-    border-radius: 30px;
+    background: rgba(25, 31, 40, .95);
+    backdrop-filter: blur(12px);
+    color: #FFF;
+    padding: 16px 24px;
+    border-radius: 24px;
     font-size: 16px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     pointer-events: auto;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
     display: flex;
     align-items: center;
-    gap: 8px;
-    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    max-width: 90%;
-    white-space: normal;
-    text-align: center;
-    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all .4s cubic-bezier(.16, 1, .3, 1);
+    width: auto;
+    max-width: calc(100% - 48px);
+    white-space: pre-line;
+    text-align: left;
+    line-height: 1.5;
+    word-break: keep-all
 }
 
-.toss-toast.hide {
-    animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.toss-toast.show {
+    opacity: 1;
+    transform: translateY(0)
 }
 
 .toss-toast i {
-    font-size: 18px;
-    flex-shrink: 0;
-}
-
-@keyframes slideUpFade {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideDownFade {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+    flex-shrink: 0
 }
 
 .custom-modal {
@@ -1177,7 +1160,7 @@ body {
     z-index: 3000;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center
 }
 
 .custom-modal-backdrop {
@@ -1186,9 +1169,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, .5);
     backdrop-filter: blur(4px);
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeIn .2s ease-out
 }
 
 .custom-modal-content {
@@ -1197,30 +1180,30 @@ body {
     max-width: 360px;
     padding: 24px;
     border-radius: 24px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .2);
     z-index: 3001;
     text-align: center;
-    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid var(--border-color);
+    animation: scaleIn .3s cubic-bezier(.16, 1, .3, 1);
+    border: 1px solid var(--border-color)
 }
 
 .custom-modal-title {
     font-size: 20px;
     font-weight: 700;
     margin: 0 0 8px 0;
-    color: var(--text-primary);
+    color: var(--text-primary)
 }
 
 .custom-modal-desc {
     font-size: 15px;
     color: var(--text-secondary);
     margin-bottom: 24px;
-    line-height: 1.5;
+    line-height: 1.5
 }
 
 .custom-modal-actions {
     display: flex;
-    gap: 10px;
+    gap: 10px
 }
 
 .btn-modal-primary, .btn-modal-secondary {
@@ -1231,31 +1214,31 @@ body {
     font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: transform 0.1s;
+    transition: transform .1s
 }
 
 .btn-modal-primary:active, .btn-modal-secondary:active {
-    transform: scale(0.96);
+    transform: scale(.96)
 }
 
 .btn-modal-primary {
     background: var(--toss-blue);
-    color: white;
+    color: #fff
 }
 
 .btn-modal-secondary {
     background: var(--bg-tertiary);
-    color: var(--text-secondary);
+    color: var(--text-secondary)
 }
 
 @keyframes scaleIn {
     from {
-        transform: scale(0.9);
-        opacity: 0;
+        transform: scale(.9);
+        opacity: 0
     }
     to {
         transform: scale(1);
-        opacity: 1;
+        opacity: 1
     }
 }
 
@@ -1265,20 +1248,20 @@ body {
     background-repeat: no-repeat;
     background-size: 800px 100%;
     border-radius: 12px;
-    animation: shimmer 1.5s infinite linear;
+    animation: shimmer 1.5s infinite linear
 }
 
 [data-theme="dark"] .skeleton {
     background: #2c2c2c;
-    background-image: linear-gradient(to right, #2c2c2c 0%, #3a3a3a 20%, #2c2c2c 40%, #2c2c2c 100%);
+    background-image: linear-gradient(to right, #2c2c2c 0%, #3a3a3a 20%, #2c2c2c 40%, #2c2c2c 100%)
 }
 
 @keyframes shimmer {
     0% {
-        background-position: -800px 0;
+        background-position: -800px 0
     }
     100% {
-        background-position: 800px 0;
+        background-position: 800px 0
     }
 }
 
@@ -1288,18 +1271,18 @@ body {
     left: -9999px;
     width: 800px;
     padding: 0;
-    background-color: white;
+    background-color: #fff
 }
 
 .simple-report-card {
     padding: 50px;
-    background: white;
+    background: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 30px;
     font-family: var(--font-heading);
-    color: #191F28;
+    color: #191F28
 }
 
 .sim-header {
@@ -1309,19 +1292,19 @@ body {
     align-items: center;
     color: #8B95A1;
     border-bottom: 2px solid #F2F4F6;
-    padding-bottom: 20px;
+    padding-bottom: 20px
 }
 
 .sim-brand {
     font-size: 24px;
     font-weight: 800;
-    color: #191F28;
+    color: #191F28
 }
 
 .sim-date {
     font-family: var(--font-number);
     font-weight: 500;
-    font-size: 16px;
+    font-size: 16px
 }
 
 .sim-body {
@@ -1329,11 +1312,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 30px
 }
 
 .sim-profile {
-    text-align: center;
+    text-align: center
 }
 
 .sim-avatar {
@@ -1342,18 +1325,18 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid #F2F4F6;
-    margin-bottom: 16px;
+    margin-bottom: 16px
 }
 
 .sim-username {
     font-size: 28px;
     font-weight: 800;
-    color: #191F28;
+    color: #191F28
 }
 
 .sim-chart {
     width: 400px;
-    margin: 0 auto;
+    margin: 0 auto
 }
 
 .sim-stats-row {
@@ -1362,48 +1345,48 @@ body {
     border-radius: 20px;
     padding: 24px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between
 }
 
 .sim-stat-item {
     text-align: center;
-    flex: 1;
+    flex: 1
 }
 
 .sim-stat-label {
     font-size: 14px;
     font-weight: 600;
     color: #4E5968;
-    margin-bottom: 6px;
+    margin-bottom: 6px
 }
 
 .sim-stat-value {
     font-size: 20px;
     font-weight: 800;
     color: #191F28;
-    font-family: var(--font-number);
+    font-family: var(--font-number)
 }
 
 .sim-footer {
     color: #8B95A1;
     font-size: 14px;
-    margin-top: 10px;
+    margin-top: 10px
 }
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 16px;
+        padding: 0 16px
     }
 
     .search-wrapper {
         max-width: 100%;
-        margin-bottom: 24px;
+        margin-bottom: 24px
     }
 
     .toss-input-group {
         padding: 4px;
         border-radius: 16px;
-        flex-wrap: nowrap;
+        flex-wrap: nowrap
     }
 
     .btn-search {
@@ -1411,90 +1394,90 @@ body {
         font-size: 14px;
         border-radius: 12px;
         flex-shrink: 0;
-        white-space: nowrap;
+        white-space: nowrap
     }
 
     .toss-input {
         font-size: 15px;
         padding: 12px 8px;
-        min-width: 0;
+        min-width: 0
     }
 
     .input-icon {
         font-size: 18px;
         padding-left: 12px;
-        min-width: 30px;
+        min-width: 30px
     }
 
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns:1fr;
         gap: 24px;
-        min-width: 0;
+        min-width: 0
     }
 
     .chart-container {
         min-height: 250px;
-        order: 2;
+        order: 2
     }
 
     .right-column {
         order: 1;
         gap: 20px;
-        min-width: 0;
+        min-width: 0
     }
 
     .right-column .card-box:has(.stats-grid) {
-        order: 1;
+        order: 1
     }
 
     .right-column .card-box:has(canvas) {
-        order: 2;
+        order: 2
     }
 
     .profile-section {
         padding: 28px 16px;
         transform: none !important;
-        perspective: none;
+        perspective: none
     }
 
     .profile-section:hover {
-        transform: none !important;
+        transform: none !important
     }
 
     .profile-img, .tier-badge, .score-display, .action-buttons, .refresh-box {
-        transform: none !important;
+        transform: none !important
     }
 
     .brand-title {
-        font-size: 32px;
+        font-size: 32px
     }
 
     .score-display {
-        font-size: clamp(28px, 8vw, 40px);
+        font-size: clamp(28px, 8vw, 40px)
     }
 
     .col-rank {
         width: 30px;
         font-size: 14px;
-        text-align: left;
+        text-align: left
     }
 
     .col-tier {
-        display: none;
+        display: none
     }
 
     .col-score {
         width: auto;
-        font-size: 15px;
+        font-size: 15px
     }
 
     .user-avatar {
         width: 32px;
-        height: 32px;
+        height: 32px
     }
 
     .user-name {
-        font-size: 15px;
+        font-size: 15px
     }
 
     .mobile-tier-dot {
@@ -1502,15 +1485,15 @@ body {
         height: 8px;
         border-radius: 50%;
         display: inline-block;
-        margin-right: 6px;
+        margin-right: 6px
     }
 
     .action-buttons {
-        flex-direction: column;
+        flex-direction: column
     }
 
     .sub-actions {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:1fr 1fr
     }
 
     .modal-dialog {
@@ -1521,7 +1504,7 @@ body {
         max-width: 100%;
         height: auto;
         align-items: flex-end;
-        min-height: 0;
+        min-height: 0
     }
 
     .modal-content {
@@ -1533,12 +1516,12 @@ body {
         max-height: 85vh;
         overflow-y: auto;
         display: flex;
-        flex-direction: column;
+        flex-direction: column
     }
 
     .modal-body {
         overflow-y: auto;
-        overscroll-behavior: contain;
+        overscroll-behavior: contain
     }
 }
 
@@ -1547,17 +1530,17 @@ body {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
+        scroll-behavior: auto !important
     }
 
     .fade-in-up {
         animation: none !important;
         opacity: 1 !important;
-        transform: none !important;
+        transform: none !important
     }
 
     .card-box {
-        transition: none !important;
+        transition: none !important
     }
 }
 
@@ -1565,7 +1548,7 @@ body {
     position: relative;
     margin-bottom: 20px;
     display: flex;
-    align-items: center;
+    align-items: center
 }
 
 .ranking-tabs {
@@ -1577,19 +1560,19 @@ body {
     -ms-overflow-style: none;
     cursor: grab;
     user-select: none;
-    width: 100%;
+    width: 100%
 }
 
 .ranking-tabs.active {
-    cursor: grabbing;
+    cursor: grabbing
 }
 
 .ranking-tabs:focus, .ranking-tabs:focus-visible, .tab-item:focus, .tab-item:focus-visible {
-    outline: none;
+    outline: none
 }
 
 .ranking-tabs::-webkit-scrollbar {
-    display: none;
+    display: none
 }
 
 .tab-item {
@@ -1602,20 +1585,20 @@ body {
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    transition: all .2s;
+    flex-shrink: 0
 }
 
 .tab-item:hover {
     background: var(--border-color);
-    color: var(--text-primary);
+    color: var(--text-primary)
 }
 
 .tab-item.active {
     background: var(--text-primary);
     color: var(--bg-secondary);
     border-color: var(--text-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .1)
 }
 
 .scroll-hint-left, .scroll-hint-right {
@@ -1627,36 +1610,36 @@ body {
     cursor: pointer;
     z-index: 10;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity .3s;
     pointer-events: none;
     display: flex;
-    align-items: center;
+    align-items: center
 }
 
 .scroll-hint-left.visible, .scroll-hint-right.visible {
-    pointer-events: auto;
+    pointer-events: auto
 }
 
 .scroll-hint-left {
     left: 0;
     background: transparent;
     justify-content: flex-start;
-    padding-left: 4px;
+    padding-left: 4px
 }
 
 .scroll-hint-right {
     right: 0;
     background: transparent;
     justify-content: flex-end;
-    padding-right: 4px;
+    padding-right: 4px
 }
 
 [data-theme="dark"] .scroll-hint-left {
-    background: transparent;
+    background: transparent
 }
 
 [data-theme="dark"] .scroll-hint-right {
-    background: transparent;
+    background: transparent
 }
 
 .scroll-hint-left::before {
@@ -1665,7 +1648,7 @@ body {
     font-weight: 900;
     color: var(--text-tertiary);
     font-size: 14px;
-    animation: bounceLeft 1.5s infinite;
+    animation: bounceLeft 1.5s infinite
 }
 
 .scroll-hint-right::after {
@@ -1674,23 +1657,23 @@ body {
     font-weight: 900;
     color: var(--text-tertiary);
     font-size: 14px;
-    animation: bounceRight 1.5s infinite;
+    animation: bounceRight 1.5s infinite
 }
 
 @keyframes bounceRight {
     0%, 100% {
-        transform: translateX(0);
+        transform: translateX(0)
     }
     50% {
-        transform: translateX(4px);
+        transform: translateX(4px)
     }
 }
 
 @keyframes bounceLeft {
     0%, 100% {
-        transform: translateX(0);
+        transform: translateX(0)
     }
     50% {
-        transform: translateX(-4px);
+        transform: translateX(-4px)
     }
 }

@@ -165,20 +165,13 @@ async function handleRegisterUser(pushHistory = true) {
             requestAnimationFrame(() => {
                 Ui.createRadarChart(result.data);
             });
-            const resultSection = document.getElementById('resultSection');
-            resultSection.scrollIntoView({behavior: 'smooth', block: 'start'});
         } else {
-            if (result.error.code === 'GITHUB_RATE_LIMIT_EXCEEDED') {
-                const resetTime = result.data;
-                Ui.showToast(`<b>${resetTime}</b> 이후에 등록할 수 있어요.`);
-            } else if (result.error.message.includes("존재하지 않는") || result.error.message.includes("found")) {
-                Ui.showToast('계정을 찾을 수 없어요. 아이디를 확인해주세요.');
-            } else {
-                Ui.showToast(result.error.message || '일시적인 오류가 발생했어요.');
-            }
+            // 백엔드 에러 메시지 사용 및 에러 상태(true) 전달
+            const msg = result.error ? result.error.message : '일시적인 오류가 발생했어요.';
+            Ui.showToast(msg, true);
         }
     } catch (error) {
-        Ui.showToast('서버와 연결할 수 없어요.');
+        Ui.showToast('서버와 연결할 수 없어요. 잠시 후 다시 시도해주세요.', true);
     } finally {
         Ui.showLoading(false);
     }
@@ -192,17 +185,18 @@ async function handleRefreshUser() {
         try {
             const result = await Api.refreshUser(username);
             if (result.result === 'SUCCESS') {
-                Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> 데이터를 갱신했어요');
+                Ui.showToast('데이터를 최신으로 업데이트했어요.');
                 Ui.renderUserResult(result.data);
                 Ui.showResultSection();
                 requestAnimationFrame(() => {
                     Ui.createRadarChart(result.data);
                 });
             } else {
-                Ui.showToast(result.error.message);
+                const msg = result.error ? result.error.message : '갱신에 실패했어요.';
+                Ui.showToast(msg, true);
             }
         } catch (error) {
-            Ui.showToast('갱신 요청 중 오류가 발생했어요.');
+            Ui.showToast('갱신 요청 중 오류가 발생했어요.', true);
         } finally {
             Ui.showLoading(false);
         }
@@ -217,10 +211,10 @@ async function handleUserDetail(username) {
         if (result.result === 'SUCCESS') {
             Ui.renderUserDetailModal(result.data, userDetailModal);
         } else {
-            Ui.showToast('사용자 정보를 불러올 수 없어요.');
+            Ui.showToast('사용자 정보를 불러올 수 없어요.', true);
         }
     } catch (error) {
-        Ui.showToast('상세 정보를 불러오는 중 오류가 발생했어요.');
+        Ui.showToast('상세 정보를 불러오는 중 오류가 발생했어요.', true);
     }
 }
 
@@ -229,8 +223,8 @@ window.copyBadgeMarkdown = () => {
     const origin = window.location.origin;
     const markdown = `[![Git Ranker](${origin}/api/v1/badges/${nodeId})](https://www.git-ranker.com)`;
     navigator.clipboard.writeText(markdown)
-        .then(() => Ui.showToast('<i class="fas fa-check-circle" style="color:#4ADE80"></i> README 코드를 복사했어요'))
-        .catch(() => Ui.showToast('복사에 실패했어요.'));
+        .then(() => Ui.showToast('README 코드를 복사했어요'))
+        .catch(() => Ui.showToast('복사에 실패했어요.', true));
 };
 
 document.addEventListener('DOMContentLoaded', () => {
