@@ -12,8 +12,6 @@ let startX;
 let scrollLeft;
 let isDragging = false;
 
-// ... (initTheme, toggleTheme, updateThemeUI, renderRecentSearches, addActive, removeActive, triggerShake, window.clearAllRecentSearches, updateUrlState, checkUrlParams 함수들은 기존과 동일하므로 생략 가능하나, 전체 복붙을 위해 포함) ...
-
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -133,6 +131,13 @@ async function handleLoadRankings(page) {
         if (result.result === 'SUCCESS') {
             Ui.renderRankingTable(result.data.rankings);
             Ui.renderPagination(result.data.pageInfo, (newPage) => handleLoadRankings(newPage));
+
+            if (page > 0) {
+                const rankingHeader = document.getElementById('rankingHeader');
+                if (rankingHeader) {
+                    rankingHeader.scrollIntoView({behavior: 'smooth', block: 'start'});
+                }
+            }
         }
     } catch (error) {
         console.error('Ranking Load Error:', error);
@@ -327,9 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateScrollHints();
     }
 
-    // [핵심 수정] 키보드 이벤트 핸들러 개선
     input.addEventListener('keydown', (e) => {
-        // 1. Enter 키는 언제나 동작해야 함 (최근 검색어 유무와 상관없이)
         if (e.key === 'Enter') {
             e.preventDefault();
             if (currentFocus > -1) {
@@ -346,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 2. 방향키 및 기타 키는 최근 검색어가 있을 때만 동작
         const list = document.getElementById('recentList');
         if (!list || list.classList.contains('hidden')) return;
 
