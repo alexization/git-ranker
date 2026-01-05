@@ -1,6 +1,8 @@
 package com.gitranker.api.infrastructure.github.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gitranker.api.global.exception.BusinessException;
+import com.gitranker.api.global.exception.ErrorType;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -24,6 +26,10 @@ public record GitHubUserInfoResponse(
     }
 
     public String getNodeId() {
+        if (data.user() == null || data.user().id() == null) {
+            throw new BusinessException(ErrorType.GITHUB_USER_NOT_FOUND);
+        }
+
         return data.user().id();
     }
 
