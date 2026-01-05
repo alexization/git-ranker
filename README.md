@@ -1,70 +1,74 @@
+# Git Ranker
+> "단순한 커밋 수는 의미가 없습니다. 코드의 품질과 기여도로 당신의 진짜 가치를 증명하세요."
+
+**Git Ranker**는 GitHub 활동 데이터를 분석하여 개발자의 기여도를 점수화하고, 상대적 순위에 따라 티어를 부여하는 개발자 게이미피케이션 서비스입니다.
+
+많은 개발자가 '1일 1커밋'에 집중하지만, 실질적인 개발 실력은 단순 커밋 수가 아닌 코드 리뷰, 이슈, 그리고 프로젝트에 기여된 코드에서 드러납니다. Git Ranker는 이러한 질적 기여에 가중치를 두어 개발자의 전투력을 공정하게 측정하고, 지속적인 성장의 동기를 부여합니다.
+
 <div align=center>
   <h2>Git Ranker 사용 가이드</h3>
-  <a href="https://www.git-ranker.com/">
-    <h3>Git Ranker 바로가기</h3>
-  </a>
-  <h3> 1. GitHub Username 입력 후 [분석하기] 버튼 클릭 </h3>
-  <img width="712" height="367" alt="image" src="https://github.com/user-attachments/assets/1e256486-0031-4d14-be2d-2f4e3f3823b1" />
+  <h3> 1. 검색창에 GitHub ID 입력 후 분석 </h3>
+  <img width="768" height="252" alt="image" src="https://github.com/user-attachments/assets/202752af-3003-4d07-bc19-a0d88e6395c4" />
 
-  <h3> 2. [README 배지 복사] 버튼 클릭 </h3>
-  <img width="1286" height="367" alt="image" src="https://github.com/user-attachments/assets/da59d6d8-8925-4a5c-9f39-2311e5220524" />
+  <h3> 2. 분석 결과 확인 및 결과 화면 하단의 '배지 복사' 클릭 </h3>
+  <img width="989" height="805" alt="image" src="https://github.com/user-attachments/assets/9ec45d14-e34b-4815-97a6-2baccd8a246a" />
 
-  <h3> 3. 복사 후 제공받은 마크다운을 README에 등록</h3>
+
+  <h3> 3. 복사된 Markdown 코드를 자신의 README에 등록</h3>
 </div>
 
 ```Markdown
 [![Git Ranker](https://git-ranker.com/api/v1/badges/{your_node_id})](https://git-ranker.com)
 ```
 
-# ⚔️ Git Ranker - 개발자 전투력 측정기
-> "단순 커밋 수는 의미 없다. 코드의 품질과 기여도로 당신의 진짜 티어를 증명하세요."
-
-Git Ranker는 GitHub 활동을 분석하여 **개발자의 기여도를 점수화**하고, 개발자들과의 **상대적 순위를 통해 티어를 부여**하는 게이미피케이션 서비스입니다.
-
-## 🚀 Key Features
-### 1. 공정한 전투력 측정 (Scoring System)
-> 단순히 "잔디 심기(Commit)"만 한다고 점수가 높지 않습니다. 코드 리뷰, 이슈 제기, PR 병합 등 협업과 품질에 기여하는 활동에 더 높은 가중치를 부여합니다.
+## 공정한 전투력 측정 시스템
+> 단순 활동량이 아닌 협업과 프로젝트 기여도에 초점을 맞춘 점수 산정
 
 | 활동 유형 | 가중치 | 설명 |
 |:---:|:---:|:---|
-| **PR Merged** | **10점** | 프로젝트에 코드가 실제 반영된 최고의 기여 |
+| **PR Merged** | **10점** | 프로젝트에 코드가 실제 반영된 기여 |
 | **PR Open** | **5점** | 새로운 기능 제안 및 버그 수정 요청 |
 | **Review** | **3점** | 동료의 코드 품질 향상에 기여 |
 | **Issue** | **2점** | 문제 발견 및 논의 주도 |
 | **Commit** | **1점** | 기본적인 코드 작성 활동 |
 
-### 2. 실시간 티어 시스템 (Tier System)
-> 전체 사용자 중 나의 위치(Percentile)를 기반으로 9단계 티어가 부여됩니다.
+## 실시간 티어 및 GitHub 프로필 배지
+> 전체 사용자 중 백분위를 기준으로 총 9단계의 티어를 부여합니다. 랭킹은 매시간 갱신되어 자신의 성장 척도를 즉각적으로 확인할 수 있습니다.
 >
-> _(티어 시스템은 아직 확정이 아니며, 추후 변경될 수 있습니다.)_
+> 추가적으로 자신의 티어와 점수를 보여주는 동적 SVG 배지를 제공합니다. GitHub 프로필의 `README.md` 에 코드를 붙여넣으면 점수 변동 시 배지도 자동으로 업데이트됩니다.
 
-1. **👑 CHALLENGER (상위 1.0%)**
-2. **✨ MASTER (상위 5.0%)**
-3. **💎 DIAMOND (상위 10.0%)**
-4. **❇️ EMERALD (상위 25.0%)**
-5. **💠 PLATINUM (상위 40.0%) **
-6. **🥇 GOLD (상위 55.0%)**
-7. **🥈 SILVER (상위 70.0%)**
-8. **🥉 BRONZE (상위 90.0%)**
-9. **🛡️ IRON (기본)**
+### CHALLENGER (상위 1.0% 이내)
 
-### 3. README 배지 지원
-> 자신의 티어를 GitHub 프로필에 자랑할 수 있도록 실시간 SVG 배지를 제공합니다.
+[![Git Ranker](https://git-ranker.com/api/v1/badges/CHALLENGER/badge)](https://git-ranker.com)
 
-<img width="1334" height="518" alt="image" src="https://github.com/user-attachments/assets/e3a8cf7a-e636-4d9c-8bb8-b1dda19fd71d" />
+### MASTER (상위 5.0% 이내)
 
-<div align=center>
-  
-[![Git Ranker](https://www.git-ranker.com/api/v1/badges/MDQ6VXNlcjgxOTU5MDAy)](https://www.git-ranker.com)
+[![Git Ranker](https://git-ranker.com/api/v1/badges/MASTER/badge)](https://git-ranker.com)
+   
+### DIAMOND (상위 10.0% 이내)
 
-(점수와 순위가 바뀌면 배지도 자동으로 업데이트됩니다.)
+[![Git Ranker](https://git-ranker.com/api/v1/badges/DIAMOND/badge)](https://git-ranker.com)
 
-</div>
+### EMERALD (상위 25.0% 이내)
 
-```Markdown
-[![Git Ranker](https://git-ranker.com/api/v1/badges/{your_node_id})](https://git-ranker.com)
-```
+[![Git Ranker](https://git-ranker.com/api/v1/badges/EMERALD/badge)](https://git-ranker.com)
 
----
-### ver_2025.12.11
-> 매우 초기 버전이며, 가중치 테이블/티어 시스템/배지 디자인/서비스 안정화/README.md 등등 지금까지도 계속해서 업데이트 중에 있습니다 :) 
+### PLATINUM (상위 40.0% 이내)
+
+[![Git Ranker](https://git-ranker.com/api/v1/badges/PLATINUM/badge)](https://git-ranker.com)
+
+### GOLD (상위 55.0% 이내)
+
+[![Git Ranker](https://git-ranker.com/api/v1/badges/GOLD/badge)](https://git-ranker.com)
+
+### SILVER (상위 70.0% 이내)
+
+[![Git Ranker](https://git-ranker.com/api/v1/badges/SILVER/badge)](https://git-ranker.com)
+
+### BRONZE (상위 90.0% 이내)
+
+[![Git Ranker](https://git-ranker.com/api/v1/badges/BRONZE/badge)](https://git-ranker.com)
+
+### IRON (기본 등급)
+
+[![Git Ranker](https://git-ranker.com/api/v1/badges/IRON/badge)](https://git-ranker.com)
