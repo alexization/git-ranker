@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
@@ -63,11 +64,12 @@ public class GitHubGraphQLClient {
         GitHubUserInfoResponse response = executeQuery(query, GitHubUserInfoResponse.class);
 
         if (response.data().rateLimit() != null) {
+            recordRateLimitInfo(response.data().rateLimit());
+
             checkRateLimitSafety(
                     response.data().rateLimit().remaining(),
                     response.data().rateLimit().resetAt()
             );
-            recordRateLimitInfo(response.data().rateLimit());
         }
 
         return response;
@@ -79,11 +81,12 @@ public class GitHubGraphQLClient {
         GitHubAllActivitiesResponse response = executeQuery(query, GitHubAllActivitiesResponse.class);
 
         if (response.data().rateLimit() != null) {
+            recordRateLimitInfo(response.data().rateLimit());
+
             checkRateLimitSafety(
                     response.data().rateLimit().remaining(),
                     response.data().rateLimit().resetAt()
             );
-            recordRateLimitInfo(response.data().rateLimit());
         }
 
         return response;
@@ -204,12 +207,20 @@ public class GitHubGraphQLClient {
     private void recordRateLimitInfo(GitHubAllActivitiesResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(rateLimit.resetAt());
+        MdcUtils.setGithubApiResetAt(formatToKST(rateLimit.resetAt()));
     }
 
     private void recordRateLimitInfo(GitHubUserInfoResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(rateLimit.resetAt());
+        MdcUtils.setGithubApiResetAt(formatToKST(rateLimit.resetAt()));
+    }
+
+    private String formatToKST(LocalDateTime UTCDateTime) {
+        if (UTCDateTime == null) return null;
+
+        return UTCDateTime.atZone(ZoneId.of("UTC"))
+                .withZoneSameInstant(appZoneId)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 }

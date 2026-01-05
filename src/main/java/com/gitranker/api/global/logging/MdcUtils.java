@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public final class MdcUtils {
@@ -62,22 +61,22 @@ public final class MdcUtils {
         MDC.put(MdcKey.GITHUB_API_CALL_TIME_MS, String.valueOf(githubApiCallTimeMs));
     }
 
-    public static void setGithubApiCost(int cost) {
-        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
-    }
-
     public static void setGithubApiRemaining(int remaining) {
         MDC.put(MdcKey.GITHUB_API_REMAINING, String.valueOf(remaining));
     }
 
-    public static void setGithubApiResetAt(LocalDateTime resetAt) {
-        if (resetAt != null) {
-            MDC.put(MdcKey.GITHUB_API_RESET_AT, resetAt.toString());
+    public static void setGithubApiResetAt(String resetAt) {
+        if (StringUtils.hasText(resetAt)) {
+            MDC.put(MdcKey.GITHUB_API_RESET_AT, resetAt);
         }
     }
 
     public static String getGithubApiCost() {
         return MDC.get(MdcKey.GITHUB_API_COST);
+    }
+
+    public static void setGithubApiCost(int cost) {
+        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
     }
 
     public static void setError(String errorCode, String errorMessage) {
