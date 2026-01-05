@@ -168,7 +168,10 @@ async function handleRegisterUser(pushHistory = true) {
             const resultSection = document.getElementById('resultSection');
             resultSection.scrollIntoView({behavior: 'smooth', block: 'start'});
         } else {
-            if (result.error && (result.error.message.includes("존재하지 않는") || result.error.message.includes("found"))) {
+            if (result.error.code === 'GITHUB_RATE_LIMIT_EXCEEDED') {
+                const resetTime = result.data;
+                Ui.showToast(`<b>${resetTime}</b> 이후에 등록할 수 있어요.`);
+            } else if (result.error.message.includes("존재하지 않는") || result.error.message.includes("found")) {
                 Ui.showToast('계정을 찾을 수 없어요. 아이디를 확인해주세요.');
             } else {
                 Ui.showToast(result.error.message || '일시적인 오류가 발생했어요.');

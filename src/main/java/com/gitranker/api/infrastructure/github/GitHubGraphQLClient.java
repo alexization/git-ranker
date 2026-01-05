@@ -20,6 +20,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.stream.IntStream;
 public class GitHubGraphQLClient {
     private static final Duration API_TIMEOUT = Duration.ofSeconds(20);
     private static final int CONCURRENCY_LIMIT = 5;
+    private static final int SAFE_REMAINING_THRESHOLD = 50;
 
     private final WebClient webClient;
     private final GraphQLQueryBuilder queryBuilder;
@@ -61,6 +63,10 @@ public class GitHubGraphQLClient {
         GitHubUserInfoResponse response = executeQuery(query, GitHubUserInfoResponse.class);
 
         if (response.data().rateLimit() != null) {
+            checkRateLimitSafety(
+                    response.data().rateLimit().remaining(),
+                    response.data().rateLimit().resetAt()
+            );
             MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
         }
 
@@ -73,6 +79,10 @@ public class GitHubGraphQLClient {
         GitHubAllActivitiesResponse response = executeQuery(query, GitHubAllActivitiesResponse.class);
 
         if (response.data().rateLimit() != null) {
+            checkRateLimitSafety(
+                    response.data().rateLimit().remaining(),
+                    response.data().rateLimit().resetAt()
+            );
             MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
         }
 
@@ -111,6 +121,14 @@ public class GitHubGraphQLClient {
         return aggregatedResponse;
     }
 
+    private void checkRateLimitSafety(int remaining, LocalDateTime resetAt) {
+        if (remaining < SAFE_REMAINING_THRESHOLD) {
+            log.warn("[GitHub API] Rate Limit Check Failed. Remaining: {}, ResetAt: {}", remaining, resetAt);
+
+            throw new GitHubRateLimitException(resetAt);
+        }
+    }
+
     private <T> Mono<T> executeQueryReactive(String query, Class<T> responseType) {
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
@@ -118,12 +136,9 @@ public class GitHubGraphQLClient {
                 .bodyValue(request)
                 .exchangeToMono(response -> {
                     if (response.statusCode().value() == 403 || response.statusCode().value() == 429) {
-                        long resetTime = parseResetTime(response.headers());
-                        long waitTime = Math.max(0, resetTime * 1000 - System.currentTimeMillis());
+                        LocalDateTime resetAt = parseResetTime(response.headers());
 
-                        log.warn("[GitHub API] Rate Limit Exceeded. Reset in {}ms", waitTime);
-
-                        return Mono.error(new GitHubRateLimitException(waitTime));
+                        return Mono.error(new GitHubRateLimitException(resetAt));
                     }
 
                     if (response.statusCode().is4xxClientError()) {
@@ -167,11 +182,12 @@ public class GitHubGraphQLClient {
         }
     }
 
-    private long parseResetTime(ClientResponse.Headers headers) {
+    private LocalDateTime parseResetTime(ClientResponse.Headers headers) {
         return headers.header("x-ratelimit-reset").stream()
                 .findFirst()
                 .map(Long::parseLong)
-                .orElse(System.currentTimeMillis() / 1000 * 60);
+                .map(epoch -> LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch), appZoneId))
+                .orElseGet(() -> LocalDateTime.now(appZoneId).plusMinutes(60));
     }
 
     private void handleGraphQLErrors(List<Object> errors) {

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.time.format.DateTimeFormatter;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,6 +44,21 @@ public class GlobalExceptionHandler {
         }
 
         return "error/404";
+    }
+
+    @ExceptionHandler(GitHubRateLimitException.class)
+    public ResponseEntity<ApiResponse<Object>> handleGitHubRateLimitException(GitHubRateLimitException e) {
+        ErrorType errorType = e.getErrorType();
+        MdcUtils.setError(errorType.name(), e.getMessage());
+
+        String resetTimeStr = e.getResetAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String message = String.format("%s 이후에 다시 시도해주세요.", resetTimeStr);
+
+        log.warn("[GitHub API] Rate Limit Hit - Reset: {}", resetTimeStr);
+
+        return ResponseEntity
+                .status(errorType.getStatus())
+                .body(ApiResponse.error(errorType, message));
     }
 
     @ExceptionHandler(Exception.class)

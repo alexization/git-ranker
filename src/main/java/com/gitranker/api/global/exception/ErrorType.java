@@ -11,6 +11,7 @@ public enum ErrorType {
     GITHUB_COLLECT_ACTIVITY_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "사용자의 GitHub 활동 조회를 실패했습니다.", LogLevel.WARN),
     GITHUB_API_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "GitHub API 호출에 실패했습니다.", LogLevel.WARN),
     GITHUB_PARTIAL_ERROR(HttpStatus.MULTI_STATUS, "GitHub 데이터 중 일부를 불러오지 못했습니다.", LogLevel.WARN),
+    GITHUB_RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "GitHub API 요청 한도가 초과되었습니다.", LogLevel.WARN),
 
     /* Batch/API 안정성 관련 에러 */
     GITHUB_API_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "GitHub API 요청 시간이 초과되었습니다.", LogLevel.WARN),
