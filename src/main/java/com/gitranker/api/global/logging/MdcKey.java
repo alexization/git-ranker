@@ -23,6 +23,8 @@ public class MdcKey {
     public static final String DB_QUERY_TIME_MS = "db_query_time_ms";
     public static final String GITHUB_API_CALL_TIME_MS = "github_api_call_time_ms";
     public static final String GITHUB_API_COST =  "github_api_cost";
+    public static final String GITHUB_API_REMAINING = "github_api_remaining";
+    public static final String GITHUB_API_RESET_AT = "github_api_reset_at";
 
     /* 에러 관련 */
     public static final String ERROR_CODE = "error_code";

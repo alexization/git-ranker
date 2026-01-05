@@ -67,7 +67,7 @@ public class GitHubGraphQLClient {
                     response.data().rateLimit().remaining(),
                     response.data().rateLimit().resetAt()
             );
-            MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
+            recordRateLimitInfo(response.data().rateLimit());
         }
 
         return response;
@@ -83,7 +83,7 @@ public class GitHubGraphQLClient {
                     response.data().rateLimit().remaining(),
                     response.data().rateLimit().resetAt()
             );
-            MdcUtils.setGithubApiCost(response.data().rateLimit().cost());
+            recordRateLimitInfo(response.data().rateLimit());
         }
 
         return response;
@@ -115,7 +115,7 @@ public class GitHubGraphQLClient {
         }
 
         if (aggregatedResponse.data().rateLimit() != null) {
-            MdcUtils.setGithubApiCost(aggregatedResponse.data().rateLimit().cost());
+            recordRateLimitInfo(aggregatedResponse.data().rateLimit());
         }
 
         return aggregatedResponse;
@@ -199,5 +199,17 @@ public class GitHubGraphQLClient {
         }
 
         throw new GitHubApiRetryableException(ErrorType.GITHUB_PARTIAL_ERROR);
+    }
+
+    private void recordRateLimitInfo(GitHubAllActivitiesResponse.RateLimit rateLimit) {
+        MdcUtils.setGithubApiCost(rateLimit.cost());
+        MdcUtils.setGithubApiRemaining(rateLimit.remaining());
+        MdcUtils.setGithubApiResetAt(rateLimit.resetAt());
+    }
+
+    private void recordRateLimitInfo(GitHubUserInfoResponse.RateLimit rateLimit) {
+        MdcUtils.setGithubApiCost(rateLimit.cost());
+        MdcUtils.setGithubApiRemaining(rateLimit.remaining());
+        MdcUtils.setGithubApiResetAt(rateLimit.resetAt());
     }
 }

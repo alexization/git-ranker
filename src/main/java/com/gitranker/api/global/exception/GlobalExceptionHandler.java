@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
         MdcUtils.setError("RESOURCE_NOT_FOUND", e.getMessage());
         log.info("[Client Error] Resource Not Found - Path: {}", e.getResourcePath());
 
-        if(request.getRequestURI().startsWith("/api/")) {
+        if (request.getRequestURI().startsWith("/api/")) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
@@ -51,7 +51,9 @@ public class GlobalExceptionHandler {
         ErrorType errorType = e.getErrorType();
         MdcUtils.setError(errorType.name(), e.getMessage());
 
-        String resetTimeStr = e.getResetAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String resetTimeStr = e.getResetAt()
+                .plusMinutes(1)
+                .format(DateTimeFormatter.ofPattern("HH:mm"));
         String message = String.format("%s 이후에 다시 시도해주세요.", resetTimeStr);
 
         log.warn("[GitHub API] Rate Limit Hit - Reset: {}", resetTimeStr);

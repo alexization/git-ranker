@@ -26,6 +26,8 @@
             <includeMdcKeyName>db_query_time_ms</includeMdcKeyName>
             <includeMdcKeyName>github_api_call_time_ms</includeMdcKeyName>
             <includeMdcKeyName>github_api_cost</includeMdcKeyName>
+            <includeMdcKeyName>github_api_remaining</includeMdcKeyName>
+            <includeMdcKeyName>github_api_reset_at</includeMdcKeyName>
             <includeMdcKeyName>job_name</includeMdcKeyName>
             <includeMdcKeyName>step_name</includeMdcKeyName>
             <includeMdcKeyName>chunk_number</includeMdcKeyName>
