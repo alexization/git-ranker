@@ -4,7 +4,9 @@ import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.response.ApiResponse;
+import com.gitranker.api.global.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,10 @@ import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final TimeUtils timeUtils;
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
@@ -53,10 +58,7 @@ public class GlobalExceptionHandler {
         ErrorType errorType = e.getErrorType();
         MdcUtils.setError(errorType.name(), e.getMessage());
 
-        String resetTimeStr = e.getResetAt()
-                .plusHours(9)
-                .plusMinutes(1)
-                .format(DateTimeFormatter.ofPattern("HH:mm"));
+        String resetTimeStr = timeUtils.formatForDisplay(e.getResetAt().plusMinutes(1));
         String message = String.format("%s 이후에 다시 시도해주세요.", resetTimeStr);
 
         log.warn("[GitHub API] Rate Limit Hit - Reset: {}", resetTimeStr);

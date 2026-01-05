@@ -1,11 +1,12 @@
 package com.gitranker.api.infrastructure.github;
 
-import com.gitranker.api.global.error.*;
+import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.util.TimeUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
@@ -27,7 +28,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
@@ -37,17 +37,19 @@ import java.util.stream.IntStream;
 public class GitHubGraphQLClient {
     private static final Duration API_TIMEOUT = Duration.ofSeconds(20);
     private static final int CONCURRENCY_LIMIT = 5;
-    private static final int SAFE_REMAINING_THRESHOLD = 5000;
+    private static final int SAFE_REMAINING_THRESHOLD = 50;
 
     private final WebClient webClient;
     private final GraphQLQueryBuilder queryBuilder;
     private final ZoneId appZoneId;
+    private final TimeUtils timeUtils;
 
     public GitHubGraphQLClient(
             @Value("${github.api.graphql-url}") String graphqlUrl,
             @Value("${github.api.token}") String token,
             GraphQLQueryBuilder queryBuilder,
-            ZoneId appZoneId
+            ZoneId appZoneId,
+            TimeUtils timeUtils
     ) {
         if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("GitHub Token is required for GraphQL API");
@@ -60,6 +62,7 @@ public class GitHubGraphQLClient {
                 .build();
         this.queryBuilder = queryBuilder;
         this.appZoneId = appZoneId;
+        this.timeUtils = timeUtils;
     }
 
     public GitHubUserInfoResponse getUserInfo(String username) {
@@ -211,20 +214,12 @@ public class GitHubGraphQLClient {
     private void recordRateLimitInfo(GitHubAllActivitiesResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(formatToKST(rateLimit.resetAt()));
+        MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
     }
 
     private void recordRateLimitInfo(GitHubUserInfoResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(formatToKST(rateLimit.resetAt()));
-    }
-
-    private String formatToKST(LocalDateTime UTCDateTime) {
-        if (UTCDateTime == null) return null;
-
-        return UTCDateTime.atZone(ZoneId.of("UTC"))
-                .withZoneSameInstant(appZoneId)
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
     }
 }
