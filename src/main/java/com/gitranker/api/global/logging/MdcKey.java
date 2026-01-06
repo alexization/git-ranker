@@ -2,6 +2,9 @@ package com.gitranker.api.global.logging;
 
 public class MdcKey {
 
+    public static final String LOG_CATEGORY = "log_category";
+    public static final String EVENT_TYPE = "event_type";
+
     /* HTTP 요청 관련 */
     public static final String TRACE_ID = "trace_id";
     public static final String CLIENT_IP = "client_ip";
