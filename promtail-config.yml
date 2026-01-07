@@ -9,26 +9,42 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: docker
+  - job_name: git-ranker-logs
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
-        refresh_interval: 10s
+        refresh_interval: 5s
+
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
 
+      - source_labels: ['container']
+        regex: 'git-ranker-api'
+        action: keep
+
+      - target_label: 'app'
+        replacement: 'api'
+
+      - target_label: 'env'
+        replacement: 'prod'
+
     pipeline_stages:
+      - docker: {}
+
       - json:
           expressions:
             level: level
             log_category: log_category
             event_type: event_type
-            timestamp: '"@timestamp"'
+            trace_id: trace_id
+            msg: message
+
       - labels:
           level:
           log_category:
           event_type:
+
       - timestamp:
-          source: timestamp
-          format: RFC3339Nano
+          source: "@timestamp"
+          format: RFC3339
