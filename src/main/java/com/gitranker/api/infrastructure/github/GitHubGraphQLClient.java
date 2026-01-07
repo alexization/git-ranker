@@ -5,6 +5,8 @@ import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
+import com.gitranker.api.global.logging.EventType;
+import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.util.TimeUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
@@ -121,6 +123,10 @@ public class GitHubGraphQLClient {
                 .block();
 
         if (aggregatedResponse == null || aggregatedResponse.data() == null) {
+            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+            MdcUtils.setError(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED.name(), "응답 데이터 없음");
+            log.error("활동 데이터 수집 실패 - 사용자: {}", username);
+
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
         }
 
@@ -133,7 +139,8 @@ public class GitHubGraphQLClient {
 
     private void checkRateLimitSafety(int remaining, LocalDateTime resetAt) {
         if (remaining < SAFE_REMAINING_THRESHOLD) {
-            log.warn("[GitHub API] Rate Limit Check Failed. Remaining: {}, ResetAt: {}", remaining, resetAt);
+            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+            log.warn("Rate Limit 임계값 도달 - Remaining: {}, ResetAt: {}", remaining, resetAt);
 
             throw new GitHubRateLimitException(resetAt);
         }
@@ -148,14 +155,23 @@ public class GitHubGraphQLClient {
                     if (response.statusCode().value() == 403 || response.statusCode().value() == 429) {
                         LocalDateTime resetAt = parseResetTime(response.headers());
 
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.THRESHOLD);
+                        log.warn("Rate Limit 초과 - Status: {}, ResetAt: {}", response.statusCode().value(), resetAt);
+
                         return Mono.error(new GitHubRateLimitException(resetAt));
                     }
 
                     if (response.statusCode().is4xxClientError()) {
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                        log.error("API 클라이언트 에러 - Status: {}", response.statusCode());
+
                         return Mono.error(new GitHubApiRetryableException(ErrorType.GITHUB_API_CLIENT_ERROR, "Status: " + response.statusCode()));
                     }
 
                     if (response.statusCode().is5xxServerError()) {
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                        log.error("API 서버 에러 - Status: {}", response.statusCode());
+
                         return Mono.error(new GitHubApiRetryableException(ErrorType.GITHUB_API_SERVER_ERROR, "Status: " + response.statusCode()));
                     }
 
@@ -168,12 +184,36 @@ public class GitHubGraphQLClient {
                             });
                 })
                 .timeout(API_TIMEOUT)
-                .onErrorMap(TimeoutException.class, e -> new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e))
-                .onErrorMap(ReadTimeoutException.class, e -> new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e))
-                .onErrorMap(IOException.class, e -> new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e))
+                .onErrorMap(TimeoutException.class, e -> {
+                    MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                    MdcUtils.setError("TimeoutException", "API 호출 타임아웃: " + API_TIMEOUT.getSeconds());
+
+                    log.warn("API 타임아웃 발생 - Timeout: {}초", API_TIMEOUT.getSeconds());
+
+                    return new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e);
+                })
+                .onErrorMap(ReadTimeoutException.class, e -> {
+                    MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                    MdcUtils.setError("ReadTimeoutException", "읽기 타임아웃");
+
+                    log.warn("읽기 타임아웃 발생");
+
+                    return new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e);
+                })
+                .onErrorMap(IOException.class, e -> {
+                    MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                    MdcUtils.setError("IOException", e.getMessage());
+
+                    log.warn("IO 에러 발생 - {}", e.getMessage());
+
+                    return new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
+                })
                 .doOnError(e -> {
                     if (e instanceof WebClientRequestException) {
-                        log.warn("[GitHub API] Network Error: {}", e.getMessage());
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                        MdcUtils.setError("NetworkError", e.getMessage());
+
+                        log.warn("네트워크 에러 발생 - {}", e.getMessage());
 
                         throw new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
                     }
@@ -187,7 +227,11 @@ public class GitHubGraphQLClient {
         } catch (GitHubApiRetryableException | GitHubApiNonRetryableException e) {
             throw e;
         } catch (Exception e) {
-            log.error("[GitHub API] Unexpected Error", e);
+            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+            MdcUtils.setError(e.getClass().getSimpleName(), e.getMessage());
+
+            log.error("예기치 않은 API 에러 발생", e);
+
             throw new BusinessException(ErrorType.GITHUB_API_ERROR, e.getMessage());
         }
     }
@@ -201,12 +245,21 @@ public class GitHubGraphQLClient {
     }
 
     private void handleGraphQLErrors(List<Object> errors) {
-        log.warn("[GitHub API] GraphQL Error: {}", errors);
-
         String errorString = errors.toString();
+
         if (errorString.contains("Could not resolve to a User")) {
+            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+            MdcUtils.setError(ErrorType.GITHUB_USER_NOT_FOUND.name(), "사용자를 찾을 수 없음");
+
+            log.warn("GitHub 사용자 조회 실패 - 사용자를 찾을 수 없습니다.");
+
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_USER_NOT_FOUND);
         }
+
+        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+        MdcUtils.setError("GraphQLError", errorString);
+
+        log.warn("GraphQL 부분 에러 발생 - Errors: {}", errors);
 
         throw new GitHubApiRetryableException(ErrorType.GITHUB_PARTIAL_ERROR);
     }
