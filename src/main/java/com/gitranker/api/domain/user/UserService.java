@@ -8,6 +8,7 @@ import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
@@ -38,9 +39,13 @@ public class UserService {
     @LogExecutionTime
     public RegisterUserResponse registerUser(String username) {
         MdcUtils.setUsername(username);
+        MdcUtils.setDomainContext();
 
         User existingUserByUsername = userRepository.findByUsername(username).orElse(null);
         if (existingUserByUsername != null) {
+            MdcUtils.setEventType(EventType.SUCCESS);
+            log.info("기존 사용자 조회 - 사용자: {}", username);
+
             return createResponseForExistingUser(existingUserByUsername);
         }
 
@@ -51,13 +56,15 @@ public class UserService {
 
         return userRepository.findByNodeId(nodeId)
                 .map(existingUser -> {
-                    log.info("[Domain Event] 사용자 닉네임 업데이트 - 기존 닉네임: {}, 신규 닉네임: {}", existingUser.getUsername(), githubUserInfo.getLogin());
+                    log.info("사용자 닉네임 변경 감지 - 기존 닉네임: {}, 신규 닉네임: {}", existingUser.getUsername(), githubUserInfo.getLogin());
                     return updateExistingUserProfile(existingUser, githubUserInfo);
                 })
                 .orElseGet(() -> registerNewUser(githubUserInfo, nodeId));
     }
 
     private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo, String nodeId) {
+        MdcUtils.setEventType(EventType.REQUEST);
+
         User newUser = User.builder()
                 .nodeId(nodeId)
                 .username(githubUserInfo.getLogin())
@@ -68,10 +75,11 @@ public class UserService {
         userRepository.save(newUser);
 
         ActivityLog currentLog = createPastLogAndCurrentLog(newUser);
-
         updateUserScoreAndRanking(newUser, currentLog);
 
-        log.info("[Domain Event] 신규 사용자 등록 완료");
+        MdcUtils.setEventType(EventType.SUCCESS);
+        log.info("신규 사용자 등록 완료 - 사용자: {}, 점수: {}, 티어: {}",
+                newUser.getUsername(), newUser.getTotalScore(), newUser.getTier());
 
         return RegisterUserResponse.register(newUser, currentLog, true);
     }
@@ -79,14 +87,18 @@ public class UserService {
     @Transactional(readOnly = true)
     @LogExecutionTime
     public RegisterUserResponse searchUser(String username) {
+        MdcUtils.setDomainContext();
+        MdcUtils.setUsername(username);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
-        log.info("[Domain Event] 사용자 검색 - 타겟 사용자: {}", username);
+        MdcUtils.setNodeId(user.getNodeId());
+        MdcUtils.setEventType(EventType.SUCCESS);
+
+        log.info("사용자 조회 - 사용자: {}", username);
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-
-        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }
@@ -94,6 +106,7 @@ public class UserService {
     @Transactional
     @LogExecutionTime
     public RegisterUserResponse refreshUser(String username) {
+        MdcUtils.setDomainContext();
         MdcUtils.setUsername(username);
 
         User user = userRepository.findByUsername(username)
@@ -102,15 +115,21 @@ public class UserService {
         MdcUtils.setNodeId(user.getNodeId());
 
         if (!user.canTriggerFullScan()) {
+            MdcUtils.setEventType(EventType.FAILURE);
+            log.info("갱신 쿨다운 미충족 - 사용자: {}, 지난 스캔: {}", username, user.getLastFullScanAt());
+
             throw new BusinessException(ErrorType.REFRESH_COOL_DOWN_EXCEEDED);
         }
 
-        log.info("[Domain Event] 사용자 수동 전체 갱신 요청 - 사용자: {}", username);
+        MdcUtils.setEventType(EventType.REQUEST);
+        log.info("수동 전체 갱신 시작 - 사용자: {}", username);
 
         ActivityLog currentLog = createPastLogAndCurrentLog(user);
-
         updateUserScoreAndRanking(user, currentLog);
         user.updateLastFullScanAt();
+
+        MdcUtils.setEventType(EventType.SUCCESS);
+        log.info("수동 전체 갱신 완료 - 사용자: {}", username);
 
         return RegisterUserResponse.of(user, currentLog, false);
     }
@@ -124,7 +143,6 @@ public class UserService {
 
         if (user.getGithubCreatedAt().getYear() < currentYear) {
             GitHubActivitySummary baselineSummary = calculateSummaryUntilYear(rawResponse, lastYear);
-
             saveActivityLog(user, baselineSummary, LocalDate.of(lastYear, 12, 31));
         }
 
@@ -217,6 +235,9 @@ public class UserService {
         userRepository.save(user);
 
         ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        MdcUtils.setEventType(EventType.SUCCESS);
+        log.info("사용자 프로필 업데이트 완료 - 사용자: {}", user.getUsername());
 
         return RegisterUserResponse.of(user, activityLog, false);
     }

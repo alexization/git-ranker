@@ -6,6 +6,9 @@ import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.aop.LogExecutionTime;
+import com.gitranker.api.global.logging.EventType;
+import com.gitranker.api.global.logging.LogCategory;
+import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,8 +35,7 @@ public class RankingService {
         return calculateRanking(userScore, totalUserCount);
     }
 
-    @Transactional(readOnly = true)
-    public RankingInfo calculateRanking(int userScore, long totalUserCount) {
+    private RankingInfo calculateRanking(int userScore, long totalUserCount) {
         long higherScoreCount = userRepository.countByTotalScoreGreaterThan(userScore);
 
         int ranking = (int) higherScoreCount + 1;
@@ -47,7 +49,7 @@ public class RankingService {
     @Transactional(readOnly = true)
     @LogExecutionTime
     public RankingList getRankingList(int page, Tier tier) {
-        log.info("[Domain Event] 랭킹 리스트 조회 - Page: {}, Tier: {}", page + 1, tier);
+        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
 
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
         Page<User> userPage;
@@ -65,6 +67,9 @@ public class RankingService {
                 .toList();
 
         Page<RankingList.UserInfo> rankingPage = new PageImpl<>(userInfo, pageable, userPage.getTotalElements());
+
+        MdcUtils.setEventType(EventType.SUCCESS);
+        log.info("랭킹 리스트 조회 - Page: {}, Tier: {}", page + 1, tier);
 
         return RankingList.from(rankingPage);
     }
