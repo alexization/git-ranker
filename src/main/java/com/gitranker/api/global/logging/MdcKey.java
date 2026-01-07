@@ -20,7 +20,6 @@ public class MdcKey {
     /* 배치 관련 */
     public static final String JOB_NAME = "job_name";
     public static final String STEP_NAME = "step_name";
-    public static final String CHUNK_NUMBER = "chunk_number";
 
     /* 인프라 및 외부 API 관련 */
     public static final String DB_QUERY_TIME_MS = "db_query_time_ms";

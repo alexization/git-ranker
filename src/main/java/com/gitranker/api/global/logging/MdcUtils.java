@@ -11,13 +11,37 @@ public final class MdcUtils {
         throw new AssertionError("유틸 클래스는 인스턴스화 할 수 없습니다.");
     }
 
+    public static void setLogCategory(LogCategory category) {
+        if (category != null) {
+            MDC.put(MdcKey.LOG_CATEGORY, category.name());
+        }
+    }
+
+    public static void setEventType(EventType eventType) {
+        if (eventType != null) {
+            MDC.put(MdcKey.EVENT_TYPE, eventType.name());
+        }
+    }
+
+    public static void setLogContext(LogCategory category, EventType eventType) {
+        setLogCategory(category);
+        setEventType(eventType);
+    }
+
     public static void setupHttpRequestContext(HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString().substring(0, 8);
 
         MDC.put(MdcKey.TRACE_ID, traceId);
+        MDC.put(MdcKey.HTTP_METHOD, request.getMethod());
         MDC.put(MdcKey.REQUEST_URI, request.getRequestURI());
         MDC.put(MdcKey.CLIENT_IP, extractClientIp(request));
-        MDC.put(MdcKey.REQUEST_URI, request.getRequestURI());
+
+        setLogCategory(LogCategory.HTTP);
+    }
+
+    public static void setHttpResponse(int statusCode, long latencyMs) {
+        setHttpStatus(statusCode);
+        setLatency(latencyMs);
     }
 
     public static void setUserContext(String username, String nodeId) {
@@ -37,24 +61,24 @@ public final class MdcUtils {
         }
     }
 
-    public static void setLatency(long latencyMs) {
-        MDC.put(MdcKey.LATENCY_MS, String.valueOf(latencyMs));
-    }
-
-    public static void setHttpStatus(int statusCode) {
-        MDC.put(MdcKey.HTTP_STATUS, String.valueOf(statusCode));
-    }
-
     public static void setupBatchJobContext(String jobName) {
         String traceId = UUID.randomUUID().toString().substring(0, 8);
 
         MDC.put(MdcKey.TRACE_ID, traceId);
         MDC.put(MdcKey.JOB_NAME, jobName);
         MDC.put(MdcKey.CLIENT_IP, "SYSTEM");
+
+        setLogCategory(LogCategory.BATCH);
     }
 
-    public static void setDBQueryTime(long queryTimeMs) {
-        MDC.put(MdcKey.DB_QUERY_TIME_MS, String.valueOf(queryTimeMs));
+    public static void setStepName(String stepName) {
+        if (StringUtils.hasText(stepName)) {
+            MDC.put(MdcKey.STEP_NAME, stepName);
+        }
+    }
+
+    public static void setExternalApiContext() {
+        setLogCategory(LogCategory.EXTERNAL_API);
     }
 
     public static void setGithubApiCallTime(long githubApiCallTimeMs) {
@@ -71,12 +95,16 @@ public final class MdcUtils {
         }
     }
 
+    public static void setGithubApiCost(int cost) {
+        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
+    }
+
     public static String getGithubApiCost() {
         return MDC.get(MdcKey.GITHUB_API_COST);
     }
 
-    public static void setGithubApiCost(int cost) {
-        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(cost));
+    public static void setDomainContext() {
+        setLogCategory(LogCategory.DOMAIN);
     }
 
     public static void setError(String errorCode, String errorMessage) {
@@ -85,18 +113,36 @@ public final class MdcUtils {
         }
 
         if (StringUtils.hasText(errorMessage)) {
-            MDC.put(MdcKey.ERROR_MESSAGE, errorMessage);
+            MDC.put(MdcKey.ERROR_MESSAGE, truncateMessage(errorMessage, 500));
         }
     }
 
     public static void setException(Exception exception) {
         if (exception != null) {
-            MDC.put(MdcKey.ERROR_MESSAGE, exception.getMessage());
+            MDC.put(MdcKey.ERROR_MESSAGE, truncateMessage(exception.getMessage(), 500));
         }
+    }
+
+    public static void setDBQueryTime(long queryTimeMs) {
+        MDC.put(MdcKey.DB_QUERY_TIME_MS, String.valueOf(queryTimeMs));
+    }
+
+    public static void setLatency(long latencyMs) {
+        MDC.put(MdcKey.LATENCY_MS, String.valueOf(latencyMs));
+    }
+
+    public static void setHttpStatus(int statusCode) {
+        MDC.put(MdcKey.HTTP_STATUS, String.valueOf(statusCode));
     }
 
     public static void remove(String key) {
         MDC.remove(key);
+    }
+
+    public static void remove(String... keys) {
+        for (String key : keys) {
+            MDC.remove(key);
+        }
     }
 
     public static void clear() {
@@ -116,5 +162,15 @@ public final class MdcUtils {
         }
 
         return request.getRemoteAddr();
+    }
+
+    private static String truncateMessage(String message, int maxLength) {
+        if (message == null) {
+            return null;
+        }
+        if (message.length() <= maxLength) {
+            return message;
+        }
+        return message.substring(0, maxLength) + "...";
     }
 }
