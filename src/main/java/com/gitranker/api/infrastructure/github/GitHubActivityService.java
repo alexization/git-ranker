@@ -1,6 +1,5 @@
 package com.gitranker.api.infrastructure.github;
 
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
 
-    @LogExecutionTime
     public GitHubActivitySummary collectActivityForYear(String username, int year) {
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
         MdcUtils.setUsername(username);

@@ -5,7 +5,6 @@ import com.gitranker.api.domain.ranking.dto.RankingList;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -28,7 +27,6 @@ public class RankingService {
     private final TierCalculator tierCalculator;
 
     @Transactional(readOnly = true)
-    @LogExecutionTime
     public RankingInfo calculateRankingForNewUser(int userScore) {
         long totalUserCount = userRepository.count();
 
@@ -47,7 +45,6 @@ public class RankingService {
     }
 
     @Transactional(readOnly = true)
-    @LogExecutionTime
     public RankingList getRankingList(int page, Tier tier) {
         MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
 

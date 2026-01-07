@@ -1,7 +1,6 @@
 package com.gitranker.api.batch.tasklet;
 
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.logging.EventType;
@@ -23,12 +22,11 @@ public class RankingRecalculationTasklet implements Tasklet {
     private final UserRepository userRepository;
 
     @Override
-    @LogExecutionTime
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         MdcUtils.setLogContext(LogCategory.BATCH, EventType.REQUEST);
         MdcUtils.setStepName("RankingRecalculationStep");
 
-        log.info("랭킹 벌크 업데이트 시작");
+        log.debug("랭킹 벌크 업데이트 시작");
 
         try {
             long start = System.currentTimeMillis();

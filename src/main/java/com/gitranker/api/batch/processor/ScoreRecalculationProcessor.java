@@ -4,7 +4,6 @@ import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
@@ -42,7 +41,6 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
     }
 
     @Override
-    @LogExecutionTime
     public User process(User user) {
         MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
         MdcUtils.setLogContext(LogCategory.BATCH, EventType.REQUEST);

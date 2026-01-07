@@ -5,7 +5,6 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.logging.EventType;
@@ -27,7 +26,6 @@ public class BadgeService {
     private final ActivityLogRepository activityLogRepository;
 
     @Transactional(readOnly = true)
-    @LogExecutionTime
     public String generateBadge(String nodeId) {
         User user = userRepository.findByNodeId(nodeId)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));

@@ -5,7 +5,6 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.ranking.RankingService;
 import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.logging.EventType;
@@ -36,7 +35,6 @@ public class UserService {
     private final RankingService rankingService;
 
     @Transactional
-    @LogExecutionTime
     public RegisterUserResponse registerUser(String username) {
         MdcUtils.setUsername(username);
         MdcUtils.setDomainContext();
@@ -85,7 +83,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    @LogExecutionTime
     public RegisterUserResponse searchUser(String username) {
         MdcUtils.setDomainContext();
         MdcUtils.setUsername(username);
@@ -93,18 +90,17 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
+        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
         MdcUtils.setNodeId(user.getNodeId());
         MdcUtils.setEventType(EventType.SUCCESS);
 
         log.info("사용자 조회 - 사용자: {}", username);
 
-        ActivityLog activityLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-
         return RegisterUserResponse.of(user, activityLog, false);
     }
 
     @Transactional
-    @LogExecutionTime
     public RegisterUserResponse refreshUser(String username) {
         MdcUtils.setDomainContext();
         MdcUtils.setUsername(username);
@@ -122,7 +118,7 @@ public class UserService {
         }
 
         MdcUtils.setEventType(EventType.REQUEST);
-        log.info("수동 전체 갱신 시작 - 사용자: {}", username);
+        log.debug("수동 전체 갱신 시작 - 사용자: {}", username);
 
         ActivityLog currentLog = createPastLogAndCurrentLog(user);
         updateUserScoreAndRanking(user, currentLog);

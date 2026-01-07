@@ -19,7 +19,7 @@ public class GitHubApiLoggingAspect {
         String methodName = joinPoint.getSignature().getName();
 
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
-        log.info("GitHub API 호출 시작 - Method: {}", methodName);
+        log.debug("GitHub API 호출 시작 - Method: {}", methodName);
 
         long start = System.currentTimeMillis();
 

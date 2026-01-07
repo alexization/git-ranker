@@ -34,7 +34,7 @@ public class LoggingFilter implements Filter {
 
         long start = System.currentTimeMillis();
 
-        log.info("{} {} 요청 수신", httpRequest.getMethod(), requestUri);
+        log.debug("{} {} 요청 수신", httpRequest.getMethod(), requestUri);
 
         try {
             chain.doFilter(request, response);

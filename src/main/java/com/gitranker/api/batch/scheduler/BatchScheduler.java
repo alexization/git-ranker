@@ -1,7 +1,6 @@
 package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.aop.LogExecutionTime;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.EventType;
@@ -30,14 +29,13 @@ public class BatchScheduler {
     private final Job hourlyRankingJob;
 
     @Scheduled(cron = "0 0 6 * * *", zone = "${app.timezone}")
-    @LogExecutionTime
     public void runDailyScoreRecalculationJob() {
         final String jobName = "DailyScoreRecalculation";
 
         MdcUtils.setupBatchJobContext(jobName);
         MdcUtils.setEventType(EventType.REQUEST);
 
-        log.info("배치 Job 시작 - Name: {}", jobName);
+        log.debug("배치 Job 시작 - Name: {}", jobName);
 
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -62,7 +60,6 @@ public class BatchScheduler {
     }
 
     @Scheduled(cron = "0 0 * * * *", zone = "${app.timezone}")
-    @LogExecutionTime
     public void runHourlyRankingRecalculation() {
         final String jobName = "HourlyRankingRecalculation";
 
@@ -79,7 +76,7 @@ public class BatchScheduler {
             }
 
             MdcUtils.setEventType(EventType.REQUEST);
-            log.info("배치 Job 시작 - Name: {}, 신규 등록수: {}", jobName, newUserCount);
+            log.debug("배치 Job 시작 - Name: {}, 신규 등록수: {}", jobName, newUserCount);
 
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
