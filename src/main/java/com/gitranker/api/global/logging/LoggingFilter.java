@@ -16,6 +16,7 @@ import java.io.IOException;
 public class LoggingFilter implements Filter {
 
     private static final String[] STATIC_PREFIXES = {"/js/", "/css/", "/favicon.ico"};
+    private static final long SLOW_REQUEST_THRESHOLD_MS = 10_000L;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -29,26 +30,26 @@ public class LoggingFilter implements Filter {
         }
 
         MdcUtils.setupHttpRequestContext(httpRequest);
+        MdcUtils.setEventType(EventType.REQUEST);
 
         long start = System.currentTimeMillis();
 
-        log.info("[HTTP Request] {} {}", httpRequest.getMethod(), requestUri);
+        log.info("{} {} 요청 수신", httpRequest.getMethod(), requestUri);
 
         try {
             chain.doFilter(request, response);
-
         } finally {
             long latency = System.currentTimeMillis() - start;
             int status = httpResponse.getStatus();
 
-            MdcUtils.setLatency(latency);
-            MdcUtils.setHttpStatus(status);
+            MdcUtils.setHttpResponse(status, latency);
+            MdcUtils.setLogContext(LogCategory.HTTP, EventType.RESPONSE);
 
-            if (latency > 10_000) {
-                log.warn("[HTTP Response] {} {} - Status: {}, Latency: {}ms (Slow Request)",
+            if (latency > SLOW_REQUEST_THRESHOLD_MS) {
+                log.warn("{} {} 응답 완료 (느린 요청) - Status: {}, Latency: {}ms",
                         httpRequest.getMethod(), requestUri, status, latency);
             } else {
-                log.info("[HTTP Response] {} {} - Status: {}, Latency: {}ms",
+                log.info("{} {} 응답 완료 - Status: {}, Latency: {}ms",
                         httpRequest.getMethod(), requestUri, status, latency);
             }
 
