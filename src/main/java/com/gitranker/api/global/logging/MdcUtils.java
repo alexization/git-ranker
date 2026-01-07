@@ -100,7 +100,9 @@ public final class MdcUtils {
     }
 
     public static String getGithubApiCost() {
-        return MDC.get(MdcKey.GITHUB_API_COST);
+        String cost = MDC.get(MdcKey.GITHUB_API_COST);
+
+        return cost != null ? cost : "N/A";
     }
 
     public static void setDomainContext() {

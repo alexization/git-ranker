@@ -1,5 +1,7 @@
 package com.gitranker.api.global.aop;
 
+import com.gitranker.api.global.logging.EventType;
+import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,26 +16,36 @@ public class GitHubApiLoggingAspect {
 
     @Around("execution(* com.gitranker.api.infrastructure.github.GitHubGraphQLClient.*(..))")
     public Object logGithubApiCall(ProceedingJoinPoint joinPoint) throws Throwable {
-        long start = System.currentTimeMillis();
         String methodName = joinPoint.getSignature().getName();
 
-        log.info("[External API] GitHub API 요청 - Method: {}", methodName);
+        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
+        log.info("GitHub API 호출 시작 - Method: {}", methodName);
+
+        long start = System.currentTimeMillis();
 
         try {
             Object result = joinPoint.proceed();
 
             long latency = System.currentTimeMillis() - start;
             MdcUtils.setGithubApiCallTime(latency);
+
             String cost = MdcUtils.getGithubApiCost();
 
-            log.info("[External API] GitHub API 응답 - Method: {}, Latency: {}ms, Cost: {}", methodName, latency, cost != null ? cost : "N/A");
+            MdcUtils.setEventType(EventType.RESPONSE);
+            log.info("GitHub API 응답 수신 - Method: {}, Latency: {}ms, Cost: {}",
+                    methodName, latency, cost);
 
             return result;
+
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
             MdcUtils.setGithubApiCallTime(latency);
 
-            log.error("[External API] GitHub API 에러 - Method: {}, Latency: {}ms, Reason: {}", methodName, latency, e.getMessage());
+            MdcUtils.setEventType(EventType.FAILURE);
+            MdcUtils.setError(e.getClass().getSimpleName(), e.getMessage());
+            log.error("GitHub API 실패 - Method: {}, Latency: {}ms, Error: {}",
+                    methodName, latency, e.getMessage());
+
             throw e;
         }
     }
