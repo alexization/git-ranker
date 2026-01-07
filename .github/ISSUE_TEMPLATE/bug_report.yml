@@ -1,0 +1,67 @@
+name: 🐞 버그 리포트 (Bug Report)
+description: 발생한 버그나 오류를 제보해 주세요.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        이 이슈를 작성해 주셔서 감사합니다! 문제를 파악할 수 있도록 상세히 적어주세요.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 어떤 버그인가요?
+      description: 발생한 문제에 대해 명확하고 간결하게 설명해 주세요.
+      placeholder: 로그인 버튼을 눌렀을 때 반응이 없습니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 재현 방법 (Steps to Reproduce)
+      description: 개발자가 문제를 재현할 수 있도록 순서대로 적어주세요.
+      placeholder: |
+        1. 메인 페이지로 이동
+        2. '로그인' 버튼 클릭
+        3. 오류 메시지 발생
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 기대 동작 (Expected Behavior)
+      description: 원래 정상적으로 작동했다면 어떤 결과가 나와야 했나요?
+      placeholder: 로그인 모달 창이 떠야 합니다.
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 실행 환경 (Environment)
+      description: 버그가 발생한 환경 정보를 입력해 주세요.
+      placeholder: |
+        - OS: [e.g. macOS, Windows 10]
+        - Browser: [e.g. Chrome 98, Safari]
+        - Version: [e.g. 1.0.0]
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 스크린샷 또는 로그 (Screenshots/Logs)
+      description: 문제 상황을 보여주는 스크린샷이나 에러 로그가 있다면 첨부해 주세요.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 확인 사항
+      options:
+        - label: 이 이슈와 동일한 기존 이슈가 있는지 검색해 보았습니다.
+          required: false

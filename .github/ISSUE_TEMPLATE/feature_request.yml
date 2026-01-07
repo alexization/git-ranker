@@ -1,0 +1,43 @@
+name: 🚀 기능 요청 (Feature Request)
+description: 프로젝트에 새로운 기능을 제안해 주세요.
+title: "[Feat]: "
+labels: ["enhancement", "feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        프로젝트 발전을 위한 아이디어를 제안해 주셔서 감사합니다!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 관련된 문제 상황 (Is your feature request related to a problem?)
+      description: 어떤 불편함이나 문제를 해결하고 싶은지 설명해 주세요.
+      placeholder: "예: 매번 수동으로 설정을 변경해야 하는 것이 번거롭습니다."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 제안하는 해결책 (Describe the solution you'd like)
+      description: 기능이 어떻게 동작해야 하는지 구체적으로 묘사해 주세요.
+      placeholder: "설정 파일 자동 로드 기능을 추가했으면 좋겠습니다."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 고려해 본 대안 (Alternatives considered)
+      description: 위 해결책 외에 고려해 본 다른 방법이 있다면 적어주세요.
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 추가 정보 (Additional context)
+      description: 스크린샷이나 참고할 만한 링크가 있다면 추가해 주세요.
+    validations:
+      required: false

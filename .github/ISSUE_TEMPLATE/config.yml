@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 질문 및 토론 (Discussions)
+    url: https://github.com/alexization/git-ranker/discussions
+    about: 버그나 기능 요청이 아닌 일반적인 질문이나 의견은 이곳을 이용해 주세요.
+  - name: 🔒 보안 취약점 제보
+    url: mailto:alexizationy@gmail.com
+    about: 민감한 보안 문제는 공개 이슈 대신 이메일로 제보해 주세요.
