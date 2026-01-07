@@ -2,8 +2,10 @@ package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.aop.LogExecutionTime;
-import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.logging.EventType;
+import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +32,12 @@ public class BatchScheduler {
     @Scheduled(cron = "0 0 6 * * *", zone = "${app.timezone}")
     @LogExecutionTime
     public void runDailyScoreRecalculationJob() {
-        MdcUtils.setupBatchJobContext("DailyScoreRecalculation");
-        log.info("[Batch Job] Job 시작 - Name: DailyScoreRecalculation");
+        final String jobName = "DailyScoreRecalculation";
+
+        MdcUtils.setupBatchJobContext(jobName);
+        MdcUtils.setEventType(EventType.REQUEST);
+
+        log.info("배치 Job 시작 - Name: {}", jobName);
 
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -40,10 +46,14 @@ public class BatchScheduler {
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
-            log.info("[Batch Job] Job 완료 - Name: DailyScoreRecalculation");
+            MdcUtils.setEventType(EventType.SUCCESS);
+            log.info("배치 Job 완료 - Name: {}", jobName);
 
         } catch (Exception e) {
-            log.error("[Batch Job] Job 실패 - Name: DailyScoreRecalculation, Reason: {}", e.getMessage(), e);
+            MdcUtils.setLogContext(LogCategory.BATCH, EventType.FAILURE);
+            MdcUtils.setError(ErrorType.BATCH_JOB_FAILED.name(), e.getMessage());
+
+            log.error("배치 Job 실패 - Name: {}, Reason: {}", jobName, e.getMessage(), e);
 
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
@@ -54,18 +64,22 @@ public class BatchScheduler {
     @Scheduled(cron = "0 0 * * * *", zone = "${app.timezone}")
     @LogExecutionTime
     public void runHourlyRankingRecalculation() {
-        MdcUtils.setupBatchJobContext("HourlyRankingRecalculation");
+        final String jobName = "HourlyRankingRecalculation";
+
+        MdcUtils.setupBatchJobContext(jobName);
 
         try {
             LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             long newUserCount = userRepository.countByCreatedAtAfter(oneHourAgo);
 
             if (newUserCount == 0) {
-                log.info("[Batch Job] Job 건너뜀 - Name: HourlyRankingRecalculation");
+                MdcUtils.setEventType(EventType.SKIP);
+                log.info("배치 Job Skip - Name: {}", jobName);
                 return;
             }
 
-            log.info("[Batch Job] Job 시작 - Name: HourlyRankingRecalculation");
+            MdcUtils.setEventType(EventType.REQUEST);
+            log.info("배치 Job 시작 - Name: {}, 신규 등록수: {}", jobName, newUserCount);
 
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLocalDateTime("runTime", LocalDateTime.now())
@@ -73,10 +87,14 @@ public class BatchScheduler {
 
             jobLauncher.run(hourlyRankingJob, jobParameters);
 
-            log.info("[Batch Job] Job 완료 - Name: HourlyRankingRecalculation");
+            MdcUtils.setEventType(EventType.SUCCESS);
+            log.info("배치 Job 완료 - Name: {}", jobName);
 
         } catch (Exception e) {
-            log.error("[Batch Error] Job 실패 - Name: HourlyRankingRecalculation, Reason: {}", e.getMessage(), e);
+            MdcUtils.setLogContext(LogCategory.BATCH, EventType.FAILURE);
+            MdcUtils.setError(ErrorType.BATCH_JOB_FAILED.name(), e.getMessage());
+
+            log.error("배치 Job 실패 - Name: {}, Reason: {}", jobName, e.getMessage(), e);
 
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {

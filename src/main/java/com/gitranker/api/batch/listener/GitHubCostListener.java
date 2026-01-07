@@ -21,8 +21,8 @@ public class GitHubCostListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         int totalCost = jobExecution.getExecutionContext().getInt(TOTAL_COST_KEY, 0);
 
-        log.info("[Batch Report] Total GitHub API Cost: {}", totalCost);
-
         MdcUtils.setGithubApiCost(totalCost);
+        log.info("소요 GitHub API Cost: {}", totalCost);
+
     }
 }

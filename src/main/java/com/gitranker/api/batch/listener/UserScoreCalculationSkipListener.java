@@ -5,6 +5,9 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
+import com.gitranker.api.global.logging.EventType;
+import com.gitranker.api.global.logging.LogCategory;
+import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.SkipListener;
@@ -20,21 +23,36 @@ public class UserScoreCalculationSkipListener implements SkipListener<User, User
 
     @Override
     public void onSkipInRead(Throwable t) {
-        log.error("[Batch Skip] 읽기 단계 실패 - Reason: {}", t.getMessage());
+        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
+        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
+
+        log.error("배치 읽기 단계 Skip - Reason: {}", t.getMessage());
 
         saveFailureLog("UNKNOWN_USER", t, "READ_PHASE");
     }
 
     @Override
     public void onSkipInWrite(User user, Throwable t) {
-        log.error("[Batch Skip] 쓰기 단계 실패 - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
+        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
+        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
+        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
+
+        log.error("배치 쓰기 단계 Skip - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
 
         saveFailureLog(user.getUsername(), t, "WRITE_PHASE");
     }
 
     @Override
     public void onSkipInProcess(User user, Throwable t) {
-        log.warn("[Batch Skip] 처리 단계 건너뜀 - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
+        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
+        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
+        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
+
+        if (isRetryableError(t)) {
+            log.warn("배치 처리 단계 Skip (재시도 소진) - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
+        } else {
+            log.info("배치 처리 단계 Skip (재시도 불가) - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
+        }
 
         saveFailureLog(user.getUsername(), t, "PROCESS_PHASE");
     }
@@ -53,5 +71,9 @@ public class UserScoreCalculationSkipListener implements SkipListener<User, User
             return e.getErrorType();
         }
         return ErrorType.DEFAULT_ERROR;
+    }
+
+    private boolean isRetryableError(Throwable t) {
+        return t instanceof GitHubApiRetryableException;
     }
 }
