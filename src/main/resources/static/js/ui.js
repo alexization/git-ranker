@@ -555,6 +555,8 @@ export function renderRankingTable(users) {
         else if (user.tier === 'PLATINUM') tierColor = '#00C7BE';
         else if (user.tier === 'EMERALD') tierColor = '#2ECC71';
         else if (user.tier === 'GOLD') tierColor = '#FFD700';
+        else if (user.tier === 'SILVER') tierColor = '#9EAAB5';
+        else if (user.tier === 'BRONZE') tierColor = '#CD7F32';
 
         row.innerHTML = `
             <div class="col-rank font-code">${user.ranking}</div>

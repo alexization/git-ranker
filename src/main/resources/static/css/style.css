@@ -40,7 +40,9 @@
     --font-number: 'JetBrains Mono', 'Pretendard', monospace;
     --tracking-heading: -0.025em;
     --tracking-body: -0.005em;
-    --gradient-scroll-hint: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%)
+    --gradient-scroll-hint: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 100%);
+    --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ease-smooth: cubic-bezier(0.33, 1, 0.68, 1)
 }
 
 [data-theme="dark"] {
@@ -314,7 +316,7 @@ body {
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
-    transition: background .2s, transform .1s;
+    transition: background .2s, transform .1s var(--ease-spring);
     white-space: nowrap;
     flex-shrink: 0
 }
@@ -324,7 +326,7 @@ body {
 }
 
 .btn-search:active {
-    transform: scale(.96)
+    transform: scale(.94)
 }
 
 .shake {
@@ -677,7 +679,7 @@ body {
 }
 
 .btn-black:active {
-    transform: scale(.96)
+    transform: scale(.94)
 }
 
 .sub-actions {
@@ -711,7 +713,7 @@ body {
 }
 
 .btn-ghost:active {
-    transform: scale(.96)
+    transform: scale(.94)
 }
 
 .refresh-box {
