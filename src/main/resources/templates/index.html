@@ -24,6 +24,8 @@
     <meta name="twitter:title" content="Git Ranker - 개발자 전투력 측정기">
     <meta name="twitter:description" content="코드의 품질과 기여도로 당신의 진짜 티어를 증명하세요.">
     <meta name="twitter:image" content="/og-image.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/og-image.png">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="modulepreload" href="/js/utils.js">
@@ -329,5 +331,33 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="/js/main.js"></script>
+
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Git Ranker",
+        "image": "https://www.git-ranker.com/og-image.png",
+        "url": "https://www.git-ranker.com",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "KRW"
+        },
+        "sameAs": [
+            "https://github.com/alexization/git-ranker"
+        ],
+        "codeRepository": "https://github.com/alexization/git-ranker",
+        "author": {
+            "@type": "Person",
+            "name": "Baek Hyo Seok",
+            "url": "https://github.com/alexization"
+        },
+        "description": "GitHub 활동을 분석하여 개발자의 기여도를 점수화하고 티어를 부여하는 서비스입니다."
+    }
+</script>
+
 </body>
 </html>
