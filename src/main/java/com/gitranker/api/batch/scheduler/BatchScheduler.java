@@ -28,7 +28,7 @@ public class BatchScheduler {
     private final Job dailyScoreRecalculationJob;
     private final Job hourlyRankingJob;
 
-    @Scheduled(cron = "0 0 6 * * *", zone = "${app.timezone}")
+    @Scheduled(cron = "0 0 0 * * *", zone = "${app.timezone}")
     public void runDailyScoreRecalculationJob() {
         final String jobName = "DailyScoreRecalculation";
 
