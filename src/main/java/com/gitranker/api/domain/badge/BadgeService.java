@@ -46,126 +46,147 @@ public class BadgeService {
 
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user).commitCount(150).prCount(30).mergedPrCount(25).issueCount(10).reviewCount(45)
-                .diffCommitCount(12).diffPrCount(5).diffMergedPrCount(4).diffIssueCount(2).diffReviewCount(8).build();
+                .diffCommitCount(12).diffPrCount(0).diffMergedPrCount(0).diffIssueCount(2).diffReviewCount(8).build();
         return createSvgContent(user, tier, activityLog);
     }
 
     private String createSvgContent(User user, Tier tier, ActivityLog activityLog) {
         String gradientDefs = getTierGradientDefs(tier);
+        String tierName = tier.name().charAt(0) + tier.name().substring(1).toLowerCase();
 
         int tierFontSize = 28;
-        if (tier.name().length() > 9) {
-            tierFontSize = 18;
-        } else if (tier.name().length() > 6) {
+        if (tierName.length() > 9) {
             tierFontSize = 24;
+        } else if (tierName.length() > 6) {
+            tierFontSize = 26;
         }
 
         String animationStyle = """
                     @keyframes soft-pass {
-                        0%% { transform: translateX(-400px) skewX(-25deg); }
-                        100%% { transform: translateX(500px) skewX(-35deg); }
+                        0% { transform: translateX(-400px) skewX(-25deg); }
+                        100% { transform: translateX(500px) skewX(-35deg); }
                     }
                     .shine-bar {
                         animation: soft-pass 5s infinite ease-in-out;
-                        opacity: %s;
+                        opacity: 0.45;
                     }
-                """.formatted("0.45");
+                """;
 
         return String.format("""
-                <svg width="350" height="170" viewBox="0 0 350 170" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        %s
-                        <clipPath id="card-clip">
-                            <rect x="0" y="0" width="350" height="170" rx="12" ry="12"/>
-                        </clipPath>
-                        <linearGradient id="static-gloss" x1="0%%" y1="0%%" x2="0%%" y2="100%%">
-                            <stop offset="0%%" style="stop-color:#ffffff;stop-opacity:0.3" />
-                            <stop offset="100%%" style="stop-color:#ffffff;stop-opacity:0" />
-                        </linearGradient>
-                
-                        <linearGradient id="soft-shine-gradient" x1="0%%" y1="0%%" x2="100%%" y2="0%%">
-                            <stop offset="0%%" style="stop-color:#ffffff;stop-opacity:0" />
-                            <stop offset="50%%" style="stop-color:#ffffff;stop-opacity:0.2" /> <stop offset="100%%" style="stop-color:#ffffff;stop-opacity:0" />
-                        </linearGradient>
-                    </defs>
-                
-                    <rect x="0" y="0" width="350" height="170" rx="12" ry="12" fill="url(#tierGradient)" />
-                
-                    <g clip-path="url(#card-clip)">
-                        <g transform="translate(230, 45) scale(4.5)" opacity="0.15" fill="#ffffff">
-                            <path d="%s"/>
-                        </g>
-                
-                        <rect x="0" y="0" width="350" height="85" fill="url(#static-gloss)" />
-                        <rect class="shine-bar" x="0" y="-30" width="200" height="230" fill="url(#soft-shine-gradient)" />
-                    </g>
-                
-                    <rect x="1" y="1" width="348" height="168" rx="11" ry="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.5"/>
-                
-                <style>
-                    .base-text { font-family: -apple-system, Arial, 'Segoe UI', Roboto, Helvetica, sans-serif; }
-                    .mono-text { font-family: 'Monaco', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Andale Mono', 'Ubuntu Mono', monospace; }
-                
-                    .text-shadow { text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4); }
-                    .text-shadow-strong { text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); }
-                
-                    .header { font-weight: 600; font-size: 16px; fill: #ffffff; }
-                    .username { font-weight: 400; font-size: 12px; fill: #f0f6fc; opacity: 0.95; }
-                
-                    .stat-label { font-weight: 600; font-size: 9px; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
-                    .stat-value { font-weight: 600; font-size: 13px; fill: #ffffff; }
-                
-                    .tier-text {
-                        font-weight: 700;
-                        font-size: %dpx;
-                        fill: #ffffff;
-                    }
-                
-                    .score-text { font-weight: 700; font-size: 20px; fill: #ffffff; opacity: 1; }
-                    .rank-text { font-weight: 500; font-size: 11px; fill: #ffffff; opacity: 0.95; }
-                
-                    .diff-plus { font-weight: 600; font-size: 12px; fill: #4ADE80; text-shadow: none; }
-                    .diff-minus { font-weight: 600; font-size: 12px; fill: #F87171; text-shadow: none; }
-                
-                    %s
-                </style>
-                
-                    <text x="20" y="28" class="base-text header text-shadow">Git Ranker</text>
-                    <text x="330" y="28" text-anchor="end" class="base-text username text-shadow">@%s</text>
-                    <line x1="20" y1="40" x2="330" y2="40" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4"/>
-                
-                    <g transform="translate(20, 85)">
-                        <text x="0" y="0" class="base-text tier-text text-shadow-strong">%s</text>
-                        <text x="0" y="30" class="mono-text score-text text-shadow">%d pts</text>
-                        <text x="0" y="52" class="base-text rank-text text-shadow">Top %.2f%% • Rank %d</text>
-                    </g>
-                
-                    <line x1="165" y1="55" x2="165" y2="155" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
-                
-                    <g transform="translate(180, 60)">
-                        <g transform="translate(0, 0)">
-                            <text x="0" y="0" class="base-text stat-label">Commits</text>
-                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
-                        </g>
-                        <g transform="translate(85, 0)">
-                            <text x="0" y="0" class="base-text stat-label">Issues</text>
-                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
-                        </g>
-                        <g transform="translate(0, 34)">
-                            <text x="0" y="0" class="base-text stat-label">PR Open</text>
-                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
-                        </g>
-                        <g transform="translate(85, 34)">
-                            <text x="0" y="0" class="base-text stat-label">PR Merged</text>
-                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
-                        </g>
-                        <g transform="translate(0, 68)">
-                            <text x="0" y="0" class="base-text stat-label">Reviews</text>
-                            <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
-                        </g>
-                    </g>
-                </svg>
-                """, gradientDefs, GITHUB_LOGO_PATH, tierFontSize, animationStyle, user.getUsername(), tier.name(), user.getTotalScore(), user.getPercentile(), user.getRanking(), formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()), formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()), formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()), formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()), formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount()));
+                        <svg width="350" height="170" viewBox="0 0 350 170" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                %s
+                                <clipPath id="card-clip">
+                                    <rect x="0" y="0" width="350" height="170" rx="12" ry="12"/>
+                                </clipPath>
+                        
+                                <linearGradient id="static-gloss" x1="0%%" y1="0%%" x2="0%%" y2="100%%">
+                                    <stop offset="0%%" style="stop-color:#ffffff;stop-opacity:0.2" />
+                                    <stop offset="100%%" style="stop-color:#ffffff;stop-opacity:0" />
+                                </linearGradient>
+                        
+                                <linearGradient id="soft-shine-gradient" x1="0%%" y1="0%%" x2="100%%" y2="0%%">
+                                    <stop offset="0%%" style="stop-color:#ffffff;stop-opacity:0" />
+                                    <stop offset="50%%" style="stop-color:#ffffff;stop-opacity:0.4" /> 
+                                    <stop offset="100%%" style="stop-color:#ffffff;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                        
+                            <rect x="0" y="0" width="350" height="170" rx="12" ry="12" fill="url(#tierGradient)" />
+                        
+                            <g clip-path="url(#card-clip)">
+                                <path d="%s" fill="white" fill-opacity="0.06" transform="translate(200, -20) scale(9)"/>
+                        
+                                <rect x="0" y="0" width="350" height="85" fill="url(#static-gloss)" />
+                                <rect class="shine-bar" x="0" y="-30" width="200" height="230" fill="url(#soft-shine-gradient)" />
+                            </g>
+                        
+                            <rect x="1" y="1" width="348" height="168" rx="11" ry="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.5"/>
+                        
+                        <style>
+                            .base-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; }
+                            .mono-text { font-family: 'SF Mono', 'Segoe UI Mono', 'Roboto Mono', Menlo, Courier, monospace; }
+                        
+                            .text-shadow { text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4); }
+                            .text-shadow-strong { text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6); }
+                        
+                            .header { font-weight: 600; font-size: 14px; fill: #ffffff; }
+                            .username { font-weight: 500; font-size: 12px; fill: #f0f6fc; opacity: 0.95; }
+                        
+                            .stat-label { font-weight: 600; font-size: 9px; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+                            .stat-value { font-weight: 600; font-size: 13px; fill: #ffffff; }
+                        
+                            .tier-text {
+                                font-weight: 600;
+                                font-size: %dpx;
+                                fill: #ffffff;
+                            }
+                        
+                            .score-text { font-weight: 700; font-size: 20px; fill: #ffffff; opacity: 1; }
+                            .rank-text { font-weight: 500; font-size: 11px; fill: #ffffff; opacity: 0.95; }
+                        
+                            .diff-plus { font-weight: 600; font-size: 12px; fill: #4ADE80; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+                            .diff-minus { font-weight: 600; font-size: 12px; fill: #FF6B6B; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+                        
+                            %s
+                        </style>
+                        
+                            <text x="20" y="28" class="base-text header text-shadow">Git Ranker</text>
+                            <text x="330" y="28" text-anchor="end" class="base-text username text-shadow">@%s</text>
+                            <line x1="20" y1="40" x2="330" y2="40" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4"/>
+                        
+                            <g transform="translate(20, 85)">
+                                <text x="0" y="0" class="base-text tier-text text-shadow-strong">%s</text>
+                                <text x="0" y="30" class="mono-text score-text text-shadow">%s pts</text>
+                                <text x="0" y="52" class="base-text rank-text text-shadow">Top %.2f%% • Rank %s</text>
+                            </g>
+                        
+                            <line x1="165" y1="55" x2="165" y2="155" stroke="#ffffff" stroke-width="1" stroke-opacity="0.3"/>
+                        
+                            <g transform="translate(180, 60)">
+                                <g transform="translate(0, 0)">
+                                    <text x="0" y="0" class="base-text stat-label">Commits</text>
+                                    <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
+                                </g>
+                                <g transform="translate(85, 0)">
+                                    <text x="0" y="0" class="base-text stat-label">Issues</text>
+                                    <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
+                                </g>
+                                <g transform="translate(0, 34)">
+                                    <text x="0" y="0" class="base-text stat-label">PR Open</text>
+                                    <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
+                                </g>
+                                <g transform="translate(85, 34)">
+                                    <text x="0" y="0" class="base-text stat-label">PR Merged</text>
+                                    <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
+                                </g>
+                                <g transform="translate(0, 68)">
+                                    <text x="0" y="0" class="base-text stat-label">Reviews</text>
+                                    <text x="0" y="18" class="mono-text stat-value text-shadow">%s %s</text>
+                                </g>
+                            </g>
+                        </svg>
+                        """,
+                gradientDefs,
+                GITHUB_LOGO_PATH,
+                tierFontSize,
+                animationStyle,
+                user.getUsername(),
+                tierName,
+                formatNumber(user.getTotalScore()),
+                user.getPercentile(),
+                formatNumber(user.getRanking()),
+
+                formatCount(activityLog.getCommitCount()), formatDiff(activityLog.getDiffCommitCount()),
+                formatCount(activityLog.getIssueCount()), formatDiff(activityLog.getDiffIssueCount()),
+                formatCount(activityLog.getPrCount()), formatDiff(activityLog.getDiffPrCount()),
+                formatCount(activityLog.getMergedPrCount()), formatDiff(activityLog.getDiffMergedPrCount()),
+                formatCount(activityLog.getReviewCount()), formatDiff(activityLog.getDiffReviewCount())
+        );
+    }
+
+    private String formatNumber(long number) {
+        return String.format("%,d", number);
     }
 
     private String formatCount(int count) {
@@ -183,54 +204,49 @@ public class BadgeService {
 
         switch (tier) {
             case CHALLENGER -> {
-                color1 = "#09203F"; // Deep Blue
-                color2 = "#1E90FF"; // Bright Blue
-                color3 = "#F4D03F"; // Gold
+                color1 = "#09203F";
+                color2 = "#3B82F6";
+                color3 = "#D4AF37";
             }
             case MASTER -> {
-                color1 = "#3B0B59"; // Deep Purple
-                color2 = "#C633F2"; // Vivid Purple
-                color3 = "#E066FF"; // Light Purple
+                color1 = "#2E1065";
+                color2 = "#7C3AED";
+                color3 = "#F472B6";
             }
             case DIAMOND -> {
-                color1 = "#081549"; // Deep Navy
-                color2 = "#3375FF"; // Diamond Blue
-                color3 = "#63A4FF"; // Light Blue
+                color1 = "#0C4A6E";
+                color2 = "#0284C7";
+                color3 = "#7DD3FC";
             }
             case EMERALD -> {
-                color1 = "#064E3B"; // Dark Green
-                color2 = "#10B981"; // Emerald Green
-                color3 = "#4ADE80"; // Light Lime
+                color1 = "#064E3B";
+                color2 = "#059669";
+                color3 = "#34D399";
             }
             case PLATINUM -> {
-                color1 = "#0F5963"; // Dark Teal
-                color2 = "#00BCD4"; // Cyan
-                color3 = "#5FFBF1"; // Bright Mint
+                color1 = "#1E293B";
+                color2 = "#0F766E";
+                color3 = "#2DD4BF";
             }
             case GOLD -> {
-                color1 = "#8E6310"; // Dark Gold
-                color2 = "#C2971F"; // Pure Gold
-                color3 = "#F4D03F"; // Bright Yellow
+                color1 = "#8E6310";
+                color2 = "#C2971F";
+                color3 = "#F4D03F";
             }
             case SILVER -> {
-                color1 = "#5F6A6A"; // Dark Silver
-                color2 = "#95A5A6"; // Silver
-                color3 = "#C0C0C0"; // Light Silver
+                color1 = "#111827";
+                color2 = "#4B5563";
+                color3 = "#9CA3AF";
             }
             case BRONZE -> {
-                color1 = "#6E2C00"; // Dark Bronze
-                color2 = "#A0522D"; // Bronze
-                color3 = "#E6A57E"; // Light Copper
-            }
-            case IRON -> {
-                color1 = "#2B2D42"; // Gunmetal
-                color2 = "#4F5D75"; // Steel
-                color3 = "#8D99AE"; // Light Steel
+                color1 = "#431407";
+                color2 = "#92400E";
+                color3 = "#D97706";
             }
             default -> {
-                color1 = "#232526";
-                color2 = "#414345";
-                color3 = "#7B7D7E";
+                color1 = "#0F172A";
+                color2 = "#334155";
+                color3 = "#64748B";
             }
         }
 
