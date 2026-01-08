@@ -1,11 +1,15 @@
 package com.gitranker.api.domain.user;
 
+import com.gitranker.api.domain.user.vo.ActivityStatistics;
+import com.gitranker.api.domain.user.vo.RankInfo;
+import com.gitranker.api.domain.user.vo.Score;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,6 +17,9 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
+
+    private static final Duration FULL_SCAN_COOLDOWN = Duration.ofDays(7);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,23 +30,16 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(nullable = false)
-    private int totalScore = 0;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Tier tier = Tier.IRON;
-
-    @Column(nullable = false)
-    private int ranking = 0;
-
-    @Column(nullable = false)
-    private Double percentile = 0.0;
-
     private String profileImage;
 
     @Column(name = "github_created_at")
     private LocalDateTime githubCreatedAt;
+
+    @Embedded
+    private Score score;
+
+    @Embedded
+    private RankInfo rankInfo;
 
     @Column(nullable = false)
     private LocalDateTime lastFullScanAt;
@@ -56,33 +56,47 @@ public class User {
         this.username = username;
         this.profileImage = profileImage;
         this.githubCreatedAt = githubCreatedAt;
+        this.score = Score.zero();
+        this.rankInfo = RankInfo.initial();
         this.lastFullScanAt = LocalDateTime.now();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateUsername(String username) {
-        this.username = username;
+    public void updateActivityStatistics(ActivityStatistics statistics,
+                                         long higherScoreCount,
+                                         long totalUserCount) {
+        this.score = statistics.calculateScore();
+        this.rankInfo = RankInfo.calculate(higherScoreCount, totalUserCount);
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateProfileImage(String profileImage) {
-        if (profileImage != null && !profileImage.equals(this.profileImage)) {
-            this.profileImage = profileImage;
+    public void updateScore(Score newScore) {
+        this.score = newScore;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateRankInfo(RankInfo newRankInfo) {
+        this.rankInfo = newRankInfo;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void changeProfile(String newUsername, String newProfileImage) {
+        boolean changed = false;
+
+        if (newUsername != null && !newUsername.equals(this.username)) {
+            this.username = newUsername;
+            changed = true;
+        }
+
+        if (newProfileImage != null && !newProfileImage.equals(this.profileImage)) {
+            this.profileImage = newProfileImage;
+            changed = true;
+        }
+
+        if (changed) {
             this.updatedAt = LocalDateTime.now();
         }
-    }
-
-    public void updateRankInfo(int ranking, Double percentile, Tier tier) {
-        this.ranking = ranking;
-        this.percentile = percentile;
-        this.tier = tier;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void updateScore(int totalScore) {
-        this.totalScore = totalScore;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public boolean canTriggerFullScan() {
@@ -90,11 +104,44 @@ public class User {
             return true;
         }
 
-        return LocalDateTime.now().minusDays(7).isAfter(this.lastFullScanAt);
+        return LocalDateTime.now().isAfter(this.lastFullScanAt.plus(FULL_SCAN_COOLDOWN));
     }
 
-    public void updateLastFullScanAt() {
+    public LocalDateTime getNextFullScanAvailableAt() {
+        if (this.lastFullScanAt == null) {
+            return LocalDateTime.now();
+        }
+
+        return this.lastFullScanAt.plus(FULL_SCAN_COOLDOWN);
+    }
+
+    public void recordFullScan() {
         this.lastFullScanAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isNewUser() {
+        return this.score.getValue() == 0 && this.rankInfo.getRanking() == 0;
+    }
+
+    public boolean isAtLeast(Tier tier) {
+        return this.rankInfo.getTier().ordinal() <= tier.ordinal();
+    }
+
+    public int getTotalScore() {
+        return score != null ? score.getValue() : 0;
+    }
+
+    public int getRanking() {
+        return rankInfo != null ? rankInfo.getRanking() : 0;
+    }
+
+    public Tier getTier() {
+        return rankInfo != null ? rankInfo.getTier() : Tier.IRON;
+    }
+
+    public double getPercentile() {
+        return rankInfo != null ? rankInfo.getPercentile() : 100.0;
     }
 }
 

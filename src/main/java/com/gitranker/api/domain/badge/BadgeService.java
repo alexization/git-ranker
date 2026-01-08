@@ -5,6 +5,8 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.domain.user.vo.RankInfo;
+import com.gitranker.api.domain.user.vo.Score;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.EventType;
@@ -46,8 +48,8 @@ public class BadgeService {
     @Transactional(readOnly = true)
     public String generateBadgeByTier(Tier tier) {
         User user = User.builder().nodeId("preview").username(tier.toString()).build();
-        user.updateScore(12345);
-        user.updateRankInfo(1, 0.1, tier);
+        user.updateScore(Score.of(12345));
+        user.updateRankInfo(RankInfo.of(1, 0.1));
 
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user).commitCount(150).prCount(30).mergedPrCount(25).issueCount(10).reviewCount(45)

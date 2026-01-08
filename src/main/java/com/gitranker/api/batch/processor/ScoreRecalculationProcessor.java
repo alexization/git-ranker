@@ -4,6 +4,7 @@ import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.domain.user.vo.Score;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
@@ -72,7 +73,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             }
 
             int newScore = finalSummary.calculateTotalScore();
-            user.updateScore(newScore);
+            user.updateScore(Score.of(newScore));
 
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             saveNewActivityLog(user, finalSummary, lastLog);
