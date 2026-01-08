@@ -5,8 +5,8 @@ import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -40,30 +40,13 @@ public class BadgeService {
 
     @Transactional(readOnly = true)
     public String generateBadgeByTier(Tier tier) {
-        User user = User.builder()
-                .nodeId("temp-nodeId")
-                .username(tier.toString())
-                .profileImage(null)
-                .githubCreatedAt(null)
-                .build();
+        User user = User.builder().nodeId("preview").username(tier.toString()).build();
+        user.updateScore(12345);
+        user.updateRankInfo(1, 0.1, tier);
 
         ActivityLog activityLog = ActivityLog.builder()
-                .user(user)
-                .activityDate(null)
-                .commitCount(0)
-                .prCount(0)
-                .mergedPrCount(0)
-                .prCount(0)
-                .mergedPrCount(0)
-                .issueCount(0)
-                .reviewCount(0)
-                .diffCommitCount(0)
-                .diffPrCount(0)
-                .diffMergedPrCount(0)
-                .diffIssueCount(0)
-                .diffReviewCount(0)
-                .build();
-
+                .user(user).commitCount(150).prCount(30).mergedPrCount(25).issueCount(10).reviewCount(45)
+                .diffCommitCount(12).diffPrCount(5).diffMergedPrCount(4).diffIssueCount(2).diffReviewCount(8).build();
         return createSvgContent(user, tier, activityLog);
     }
 
