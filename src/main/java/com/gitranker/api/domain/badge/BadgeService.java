@@ -54,21 +54,22 @@ public class BadgeService {
         String gradientDefs = getTierGradientDefs(tier);
         String tierName = tier.name().charAt(0) + tier.name().substring(1).toLowerCase();
 
-        int tierFontSize = 28;
+        int tierFontSize = 30;
         if (tierName.length() > 9) {
-            tierFontSize = 24;
-        } else if (tierName.length() > 6) {
             tierFontSize = 26;
+        } else if (tierName.length() > 6) {
+            tierFontSize = 28;
         }
 
         String animationStyle = """
                     @keyframes soft-pass {
                         0% { transform: translateX(-400px) skewX(-25deg); }
+                        50% { transform: translateX(-400px) skewX(-35deg); }
                         100% { transform: translateX(500px) skewX(-35deg); }
                     }
                     .shine-bar {
                         animation: soft-pass 5s infinite ease-in-out;
-                        opacity: 0.45;
+                        opacity: 0.20;
                     }
                 """;
 
@@ -113,11 +114,11 @@ public class BadgeService {
                             .header { font-weight: 600; font-size: 14px; fill: #ffffff; }
                             .username { font-weight: 500; font-size: 12px; fill: #f0f6fc; opacity: 0.95; }
                         
-                            .stat-label { font-weight: 600; font-size: 9px; fill: #e6edf3; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+                            .stat-label { font-weight: 600; font-size: 10px; fill: #e6edf3; opacity: 0.9; letter-spacing: 0px; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
                             .stat-value { font-weight: 600; font-size: 13px; fill: #ffffff; }
                         
                             .tier-text {
-                                font-weight: 600;
+                                font-weight: 500;
                                 font-size: %dpx;
                                 fill: #ffffff;
                             }
