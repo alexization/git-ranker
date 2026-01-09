@@ -12,21 +12,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/alexization/git-ranker/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"/>
-  </a>
-  <a href="https://www.java.com/">
-    <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java 21"/>
-  </a>
-  <a href="https://spring.io/projects/spring-boot">
-    <img src="https://img.shields.io/badge/Spring%20Boot-3.4.0-brightgreen.svg" alt="Spring Boot 3.4.0"/>
-  </a>
-  <a href="https://www.git-ranker.com">
-    <img src="https://img.shields.io/badge/Website-git--ranker-blue" alt="Website"/>
-  </a>
-  <a href="https://github.com/alexization/git-ranker/issues">
-    <img src="https://img.shields.io/github/issues/alexization/git-ranker" alt="GitHub Issues"/>
-  </a>
+  <a href="https://www.java.com/"><img src="https://img.shields.io/badge/Java-21-orange.svg?logo=openjdk&logoColor=white" alt="Java 21"/></a>
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.4.0-6DB33F.svg?logo=springboot&logoColor=white" alt="Spring Boot 3.4.0"/></a>
+  <a href="https://www.git-ranker.com"><img src="https://img.shields.io/website?url=https%3A%2F%2Fwww.git-ranker.com&up_message=online&down_message=offline&label=Service%20Status" alt="Service Status"/></a>
+  <a href="https://github.com/alexization/git-ranker"><img src="https://img.shields.io/github/stars/alexization/git-ranker?style=flat&logo=github&color=yellow" alt="GitHub Stars"/></a>
+  <a href="https://github.com/alexization/git-ranker/issues"><img src="https://img.shields.io/github/issues/alexization/git-ranker?logo=github" alt="GitHub Issues"/></a>
+  <a href="https://github.com/alexization/git-ranker"><img src="https://img.shields.io/github/last-commit/alexization/git-ranker?color=red&logo=github" alt="Last Commit"/></a>
 </p>
 
 <p align="center">
