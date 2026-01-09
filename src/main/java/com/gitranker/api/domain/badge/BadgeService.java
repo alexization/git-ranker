@@ -115,21 +115,21 @@ public class BadgeService {
                                 .text-shadow-strong { filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.7)); }
                         
                                 .header { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif; 
+                                    font-family: 'Noto Sans KR', sans-serif; 
                                     font-weight: 700; 
                                     font-size: 12px;
                                     letter-spacing: 0px;
                                 }
                         
                                 .username { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif; 
+                                    font-family: 'Noto Sans KR', sans-serif; 
                                     font-weight: 500; 
                                     font-size: 13px; 
                                     opacity: 0.95; 
                                 }
                         
                                 .stat-label { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+                                    font-family: 'Noto Sans KR', sans-serif;
                                     font-size: 11px; 
                                     opacity: 0.85; 
                                     letter-spacing: 0.5px; 
@@ -137,34 +137,34 @@ public class BadgeService {
                                 }
                         
                                 .stat-value { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif; 
-                                    font-weight: 500; 
+                                    font-family: 'Noto Sans KR', sans-serif; 
+                                    font-weight: 700; 
                                     font-size: 13px; 
                                 }
                         
                                 .tier-text {
-                                    font-family: 'Outfit', sans-serif;
+                                    font-family: 'Noto Sans KR', sans-serif;
                                     font-weight: 500;
                                     font-size: %dpx;
                                     letter-spacing: 0.5px;
                                 }
                         
                                 .score-text { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif;
-                                    font-weight: 500; 
+                                    font-family: 'Noto Sans KR', sans-serif;
+                                    font-weight: 700; 
                                     font-size: 22px; 
                                     letter-spacing: 0px;
                                 }
                         
                                 .rank-text { 
-                                    font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+                                    font-family: 'Noto Sans KR', sans-serif;
                                     font-size: 11px; 
                                     font-weight: 500;
                                     opacity: 0.9; 
                                 }
                         
-                                .diff-plus { fill: #4ADE80; font-weight: 500; font-size: 11px; font-family: 'Outfit', 'Noto Sans KR', sans-serif; }
-                                .diff-minus { fill: #FF6B6B; font-weight: 500; font-size: 11px; font-family: 'Outfit', 'Noto Sans KR', sans-serif; }
+                                .diff-plus { fill: #4ADE80; font-weight: 700; font-size: 11px; font-family: 'Noto Sans KR', sans-serif; }
+                                .diff-minus { fill: #FF6B6B; font-weight: 700; font-size: 11px; font-family: 'Noto Sans KR', sans-serif; }
                                 ]]>
                             </style>
                         
