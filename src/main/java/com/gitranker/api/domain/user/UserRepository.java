@@ -12,11 +12,12 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
     Optional<User> findByNodeId(String nodeId);
 
     Optional<User> findByUsername(String username);
 
-    long countByTotalScoreGreaterThan(int totalScoreIsGreaterThan);
+    long countByScoreValueGreaterThan(int value);
 
     long countByCreatedAtAfter(LocalDateTime dateTime);
 
@@ -48,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """, nativeQuery = true)
     void bulkUpdateRanking();
 
-    Page<User> findAllByOrderByTotalScoreDesc(Pageable pageable);
+    Page<User> findAllByOrderByScoreValueDesc(Pageable pageable);
 
-    Page<User> findAllByTierOrderByTotalScoreDesc(Tier tier, Pageable pageable);
+    Page<User> findAllByRankInfoTierOrderByScoreValueDesc(Tier tier, Pageable pageable);
 }

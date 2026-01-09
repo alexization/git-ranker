@@ -69,7 +69,7 @@ public class UserRefreshService {
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         int newScore = statistics.calculateScore().getValue();
-        long higherScoreCount = userRepository.countByTotalScoreGreaterThan(newScore);
+        long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
         long totalUserCount = userRepository.count();
 
         user.updateActivityStatistics(statistics, higherScoreCount, totalUserCount);

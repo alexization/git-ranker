@@ -17,7 +17,6 @@ import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -96,7 +95,7 @@ public class UserRegistrationService {
                 .githubCreatedAt(githubUserInfo.getGitHubCreatedAt())
                 .build();
 
-        long higherScoreCount = userRepository.countByTotalScoreGreaterThan(totalStats.calculateScore().getValue());
+        long higherScoreCount = userRepository.countByScoreValueGreaterThan(totalStats.calculateScore().getValue());
         long totalUserCount = userRepository.count() + 1;
 
         newUser.updateActivityStatistics(totalStats, higherScoreCount, totalUserCount);

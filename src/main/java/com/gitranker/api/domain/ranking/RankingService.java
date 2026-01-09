@@ -22,7 +22,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
+
     private static final int DEFAULT_PAGE_SIZE = 20;
+
     private final UserRepository userRepository;
     private final TierCalculator tierCalculator;
 
@@ -34,7 +36,7 @@ public class RankingService {
     }
 
     private RankingInfo calculateRanking(int userScore, long totalUserCount) {
-        long higherScoreCount = userRepository.countByTotalScoreGreaterThan(userScore);
+        long higherScoreCount = userRepository.countByScoreValueGreaterThan(userScore);
 
         int ranking = (int) higherScoreCount + 1;
         double percentile = (double) ranking / totalUserCount * 100.0;
@@ -52,9 +54,9 @@ public class RankingService {
         Page<User> userPage;
 
         if (tier == null) {
-            userPage = userRepository.findAllByOrderByTotalScoreDesc(pageable);
+            userPage = userRepository.findAllByOrderByScoreValueDesc(pageable);
         } else {
-            userPage = userRepository.findAllByTierOrderByTotalScoreDesc(tier, pageable);
+            userPage = userRepository.findAllByRankInfoTierOrderByScoreValueDesc(tier, pageable);
         }
 
         List<User> userList = userPage.getContent();
