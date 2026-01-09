@@ -14,11 +14,11 @@ public class ActivityStatistics {
     private final int reviewCount;
 
     private ActivityStatistics(int commitCount, int issueCount, int prOpenedCount, int prMergedCount, int reviewCount) {
-        this.commitCount = validateNonNegative(commitCount, "commitCount");
-        this.issueCount = validateNonNegative(issueCount, "issueCount");
-        this.prOpenedCount = validateNonNegative(prOpenedCount, "prOpenedCount");
-        this.prMergedCount = validateNonNegative(prMergedCount, "prMergedCount");
-        this.reviewCount = validateNonNegative(reviewCount, "reviewCount");
+        this.commitCount = commitCount;
+        this.issueCount = issueCount;
+        this.prOpenedCount = prOpenedCount;
+        this.prMergedCount = prMergedCount;
+        this.reviewCount = reviewCount;
     }
 
     public static ActivityStatistics of(int commitCount, int issueCount, int prOpenedCount, int prMergedCount, int reviewCount) {
@@ -29,8 +29,12 @@ public class ActivityStatistics {
         return new ActivityStatistics(0, 0, 0, 0, 0);
     }
 
+    public static ActivityStatistics zeroDiff() {
+        return new ActivityStatistics(0, 0, 0, 0, 0);
+    }
+
     public Score calculateScore() {
-        return Score.calculate(commitCount, issueCount, prOpenedCount, prMergedCount, reviewCount);
+        return Score.calculate(commitCount, issueCount, reviewCount, prOpenedCount, prMergedCount);
     }
 
     public ActivityStatistics calculateDiff(ActivityStatistics previous) {
@@ -59,14 +63,6 @@ public class ActivityStatistics {
 
     public int totalActivityCount() {
         return commitCount + issueCount + prOpenedCount + prMergedCount + reviewCount;
-    }
-
-    private int validateNonNegative(int value, String fieldName) {
-        if (value < 0) {
-            throw new IllegalArgumentException(fieldName + "은 음수가 될 수 없습니다.: " + value);
-        }
-
-        return value;
     }
 
     @Override

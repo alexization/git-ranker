@@ -38,24 +38,34 @@ public class UserPersistenceService {
         newUser.updateActivityStatistics(totalStats, higherScoreCount, totalUserCount);
         userRepository.save(newUser);
 
-        saveActivityLogs(newUser, totalStats, baselineStats);
+        saveNewUserActivityLogs(newUser, totalStats, baselineStats);
 
         return newUser;
     }
 
     @Transactional
-    public User updateUserStatistics(Long userId, ActivityStatistics statistics) {
+    public User updateUserStatistics(Long userId, ActivityStatistics newStats, ActivityStatistics previousStats) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
-        int newScore = statistics.calculateScore().getValue();
+        int newScore = newStats.calculateScore().getValue();
         long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
         long totalUserCount = userRepository.count();
 
-        user.updateActivityStatistics(statistics, higherScoreCount, totalUserCount);
+        user.updateActivityStatistics(newStats, higherScoreCount, totalUserCount);
         user.recordFullScan();
 
-        activityLogService.saveActivityLog(user, statistics, LocalDate.now());
+        ActivityStatistics diffStats;
+        if (previousStats != null) {
+            diffStats = newStats.calculateDiff(previousStats);
+        } else {
+            diffStats = activityLogService.findLatestLog(user)
+                    .map(activityLogService::toStatistics)
+                    .map(newStats::calculateDiff)
+                    .orElse(ActivityStatistics.zeroDiff());
+        }
+
+        activityLogService.saveActivityLog(user, newStats, diffStats, LocalDate.now());
 
         return user;
     }
@@ -67,14 +77,17 @@ public class UserPersistenceService {
         return userRepository.save(user);
     }
 
-    private void saveActivityLogs(User user,
-                                  ActivityStatistics totalStats,
-                                  ActivityStatistics baselineStats) {
+    private void saveNewUserActivityLogs(User user,
+                                         ActivityStatistics totalStats,
+                                         ActivityStatistics baselineStats) {
+        LocalDate today = LocalDate.now();
+        ActivityStatistics zeroDiff = ActivityStatistics.zeroDiff();
+
         if (baselineStats != null) {
             int lastYear = LocalDate.now().getYear() - 1;
             activityLogService.saveBaselineLog(user, baselineStats, LocalDate.of(lastYear, 12, 31));
         }
 
-        activityLogService.saveActivityLog(user, totalStats, LocalDate.now());
+        activityLogService.saveActivityLog(user, totalStats, zeroDiff, LocalDate.now());
     }
 }

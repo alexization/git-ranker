@@ -29,10 +29,10 @@ public class Score {
 
     public static Score calculate(int commits, int issues, int reviews, int prOpened, int prMerged) {
         int totalScore = (commits * COMMIT_WEIGHT)
-                + (issues * ISSUE_WEIGHT)
-                + (reviews * REVIEW_WEIGHT)
-                + (prOpened * PR_OPENED_WEIGHT)
-                + (prMerged * PR_MERGED_WEIGHT);
+                         + (issues * ISSUE_WEIGHT)
+                         + (reviews * REVIEW_WEIGHT)
+                         + (prOpened * PR_OPENED_WEIGHT)
+                         + (prMerged * PR_MERGED_WEIGHT);
 
         return new Score(totalScore);
     }

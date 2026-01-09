@@ -21,61 +21,28 @@ public class ActivityLogService {
     private final ActivityLogRepository activityLogRepository;
 
     @Transactional
-    public ActivityLog saveActivityLog(User user, ActivityStatistics statistics, LocalDate logDate) {
+    public void saveActivityLog(User user, ActivityStatistics currentStats, ActivityStatistics diffStats, LocalDate logDate) {
         MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
-
-        Optional<ActivityLog> lastLogOpt = findLatestLog(user);
-
-        ActivityStatistics previousStats = lastLogOpt
-                .map(this::toStatistics)
-                .orElse(ActivityStatistics.empty());
-
-        ActivityStatistics diff = statistics.calculateDiff(previousStats);
 
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user)
                 .activityDate(logDate)
-                .commitCount(statistics.getCommitCount())
-                .issueCount(statistics.getIssueCount())
-                .prCount(statistics.getPrOpenedCount())
-                .mergedPrCount(statistics.getPrMergedCount())
-                .reviewCount(statistics.getReviewCount())
-                .diffCommitCount(diff.getCommitCount())
-                .diffIssueCount(diff.getIssueCount())
-                .diffPrCount(diff.getPrOpenedCount())
-                .diffMergedPrCount(diff.getPrMergedCount())
-                .diffReviewCount(diff.getReviewCount())
+                .commitCount(currentStats.getCommitCount())
+                .issueCount(currentStats.getIssueCount())
+                .prCount(currentStats.getPrOpenedCount())
+                .mergedPrCount(currentStats.getPrMergedCount())
+                .reviewCount(currentStats.getReviewCount())
+                .diffCommitCount(diffStats.getCommitCount())
+                .diffIssueCount(diffStats.getIssueCount())
+                .diffPrCount(diffStats.getPrOpenedCount())
+                .diffMergedPrCount(diffStats.getPrMergedCount())
+                .diffReviewCount(diffStats.getReviewCount())
                 .build();
 
         activityLogRepository.save(activityLog);
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("활동 로그 저장 완료 - 사용자: {}, 일자: {}", user.getUsername(), logDate);
-
-        return activityLog;
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<ActivityLog> findLatestLog(User user) {
-        ActivityLog log = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-
-        return Optional.ofNullable(log);
-    }
-
-    public ActivityStatistics toStatistics(ActivityLog log) {
-        return ActivityStatistics.of(
-                log.getCommitCount(),
-                log.getIssueCount(),
-                log.getPrCount(),
-                log.getPrCount(),
-                log.getReviewCount()
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public ActivityLog getLatestLog(User user) {
-        return findLatestLog(user)
-                .orElseThrow(() -> new IllegalArgumentException("활동 로그가 없습니다."));
     }
 
     @Transactional
@@ -98,5 +65,28 @@ public class ActivityLogService {
         activityLogRepository.save(baselineLog);
 
         log.debug("베이스라인 로그 저장 - 사용자: {}, 기준일: {}", user.getUsername(), baselineDate);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ActivityLog> findLatestLog(User user) {
+        ActivityLog log = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        return Optional.ofNullable(log);
+    }
+
+    @Transactional(readOnly = true)
+    public ActivityLog getLatestLog(User user) {
+        return findLatestLog(user)
+                .orElseThrow(() -> new IllegalArgumentException("활동 로그가 없습니다."));
+    }
+
+    public ActivityStatistics toStatistics(ActivityLog log) {
+        return ActivityStatistics.of(
+                log.getCommitCount(),
+                log.getIssueCount(),
+                log.getPrCount(),
+                log.getMergedPrCount(),
+                log.getReviewCount()
+        );
     }
 }
