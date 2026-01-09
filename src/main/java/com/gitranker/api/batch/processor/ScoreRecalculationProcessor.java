@@ -4,9 +4,10 @@ import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.domain.user.vo.Score;
-import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.logging.EventType;
@@ -51,7 +52,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             int currentYear = LocalDate.now().getYear();
             LocalDate startOfThisYear = LocalDate.of(currentYear, 1, 1);
 
-            GitHubActivitySummary finalSummary;
+            ActivityStatistics finalStatistics;
 
             ActivityLog pastLog =
                     activityLogRepository.findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(user, startOfThisYear)
@@ -61,28 +62,31 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
                 GitHubActivitySummary currentYearSummary =
                         activityService.collectActivityForYear(user.getUsername(), currentYear);
 
-                finalSummary = mergeSummary(pastLog, currentYearSummary);
+                finalStatistics = mergeWithPastLog(pastLog, currentYearSummary);
 
                 log.info("증분 업데이트 적용 - 사용자: {}", user.getUsername());
             } else {
                 GitHubAllActivitiesResponse finalResponse =
                         activityService.fetchRawAllActivities(user.getUsername(), user.getGithubCreatedAt());
-                finalSummary = activityService.convertToSummary(finalResponse);
+
+                finalStatistics = activityService.convertToSummary(finalResponse)
+                        .toActivityStatistics();
 
                 log.info("전체 업데이트 수행 - 사용자: {}", user.getUsername());
             }
 
-            int newScore = finalSummary.calculateTotalScore();
-            user.updateScore(Score.of(newScore));
+            Score newScore = finalStatistics.calculateScore();
+            user.updateScore(newScore);
 
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-            saveNewActivityLog(user, finalSummary, lastLog);
+            saveNewActivityLog(user, finalStatistics, lastLog);
 
             int cost = Integer.parseInt(MdcUtils.getGithubApiCost());
             addCostToJobContext(cost);
 
             MdcUtils.setEventType(EventType.SUCCESS);
-            log.info("점수 갱신 완료 - 사용자: {}, 변동: {}", user.getUsername(), (newScore - oldScore));
+            log.info("점수 갱신 완료 - 사용자: {}, 변동: {}",
+                    user.getUsername(), newScore.differenceFrom(Score.of(oldScore)));
 
             return user;
 
@@ -107,37 +111,42 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         }
     }
 
-    private GitHubActivitySummary mergeSummary(ActivityLog past, GitHubActivitySummary current) {
-        return new GitHubActivitySummary(
+    private ActivityStatistics mergeWithPastLog(ActivityLog past, GitHubActivitySummary current) {
+        return ActivityStatistics.of(
                 past.getCommitCount() + current.totalCommitCount(),
+                past.getIssueCount() + current.totalIssueCount(),
                 past.getPrCount() + current.totalPrOpenedCount(),
                 current.totalPrMergedCount(),
-                past.getIssueCount() + current.totalIssueCount(),
                 past.getReviewCount() + current.totalReviewCount()
         );
     }
 
-    private void saveNewActivityLog(User user, GitHubActivitySummary current, ActivityLog last) {
+    private void saveNewActivityLog(User user, ActivityStatistics current, ActivityLog last) {
 
-        int lastCommit = last != null ? last.getCommitCount() : 0;
-        int lastIssue = last != null ? last.getIssueCount() : 0;
-        int lastPr = last != null ? last.getPrCount() : 0;
-        int lastMerged = last != null ? last.getMergedPrCount() : 0;
-        int lastReview = last != null ? last.getReviewCount() : 0;
+        ActivityStatistics previous = (last != null)
+                ? ActivityStatistics.of(
+                last.getCommitCount(),
+                last.getIssueCount(),
+                last.getPrCount(),
+                last.getMergedPrCount(),
+                last.getReviewCount()
+        ) : ActivityStatistics.empty();
+
+        ActivityStatistics diff = current.calculateDiff(previous);
 
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user)
                 .activityDate(LocalDate.now())
-                .commitCount(current.totalCommitCount())
-                .issueCount(current.totalIssueCount())
-                .prCount(current.totalPrOpenedCount())
-                .mergedPrCount(current.totalPrMergedCount())
-                .reviewCount(current.totalReviewCount())
-                .diffCommitCount(current.totalCommitCount() - lastCommit)
-                .diffIssueCount(current.totalIssueCount() - lastIssue)
-                .diffPrCount(current.totalPrOpenedCount() - lastPr)
-                .diffMergedPrCount(current.totalPrMergedCount() - lastMerged)
-                .diffReviewCount(current.totalReviewCount() - lastReview)
+                .commitCount(current.getCommitCount())
+                .issueCount(current.getIssueCount())
+                .prCount(current.getPrOpenedCount())
+                .mergedPrCount(current.getPrMergedCount())
+                .reviewCount(current.getReviewCount())
+                .diffCommitCount(diff.getCommitCount())
+                .diffIssueCount(diff.getIssueCount())
+                .diffPrCount(diff.getPrOpenedCount())
+                .diffMergedPrCount(diff.getPrMergedCount())
+                .diffReviewCount(diff.getReviewCount())
                 .build();
 
         activityLogRepository.save(activityLog);

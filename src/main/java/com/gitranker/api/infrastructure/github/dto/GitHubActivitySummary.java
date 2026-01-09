@@ -1,6 +1,8 @@
 package com.gitranker.api.infrastructure.github.dto;
 
 
+import com.gitranker.api.domain.user.vo.ActivityStatistics;
+
 public record GitHubActivitySummary(
         int totalCommitCount,
         int totalPrOpenedCount,
@@ -8,11 +10,13 @@ public record GitHubActivitySummary(
         int totalIssueCount,
         int totalReviewCount
 ) {
-    public int calculateTotalScore() {
-        return (totalCommitCount)
-                + (totalIssueCount * 2)
-                + (totalReviewCount * 3)
-                + (totalPrOpenedCount * 5)
-                + (totalPrMergedCount * 10);
+    public ActivityStatistics toActivityStatistics() {
+        return ActivityStatistics.of(
+                totalCommitCount,
+                totalIssueCount,
+                totalPrOpenedCount,
+                totalPrMergedCount,
+                totalReviewCount
+        );
     }
 }
