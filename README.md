@@ -292,7 +292,7 @@ Git Ranker는 오픈소스 프로젝트입니다. 여러분의 기여를 환영�
 
 보안 관련 이슈는 공개 이슈로 등록하지 마시고, 아래 이메일로 직접 연락 주세요.
 
-📧 **alexizationy@gmail.com**
+📧 **alexization@gmail.com**
 
 ### 일반 문의 및 토론
 
@@ -348,7 +348,7 @@ in the Software without restriction...
 
 - **Website**: [git-ranker.com](https://www.git-ranker.com)
 - **GitHub**: [@alexization](https://github.com/alexization)
-- **Email**: alexizationy@gmail.com
+- **Email**: alexization@gmail.com
 
 ---
 
