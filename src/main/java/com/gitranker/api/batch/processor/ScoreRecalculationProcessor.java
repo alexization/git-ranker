@@ -56,7 +56,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
             ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
             ActivityStatistics previousStats = (lastLog != null)
-                    ? activityLogService.toStatistics(lastLog)
+                    ? lastLog.toStatistics()
                     : ActivityStatistics.empty();
 
             ActivityStatistics newStats;

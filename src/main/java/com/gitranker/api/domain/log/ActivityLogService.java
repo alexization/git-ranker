@@ -24,20 +24,7 @@ public class ActivityLogService {
     public void saveActivityLog(User user, ActivityStatistics currentStats, ActivityStatistics diffStats, LocalDate logDate) {
         MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
 
-        ActivityLog activityLog = ActivityLog.builder()
-                .user(user)
-                .activityDate(logDate)
-                .commitCount(currentStats.getCommitCount())
-                .issueCount(currentStats.getIssueCount())
-                .prCount(currentStats.getPrOpenedCount())
-                .mergedPrCount(currentStats.getPrMergedCount())
-                .reviewCount(currentStats.getReviewCount())
-                .diffCommitCount(diffStats.getCommitCount())
-                .diffIssueCount(diffStats.getIssueCount())
-                .diffPrCount(diffStats.getPrOpenedCount())
-                .diffMergedPrCount(diffStats.getPrMergedCount())
-                .diffReviewCount(diffStats.getReviewCount())
-                .build();
+        ActivityLog activityLog = ActivityLog.of(user, currentStats, diffStats, logDate);
 
         activityLogRepository.save(activityLog);
 
@@ -47,20 +34,8 @@ public class ActivityLogService {
 
     @Transactional
     public void saveBaselineLog(User user, ActivityStatistics baselineStats, LocalDate baselineDate) {
-        ActivityLog baselineLog = ActivityLog.builder()
-                .user(user)
-                .activityDate(baselineDate)
-                .commitCount(baselineStats.getCommitCount())
-                .issueCount(baselineStats.getIssueCount())
-                .prCount(baselineStats.getPrOpenedCount())
-                .mergedPrCount(baselineStats.getPrMergedCount())
-                .reviewCount(baselineStats.getReviewCount())
-                .diffCommitCount(0)
-                .diffIssueCount(0)
-                .diffPrCount(0)
-                .diffMergedPrCount(0)
-                .diffReviewCount(0)
-                .build();
+
+        ActivityLog baselineLog = ActivityLog.baseline(user, baselineStats, baselineDate);
 
         activityLogRepository.save(baselineLog);
 
@@ -78,15 +53,5 @@ public class ActivityLogService {
     public ActivityLog getLatestLog(User user) {
         return findLatestLog(user)
                 .orElseThrow(() -> new IllegalArgumentException("활동 로그가 없습니다."));
-    }
-
-    public ActivityStatistics toStatistics(ActivityLog log) {
-        return ActivityStatistics.of(
-                log.getCommitCount(),
-                log.getIssueCount(),
-                log.getPrCount(),
-                log.getMergedPrCount(),
-                log.getReviewCount()
-        );
     }
 }

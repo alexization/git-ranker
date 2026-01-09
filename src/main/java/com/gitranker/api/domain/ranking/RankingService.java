@@ -1,6 +1,5 @@
 package com.gitranker.api.domain.ranking;
 
-import com.gitranker.api.domain.ranking.dto.RankingInfo;
 import com.gitranker.api.domain.ranking.dto.RankingList;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
@@ -26,25 +25,6 @@ public class RankingService {
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     private final UserRepository userRepository;
-    private final TierCalculator tierCalculator;
-
-    @Transactional(readOnly = true)
-    public RankingInfo calculateRankingForNewUser(int userScore) {
-        long totalUserCount = userRepository.count();
-
-        return calculateRanking(userScore, totalUserCount);
-    }
-
-    private RankingInfo calculateRanking(int userScore, long totalUserCount) {
-        long higherScoreCount = userRepository.countByScoreValueGreaterThan(userScore);
-
-        int ranking = (int) higherScoreCount + 1;
-        double percentile = (double) ranking / totalUserCount * 100.0;
-
-        Tier tier = tierCalculator.calculateTier(percentile);
-
-        return new RankingInfo(ranking, percentile, tier);
-    }
 
     @Transactional(readOnly = true)
     public RankingList getRankingList(int page, Tier tier) {

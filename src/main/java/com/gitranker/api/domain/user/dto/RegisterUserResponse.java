@@ -54,26 +54,4 @@ public record RegisterUserResponse(
                 isNewUser
         );
     }
-
-    public static RegisterUserResponse register(User user, ActivityLog latestLog, boolean isNewUser) {
-        return new RegisterUserResponse(
-                user.getId(),
-                user.getNodeId(),
-                user.getUsername(),
-                user.getProfileImage(),
-                user.getUpdatedAt(),
-                user.getLastFullScanAt(),
-                user.getTotalScore(),
-                user.getRanking(),
-                user.getTier(),
-                user.getPercentile(),
-                latestLog.getCommitCount(),
-                latestLog.getIssueCount(),
-                latestLog.getPrCount(),
-                latestLog.getMergedPrCount(),
-                latestLog.getReviewCount(),
-                0, 0, 0, 0, 0,
-                isNewUser
-        );
-    }
 }

@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.user.service;
 
+import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
@@ -60,7 +61,7 @@ public class UserPersistenceService {
             diffStats = newStats.calculateDiff(previousStats);
         } else {
             diffStats = activityLogService.findLatestLog(user)
-                    .map(activityLogService::toStatistics)
+                    .map(ActivityLog::toStatistics)
                     .map(newStats::calculateDiff)
                     .orElse(ActivityStatistics.zeroDiff());
         }
@@ -84,10 +85,10 @@ public class UserPersistenceService {
         ActivityStatistics zeroDiff = ActivityStatistics.zeroDiff();
 
         if (baselineStats != null) {
-            int lastYear = LocalDate.now().getYear() - 1;
+            int lastYear = today.getYear() - 1;
             activityLogService.saveBaselineLog(user, baselineStats, LocalDate.of(lastYear, 12, 31));
         }
 
-        activityLogService.saveActivityLog(user, totalStats, zeroDiff, LocalDate.now());
+        activityLogService.saveActivityLog(user, totalStats, zeroDiff, today);
     }
 }

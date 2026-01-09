@@ -49,7 +49,7 @@ public class UserRefreshService {
         log.debug("수동 전체 갱신 시작 - 사용자: {}", username);
 
         ActivityStatistics previousStats = activityLogService.findLatestLog(user)
-                .map(activityLogService::toStatistics)
+                .map(ActivityLog::toStatistics)
                 .orElse(ActivityStatistics.empty());
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService

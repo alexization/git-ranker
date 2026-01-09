@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.log;
 
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -69,5 +70,59 @@ public class ActivityLog {
         this.diffMergedPrCount = diffMergedPrCount;
         this.diffIssueCount = diffIssueCount;
         this.diffReviewCount = diffReviewCount;
+    }
+
+    public static ActivityLog of(User user, ActivityStatistics stats, ActivityStatistics diff, LocalDate date) {
+        return ActivityLog.builder()
+                .user(user)
+                .activityDate(date)
+                .commitCount(stats.getCommitCount())
+                .issueCount(stats.getIssueCount())
+                .prCount(stats.getPrOpenedCount())
+                .mergedPrCount(stats.getPrMergedCount())
+                .reviewCount(stats.getReviewCount())
+                .diffCommitCount(diff.getCommitCount())
+                .diffIssueCount(diff.getIssueCount())
+                .diffPrCount(diff.getPrOpenedCount())
+                .diffMergedPrCount(diff.getPrMergedCount())
+                .diffReviewCount(diff.getReviewCount())
+                .build();
+    }
+
+    public static ActivityLog baseline(User user, ActivityStatistics stats, LocalDate date) {
+        return ActivityLog.builder()
+                .user(user)
+                .activityDate(date)
+                .commitCount(stats.getCommitCount())
+                .issueCount(stats.getIssueCount())
+                .prCount(stats.getPrOpenedCount())
+                .mergedPrCount(stats.getPrMergedCount())
+                .reviewCount(stats.getReviewCount())
+                .diffCommitCount(0)
+                .diffIssueCount(0)
+                .diffPrCount(0)
+                .diffMergedPrCount(0)
+                .diffReviewCount(0)
+                .build();
+    }
+
+    public static ActivityLog empty(User user, LocalDate date) {
+        return ActivityLog.builder()
+                .user(user)
+                .activityDate(date)
+                .commitCount(0).issueCount(0).prCount(0).mergedPrCount(0).reviewCount(0)
+                .diffCommitCount(0).diffIssueCount(0).diffPrCount(0)
+                .diffMergedPrCount(0).diffReviewCount(0)
+                .build();
+    }
+
+    public ActivityStatistics toStatistics() {
+        return ActivityStatistics.of(
+                this.commitCount,
+                this.issueCount,
+                this.prCount,
+                this.mergedPrCount,
+                this.reviewCount
+        );
     }
 }

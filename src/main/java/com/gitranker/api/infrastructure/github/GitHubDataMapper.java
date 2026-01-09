@@ -1,7 +1,6 @@
 package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
-import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse.YearData;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-import static com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse.*;
+import static com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse.ContributionsCollection;
 
 @Slf4j
 @Component
@@ -26,20 +25,6 @@ public class GitHubDataMapper {
                 response.getPRCount(),
                 response.getMergedPRCount(),
                 response.getReviewCount()
-        );
-    }
-
-    public ActivityStatistics toActivityStatisctics(GitHubActivitySummary summary) {
-        if (summary == null) {
-            return ActivityStatistics.empty();
-        }
-
-        return ActivityStatistics.of(
-                summary.totalCommitCount(),
-                summary.totalIssueCount(),
-                summary.totalPrOpenedCount(),
-                summary.totalPrMergedCount(),
-                summary.totalReviewCount()
         );
     }
 
