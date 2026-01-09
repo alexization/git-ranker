@@ -17,7 +17,6 @@ import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -28,6 +27,7 @@ import java.util.Optional;
 public class UserRegistrationService {
 
     private final UserRepository userRepository;
+    private final UserPersistenceService userPersistenceService;
     private final ActivityLogService activityLogService;
     private final GitHubGraphQLClient gitHubGraphQLClient;
     private final GitHubActivityService gitHubActivityService;
@@ -68,16 +68,9 @@ public class UserRegistrationService {
                 .fetchRawAllActivities(username, githubUserInfo.getGitHubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
+        ActivityStatistics baselineStats = calculateBaselineStats(githubUserInfo, rawResponse);
 
-        int currentYear = LocalDate.now().getYear();
-        int lastYear = currentYear - 1;
-        ActivityStatistics baselineStats = null;
-
-        if (githubUserInfo.getGitHubCreatedAt().getYear() < currentYear) {
-            baselineStats = gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
-        }
-
-        User savedUser = saveNewUser(githubUserInfo, totalStats, baselineStats);
+        User savedUser = userPersistenceService.saveNewUser(githubUserInfo, totalStats, baselineStats);
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("신규 사용자 등록 완료 - 사용자: {}, 점수: {}, 티어: {}",
@@ -86,46 +79,29 @@ public class UserRegistrationService {
         return createResponse(savedUser, true);
     }
 
-    @Transactional
-    protected User saveNewUser(GitHubUserInfoResponse githubUserInfo, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
-        User newUser = User.builder()
-                .nodeId(githubUserInfo.getNodeId())
-                .username(githubUserInfo.getLogin())
-                .profileImage(githubUserInfo.getAvatarUrl())
-                .githubCreatedAt(githubUserInfo.getGitHubCreatedAt())
-                .build();
-
-        long higherScoreCount = userRepository.countByScoreValueGreaterThan(totalStats.calculateScore().getValue());
-        long totalUserCount = userRepository.count() + 1;
-
-        newUser.updateActivityStatistics(totalStats, higherScoreCount, totalUserCount);
-
-        userRepository.save(newUser);
-
-        if (baselineStats != null) {
-            int lastYear = LocalDate.now().getYear() - 1;
-            activityLogService.saveBaselineLog(newUser, baselineStats, LocalDate.of(lastYear, 12, 31));
-        }
-
-        activityLogService.saveActivityLog(newUser, totalStats, LocalDate.now());
-
-        return newUser;
-    }
-
-    @Transactional
-    protected RegisterUserResponse handleExistingUserWithChangedProfile(User existingUser, GitHubUserInfoResponse githubUserInfo) {
+    private RegisterUserResponse handleExistingUserWithChangedProfile(User existingUser, GitHubUserInfoResponse githubUserInfo) {
         String oldUsername = existingUser.getUsername();
         String newUsername = githubUserInfo.getLogin();
 
         log.info("사용자 닉네임 변경 감지 - 기존: {}, 신규: {}", oldUsername, newUsername);
 
-        existingUser.changeProfile(newUsername, githubUserInfo.getAvatarUrl());
-        userRepository.save(existingUser);
+        User updatedUser = userPersistenceService.updateProfile(existingUser, newUsername, githubUserInfo.getAvatarUrl());
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("사용자 프로필 업데이트 완료 - 사용자: {}", newUsername);
 
-        return createResponse(existingUser, false);
+        return createResponse(updatedUser, false);
+    }
+
+    private ActivityStatistics calculateBaselineStats(GitHubUserInfoResponse githubUserInfo, GitHubAllActivitiesResponse rawResponse) {
+        int currentYear = LocalDate.now().getYear();
+
+        if (githubUserInfo.getGitHubCreatedAt().getYear() < currentYear) {
+            int lastYear = currentYear - 1;
+            return gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
+        }
+
+        return null;
     }
 
     private RegisterUserResponse createResponse(User user, boolean isNewUser) {

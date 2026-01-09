@@ -17,9 +17,6 @@ import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -27,7 +24,8 @@ import java.time.LocalDate;
 public class UserRefreshService {
 
     private final UserRepository userRepository;
-    private final ActivityLogService  activityLogService;
+    private final UserPersistenceService userPersistenceService;
+    private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
 
@@ -55,31 +53,12 @@ public class UserRefreshService {
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
 
-        User updatedUser = updateUserData(user.getId(), totalStats);
+        User updatedUser = userPersistenceService.updateUserStatistics(user.getId(), totalStats);
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("수동 전체 갱신 완료 - 사용자: {}, 신규 점수: {}", username, updatedUser.getTotalScore());
 
         return createResponse(updatedUser);
-    }
-
-    @Transactional
-    protected User updateUserData(Long userId, ActivityStatistics statistics) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
-
-        int newScore = statistics.calculateScore().getValue();
-        long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
-        long totalUserCount = userRepository.count();
-
-        user.updateActivityStatistics(statistics, higherScoreCount, totalUserCount);
-        user.recordFullScan();
-
-        userRepository.save(user);
-
-        activityLogService.saveActivityLog(user, statistics, LocalDate.now());
-
-        return user;
     }
 
     private RegisterUserResponse createResponse(User user) {
