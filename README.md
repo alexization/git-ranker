@@ -81,9 +81,7 @@ GitHub 프로필 README에 삽입할 수 있는 **실시간 SVG 배지**를 제�
 
 Git Ranker는 GitHub의 5가지 핵심 활동에 대해 **근거 기반의 차등 가중치**를 적용합니다.
 
-$$
-\text{Total Score} = \sum (Commits \times 1) + (Issues \times 2) + (Reviews \times 5) + (Pr_O \times 5) + (Pr_M \times 8)
-$$
+$$ \text{Total Score} = \sum (Commits \times 1) + (Issues \times 2) + (Reviews \times 5) + (Pr_O \times 5) + (Pr_M \times 8) $$
 
 | 활동 유형 | 가중치 | 점수/건 | 설명 |
 |:--------:|:------:|:------:|:-----|
