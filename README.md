@@ -29,6 +29,7 @@
   <a href="#-badge">Badge</a> •
   <a href="#-data-refresh">Data Refresh</a> •
   <a href="#-contributing">Contributing</a> •
+  <a href="#-roadmap">Roadmap</a> •
   <a href="#-faq">FAQ</a> •
   <a href="#-license">License</a> •
   <a href="#-contact">Contact</a>
