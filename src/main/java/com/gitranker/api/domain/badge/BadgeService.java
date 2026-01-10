@@ -49,7 +49,7 @@ public class BadgeService {
     public String generateBadgeByTier(Tier tier) {
         User user = User.builder().nodeId("preview").username(tier.toString()).build();
         user.updateScore(Score.of(12345));
-        user.updateRankInfo(RankInfo.of(1, 0.1));
+        user.updateRankInfo(RankInfo.of(1, 0.1, 12345));
 
         ActivityLog activityLog = ActivityLog.builder()
                 .user(user).commitCount(150).prCount(30).mergedPrCount(25).issueCount(10).reviewCount(45)

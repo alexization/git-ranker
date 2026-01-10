@@ -18,12 +18,14 @@ public class RankInfo {
 
     private static final double CHALLENGER_THRESHOLD = 1.0;
     private static final double MASTER_THRESHOLD = 5.0;
-    private static final double DIAMOND_THRESHOLD = 10.0;
+    private static final double DIAMOND_THRESHOLD = 12.0;
     private static final double EMERALD_THRESHOLD = 25.0;
-    private static final double PLATINUM_THRESHOLD = 40.0;
-    private static final double GOLD_THRESHOLD = 55.0;
-    private static final double SILVER_THRESHOLD = 70.0;
-    private static final double BRONZE_THRESHOLD = 90.0;
+    private static final double PLATINUM_THRESHOLD = 45.0;
+
+    private static final int MIN_HIGH_TIER_SCORE = 2000;
+    private static final int GOLD_SCORE = 1500;
+    private static final int SILVER_SCORE = 1000;
+    private static final int BRONZE_SCORE = 500;
 
     @Column(name = "ranking", nullable = false)
     private int ranking;
@@ -43,13 +45,13 @@ public class RankInfo {
         this.tier = tier;
     }
 
-    public static RankInfo of(int ranking, double percentile) {
-        Tier tier = calculateTier(percentile);
+    public static RankInfo of(int ranking, double percentile, int totalScore) {
+        Tier tier = calculateTier(percentile, totalScore);
 
         return new RankInfo(ranking, percentile, tier);
     }
 
-    public static RankInfo calculate(long higherScoreCount, long totalUserCount) {
+    public static RankInfo calculate(long higherScoreCount, long totalUserCount, int totalScore) {
         if (totalUserCount == 0) {
             return initial();
         }
@@ -57,22 +59,25 @@ public class RankInfo {
         int ranking = (int) higherScoreCount + 1;
         double percentile = (double) ranking / totalUserCount * 100.0;
 
-        return of(ranking, percentile);
+        return of(ranking, percentile, totalScore);
     }
 
     public static RankInfo initial() {
         return new RankInfo(0, 100.0, Tier.IRON);
     }
 
-    private static Tier calculateTier(double percentile) {
-        if (percentile <= CHALLENGER_THRESHOLD) return Tier.CHALLENGER;
-        if (percentile <= MASTER_THRESHOLD) return Tier.MASTER;
-        if (percentile <= DIAMOND_THRESHOLD) return Tier.DIAMOND;
-        if (percentile <= EMERALD_THRESHOLD) return Tier.EMERALD;
-        if (percentile <= PLATINUM_THRESHOLD) return Tier.PLATINUM;
-        if (percentile <= GOLD_THRESHOLD) return Tier.GOLD;
-        if (percentile <= SILVER_THRESHOLD) return Tier.SILVER;
-        if (percentile <= BRONZE_THRESHOLD) return Tier.BRONZE;
+    private static Tier calculateTier(double percentile, int totalScore) {
+        if (totalScore >= MIN_HIGH_TIER_SCORE) {
+            if (percentile <= CHALLENGER_THRESHOLD) return Tier.CHALLENGER;
+            if (percentile <= MASTER_THRESHOLD) return Tier.MASTER;
+            if (percentile <= DIAMOND_THRESHOLD) return Tier.DIAMOND;
+            if (percentile <= EMERALD_THRESHOLD) return Tier.EMERALD;
+            if (percentile <= PLATINUM_THRESHOLD) return Tier.PLATINUM;
+        }
+
+        if (totalScore >= GOLD_SCORE) return Tier.GOLD;
+        if (totalScore >= SILVER_SCORE) return Tier.SILVER;
+        if (totalScore >= BRONZE_SCORE) return Tier.BRONZE;
 
         return Tier.IRON;
     }

@@ -15,9 +15,9 @@ public class Score {
 
     private static final int COMMIT_WEIGHT = 1;
     private static final int ISSUE_WEIGHT = 2;
-    private static final int REVIEW_WEIGHT = 3;
+    private static final int REVIEW_WEIGHT = 5;
     private static final int PR_OPENED_WEIGHT = 5;
-    private static final int PR_MERGED_WEIGHT = 10;
+    private static final int PR_MERGED_WEIGHT = 8;
 
     @Column(name = "total_score", nullable = false)
     private int value;

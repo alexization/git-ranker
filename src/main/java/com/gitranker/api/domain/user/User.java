@@ -67,7 +67,7 @@ public class User {
                                          long higherScoreCount,
                                          long totalUserCount) {
         this.score = statistics.calculateScore();
-        this.rankInfo = RankInfo.calculate(higherScoreCount, totalUserCount);
+        this.rankInfo = RankInfo.calculate(higherScoreCount, totalUserCount, this.score.getValue());
         this.updatedAt = LocalDateTime.now();
     }
 
