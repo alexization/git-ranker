@@ -1,0 +1,356 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: System Health
+    folder: Git Ranker Alerts
+    interval: 1m
+    rules:
+      - uid: high-error-rate
+        title: High Error Rate (5xx)
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(http_server_requests_seconds_count{application="git-ranker-api", status=~"5.."}[5m])) or vector(0)
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(http_server_requests_seconds_count{application="git-ranker-api"}[5m])) or vector(0.001)
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 1
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: ($A / $B) * 100
+              type: math
+        dashboardUid: git-ranker-ops
+        panelId: 2
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: Error rate is above 1%
+          description: "Current error rate: {{ $values.C }}%"
+        labels:
+          severity: critical
+
+      - uid: high-latency-p99
+        title: High Latency (P99 > 3s)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application="git-ranker-api"}[5m])) by (le)) * 1000
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-ops
+        panelId: 3
+        noDataState: OK
+        execErrState: Error
+        for: 3m
+        annotations:
+          summary: P99 latency is above 3 seconds
+          description: "Current P99 latency: {{ $values.A }}ms"
+        labels:
+          severity: warning
+
+      - uid: service-down
+        title: Service Unavailable
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: up{job="spring-actuator"} == 0
+              intervalMs: 1000
+              maxDataPoints: 43200
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 1m
+        annotations:
+          summary: Git Ranker API service is down
+          description: "The application is not responding to health checks"
+        labels:
+          severity: critical
+
+  - orgId: 1
+    name: JVM Resources
+    folder: Git Ranker Alerts
+    interval: 1m
+    rules:
+      - uid: high-heap-memory
+        title: High JVM Heap Memory Usage
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: (sum(jvm_memory_used_bytes{application="git-ranker-api", area="heap"}) / sum(jvm_memory_max_bytes{application="git-ranker-api", area="heap"})) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-system-metrics
+        panelId: 4
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: JVM Heap memory usage is above 85%
+          description: "Current heap usage: {{ $values.A }}%"
+        labels:
+          severity: warning
+
+      - uid: high-cpu-usage
+        title: High CPU Usage
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: process_cpu_usage{application="git-ranker-api"} * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-system-metrics
+        panelId: 3
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: Process CPU usage is above 80%
+          description: "Current CPU usage: {{ $values.A }}%"
+        labels:
+          severity: warning
+
+      - uid: high-thread-count
+        title: High JVM Thread Count
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: jvm_threads_live_threads{application="git-ranker-api"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-system-metrics
+        panelId: 5
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: JVM thread count is unusually high
+          description: "Current thread count: {{ $values.A }}"
+        labels:
+          severity: warning
+
+  - orgId: 1
+    name: Database Health
+    folder: Git Ranker Alerts
+    interval: 1m
+    rules:
+      - uid: db-connection-pool-exhausted
+        title: Database Connection Pool Near Exhaustion
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: hikaricp_connections_active{application="git-ranker-api"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: hikaricp_connections_max{application="git-ranker-api"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 80
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: ($A / $B) * 100
+              type: math
+        dashboardUid: git-ranker-system-metrics
+        panelId: 41
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: Database connection pool is near exhaustion (>80%)
+          description: "Active connections: {{ $values.A }}, Max: {{ $values.B }}"
+        labels:
+          severity: critical
+
+      - uid: db-pending-connections
+        title: Database Connections Pending
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: hikaricp_connections_pending{application="git-ranker-api"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-system-metrics
+        panelId: 41
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: Database connections are pending (waiting for available connection)
+          description: "Pending connections: {{ $values.A }}"
+        labels:
+          severity: warning
+
+  - orgId: 1
+    name: GitHub API
+    folder: Git Ranker Alerts
+    interval: 2m
+    rules:
+      - uid: github-rate-limit-low
+        title: GitHub API Rate Limit Low
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: loki
+            model:
+              expr: last_over_time({app="api", log_category="EXTERNAL_API"} | json | unwrap github_api_remaining [5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-ops
+        panelId: 30
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: GitHub API rate limit is running low (<100 remaining)
+          description: "Remaining API calls: {{ $values.A }}"
+        labels:
+          severity: warning
+
+  - orgId: 1
+    name: Batch Jobs
+    folder: Git Ranker Alerts
+    interval: 5m
+    rules:
+      - uid: batch-job-failure
+        title: Batch Job Failed
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: loki
+            model:
+              expr: count_over_time({app="api", log_category="BATCH", level="ERROR"} [1h])
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-ops
+        panelId: 21
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        annotations:
+          summary: A batch job has failed
+          description: "Batch job errors in the last hour: {{ $values.A }}"
+        labels:
+          severity: critical
+
+  - orgId: 1
+    name: Application Errors
+    folder: Git Ranker Alerts
+    interval: 1m
+    rules:
+      - uid: high-error-log-count
+        title: High Error Log Count
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 900
+              to: 0
+            datasourceUid: loki
+            model:
+              expr: count_over_time({app="api", level="ERROR"} [15m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: git-ranker-ops
+        panelId: 6
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        annotations:
+          summary: High number of error logs detected
+          description: "Error logs in the last 15 minutes: {{ $values.A }}"
+        labels:
+          severity: warning

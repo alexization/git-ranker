@@ -1,0 +1,54 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: discord-alerts
+    receivers:
+      - uid: discord-webhook
+        type: discord
+        settings:
+          url: ${DISCORD_WEBHOOK_URL}
+          title: |
+            {{ if eq .Status "firing" }}🚨 ALERT FIRING{{ else }}✅ RESOLVED{{ end }}
+          message: |
+            {{ range .Alerts }}
+            **Alert:** {{ .Labels.alertname }}
+            **Status:** {{ .Status | toUpper }}
+            **Severity:** {{ .Labels.severity }}
+
+            {{ if .Annotations.summary }}**Summary:** {{ .Annotations.summary }}{{ end }}
+            {{ if .Annotations.description }}**Description:** {{ .Annotations.description }}{{ end }}
+
+            {{ if gt (len .Values) 0 }}**Values:**
+            {{ range $key, $value := .Values }}  • {{ $key }}: {{ $value }}
+            {{ end }}{{ end }}
+
+            **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 KST" }}
+            {{ if .DashboardURL }}**Dashboard:** {{ .DashboardURL }}{{ end }}
+            {{ if .PanelURL }}**Panel:** {{ .PanelURL }}{{ end }}
+            ---
+            {{ end }}
+          avatar_url: https://raw.githubusercontent.com/grafana/grafana/main/public/img/grafana_icon.svg
+        disableResolveMessage: false
+
+policies:
+  - orgId: 1
+    receiver: discord-alerts
+    group_by:
+      - alertname
+      - severity
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      - receiver: discord-alerts
+        matchers:
+          - severity = critical
+        group_wait: 10s
+        repeat_interval: 1h
+
+      - receiver: discord-alerts
+        matchers:
+          - severity = warning
+        group_wait: 1m
+        repeat_interval: 4h

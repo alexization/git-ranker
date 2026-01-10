@@ -94,9 +94,15 @@ services:
       - grafana_data:/var/lib/grafana
       - ./dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
       - ./dashboards:/etc/grafana/dashboards
+      - ./alerting:/etc/grafana/provisioning/alerting
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+      GF_ALERTING_ENABLED: "false"
+      GF_UNIFIED_ALERTING_EXECUTE_ALERTS: "true"
+      TZ: Asia/Seoul
     depends_on:
       - prometheus
       - loki

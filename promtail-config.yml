@@ -32,19 +32,52 @@ scrape_configs:
     pipeline_stages:
       - docker: {}
 
+      # JSON 파싱 - 모든 필드 추출
       - json:
           expressions:
             level: level
             log_category: log_category
             event_type: event_type
             trace_id: trace_id
+            http_method: http_method
+            request_uri: request_uri
+            http_status: http_status
+            latency_ms: latency_ms
+            job_name: job_name
+            step_name: step_name
+            username: username
+            error_code: error_code
+            error_message: error_message
+            github_api_cost: github_api_cost
+            github_api_remaining: github_api_remaining
             msg: message
 
+      # Label 추가 - Low Cardinality 필드만 (Loki 인덱스 효율)
       - labels:
           level:
           log_category:
           event_type:
+          http_method:
 
+      # http_status를 그룹화 (2xx, 4xx, 5xx)
+      - template:
+          source: http_status
+          template: '{{ if .http_status }}{{ if regexMatch "^2" .http_status }}2xx{{ else if regexMatch "^3" .http_status }}3xx{{ else if regexMatch "^4" .http_status }}4xx{{ else if regexMatch "^5" .http_status }}5xx{{ else }}other{{ end }}{{ end }}'
+      - labels:
+          status_group:
+
+      # job_name을 배치 로그용 Label로 (배치잡별 필터링)
+      - match:
+          selector: '{log_category="BATCH"}'
+          stages:
+            - labels:
+                job_name:
+
+      # Timestamp 파싱
       - timestamp:
           source: "@timestamp"
           format: RFC3339
+
+      # Output 정리 (원본 메시지 유지)
+      - output:
+          source: msg
