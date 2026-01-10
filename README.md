@@ -130,7 +130,7 @@ Git Ranker는 **절대 평가와 상대 평가를 결합**한 하이브리드 �
 | **IRON** | [![Git Ranker](https://www.git-ranker.com/api/v1/badges/IRON/badge)](https://git-ranker.com) | 500점 미만 |
 
 > [!IMPORTANT]
-> Platinum 부터는 1,500점 이상을 만족해야 합니다.
+> `Platinum` 부터는 2,000점 이상을 만족해야 합니다.
 
 ---
 
