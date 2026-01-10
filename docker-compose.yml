@@ -77,6 +77,7 @@ services:
       - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - promtail_positions:/var/lib/promtail
     command:
       - -config.file=/etc/promtail/config.yml
     depends_on:
@@ -118,3 +119,4 @@ volumes:
   prometheus_data:
   loki_data:
   grafana_data:
+  promtail_positions:

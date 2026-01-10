@@ -78,6 +78,4 @@ scrape_configs:
           source: "@timestamp"
           format: RFC3339
 
-      # Output 정리 (원본 메시지 유지)
-      - output:
-          source: msg
+      # 원본 JSON 유지 (Grafana에서 json 파싱 가능하도록)

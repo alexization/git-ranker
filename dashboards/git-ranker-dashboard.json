@@ -314,7 +314,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "count_over_time({app=\"api\", log_category=\"DOMAIN\"} |= \"신규 사용자 등록 완료\" [$__range])",
+          "expr": "count_over_time({app=\"api\", log_category=\"DOMAIN\"} |= \"신규 사용자 등록 완료\" [$__interval])",
           "legendFormat": "New Users",
           "refId": "A"
         }
@@ -400,7 +400,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "count_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} [$__range])",
+          "expr": "count_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} [$__interval])",
           "legendFormat": "API Calls",
           "refId": "A"
         }
@@ -438,7 +438,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__range])",
+          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__interval])",
           "legendFormat": "Completed Jobs",
           "refId": "A"
         }
@@ -637,7 +637,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "sum by (event_type) (count_over_time({app=\"api\", log_category=\"EXTERNAL_API\"} [$__range]))",
+          "expr": "sum by (event_type) (count_over_time({app=\"api\", log_category=\"EXTERNAL_API\"} [$__interval]))",
           "legendFormat": "{{event_type}}",
           "refId": "A"
         }
@@ -734,7 +734,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\", level=\"ERROR\"} [$__range])",
+          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\", level=\"ERROR\"} [$__interval])",
           "legendFormat": "Failures",
           "refId": "A"
         }
@@ -772,7 +772,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__range])",
+          "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__interval])",
           "legendFormat": "Completed",
           "refId": "A"
         }
@@ -802,7 +802,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "sum by (error_code) (count_over_time({app=\"api\", level=\"ERROR\"} | json | __error__=\"\" | error_code != \"\" [$__range]))",
+          "expr": "sum by (error_code) (count_over_time({app=\"api\", level=\"ERROR\"} | json | __error__=\"\" | error_code != \"\" [$__interval]))",
           "legendFormat": "{{error_code}}",
           "refId": "A"
         }
