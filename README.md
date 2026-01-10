@@ -28,8 +28,7 @@
   <a href="#-how-to-use">How to Use</a> •
   <a href="#-badge">Badge</a> •
   <a href="#-data-refresh">Data Refresh</a> •
-  <a href="#-contributing">Contributing</a>
-  <br>
+  <a href="#-contributing">Contributing</a> •
   <a href="#-faq">FAQ</a> •
   <a href="#-license">License</a> •
   <a href="#-contact">Contact</a>
