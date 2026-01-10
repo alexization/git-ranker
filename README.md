@@ -143,7 +143,7 @@ Git Ranker는 **절대 평가와 상대 평가를 결합**한 하이브리드 �
 3. **"분석하기"** 버튼 클릭
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/202752af-3003-4d07-bc19-a0d88e6395c4" alt="Search Example" width="600"/>
+  <img width="1280" height="396" alt="image" src="https://github.com/user-attachments/assets/721a35a5-09da-4605-83f4-ded5aa867fd7" />
 </p>
 
 ### Step 2: 결과 확인
@@ -156,7 +156,7 @@ Git Ranker는 **절대 평가와 상대 평가를 결합**한 하이브리드 �
 - **Radar Chart**: 활동 분포 시각화
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/9ec45d14-e34b-4815-97a6-2baccd8a246a" alt="Result Example" width="600"/>
+  <img width="1280" height="1059" alt="image" src="https://github.com/user-attachments/assets/6689e95a-f84b-4132-a907-eae38152f5be" />
 </p>
 
 ### 신규 사용자 등록 시 데이터 수집 범위
