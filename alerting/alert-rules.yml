@@ -25,7 +25,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: sum(rate(http_server_requests_seconds_count{application="git-ranker-api"}[5m])) or vector(0.001)
+              expr: sum(rate(http_server_requests_seconds_count{application="git-ranker-api"}[5m])) or vector(0)
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: C
@@ -43,16 +43,16 @@ groups:
           - refId: E
             datasourceUid: __expr__
             model:
-              expression: ($C / $D) * 100 > 1
+              expression: ($C > 0) && ($D > 0) && (($C / $D) * 100 > 5)
               type: math
         dashboardUid: git-ranker-ops
         panelId: 2
         noDataState: OK
-        execErrState: Error
-        for: 1m
+        execErrState: OK
+        for: 5m
         annotations:
-          summary: Error rate is above 1%
-          description: "Current error rate: {{ humanize $values.E.Value }}%"
+          summary: High Error Rate Detected
+          description: "Error rate is above 5%. (Errors: {{ $values.C.Value }}, Total: {{ $values.D.Value }})"
         labels:
           severity: critical
 
