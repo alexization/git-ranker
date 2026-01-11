@@ -13,7 +13,6 @@ services:
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
       ADMIN_API_KEY: ${ADMIN_API_KEY}
       TZ: Asia/Seoul
-      # JVM이 컨테이너 메모리 제한을 넘지 않도록 힙 메모리 설정 (Container Limit 1.5G > Heap 1G)
       JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1024m"
     deploy:
       resources:
@@ -134,6 +133,8 @@ services:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+      GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
+      GF_SERVER_ROOT_URL: ${GF_SERVER_ROOT_URL}
       GF_UNIFIED_ALERTING_ENABLED: "true"
       GF_ALERTING_ENABLED: "false"
       GF_UNIFIED_ALERTING_EXECUTE_ALERTS: "true"
