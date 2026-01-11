@@ -9,23 +9,24 @@ contactPoints:
         settings:
           url: ${DISCORD_WEBHOOK_URL}
           title: |
-            {{ if eq .Status "firing" }}🚨 ALERT FIRING{{ else }}✅ RESOLVED{{ end }}
+            {{ if eq .Status "firing" }}🚨 {{ .CommonLabels.alertname }} ({{ .Status | toUpper }})
+            {{ else }}✅ {{ .CommonLabels.alertname }} (RESOLVED){{ end }}
           message: |
             {{ range .Alerts }}
-            **Alert:** {{ .Labels.alertname }}
-            **Status:** {{ .Status | toUpper }}
-            **Severity:** {{ .Labels.severity }}
+            **🔥 Alert Triggered:** {{ .Annotations.summary }}
 
-            {{ if .Annotations.summary }}**Summary:** {{ .Annotations.summary }}{{ end }}
-            {{ if .Annotations.description }}**Description:** {{ .Annotations.description }}{{ end }}
+            **📝 Description:**
+            {{ .Annotations.description }}
 
-            {{ if gt (len .Values) 0 }}**Values:**
-            {{ range $key, $value := .Values }}  • {{ $key }}: {{ $value }}
-            {{ end }}{{ end }}
+            **🏷️ Labels:**
+            {{ range $key, $value := .Labels }}• **{{ $key }}:** {{ $value }}
+            {{ end }}
 
-            **Time:** {{ .StartsAt.Format "2006-01-02 15:04:05 KST" }}
-            {{ if .DashboardURL }}**Dashboard:** {{ .DashboardURL }}{{ end }}
-            {{ if .PanelURL }}**Panel:** {{ .PanelURL }}{{ end }}
+            **📊 Values:**
+            {{ range $key, $value := .Values }}• **{{ $key }}:** {{ $value }}
+            {{ end }}
+
+            [🔴 View Dashboard]({{ .DashboardURL }}) | [🔍 View Panel]({{ .PanelURL }})
             ---
             {{ end }}
           avatar_url: https://raw.githubusercontent.com/grafana/grafana/main/public/img/grafana_icon.svg
@@ -37,18 +38,18 @@ policies:
     group_by:
       - alertname
       - severity
-    group_wait: 30s
-    group_interval: 5m
-    repeat_interval: 4h
+    group_wait: 10s
+    group_interval: 1m
+    repeat_interval: 1h
     routes:
       - receiver: discord-alerts
         matchers:
           - severity = critical
-        group_wait: 10s
-        repeat_interval: 1h
+        group_wait: 5s
+        repeat_interval: 2m
 
       - receiver: discord-alerts
         matchers:
           - severity = warning
-        group_wait: 1m
-        repeat_interval: 4h
+        group_wait: 10s
+        repeat_interval: 2m

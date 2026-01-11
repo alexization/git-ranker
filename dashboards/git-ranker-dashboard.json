@@ -40,7 +40,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -70,7 +70,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1m]))",
           "legendFormat": "RPS",
           "refId": "A"
@@ -80,7 +80,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -110,7 +110,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[5m])) * 100 or vector(0)",
           "legendFormat": "Error %",
           "refId": "A"
@@ -120,7 +120,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -150,7 +150,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le)) * 1000",
           "legendFormat": "P99",
           "refId": "A"
@@ -160,7 +160,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -190,7 +190,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"HTTP\"} |= \"느린 요청\" [1h])",
           "legendFormat": "Slow Requests",
           "refId": "A"
@@ -200,7 +200,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -228,7 +228,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "(1 - sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[1h])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1h]))) * 100 or vector(100)",
           "legendFormat": "Availability",
           "refId": "A"
@@ -238,7 +238,7 @@
       "type": "gauge"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -267,7 +267,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", level=\"ERROR\"} [1h])",
           "legendFormat": "Errors",
           "refId": "A"
@@ -285,7 +285,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -313,7 +313,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"DOMAIN\"} |= \"신규 사용자 등록 완료\" [$__interval])",
           "legendFormat": "New Users",
           "refId": "A"
@@ -323,7 +323,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -361,7 +361,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "sum(count_over_time({app=\"api\", log_category=\"DOMAIN\"} |= \"수동 전체 갱신 완료\" [$__interval]))",
           "legendFormat": "Profile Refreshes",
           "refId": "A"
@@ -371,7 +371,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -399,7 +399,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} [$__interval])",
           "legendFormat": "API Calls",
           "refId": "A"
@@ -409,7 +409,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -437,7 +437,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__interval])",
           "legendFormat": "Completed Jobs",
           "refId": "A"
@@ -455,7 +455,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "description": "마지막으로 기록된 GitHub API Rate Limit 잔량입니다. 0에 가까워지면 API 호출이 제한됩니다.",
       "fieldConfig": {
         "defaults": {
@@ -487,7 +487,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "min(last_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_remaining [$__interval]))",
           "legendFormat": "Remaining",
           "refId": "A"
@@ -497,7 +497,7 @@
       "type": "gauge"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "description": "GitHub API 호출당 소비되는 GraphQL 포인트 비용의 추이입니다.",
       "fieldConfig": {
         "defaults": {
@@ -536,7 +536,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "avg(avg_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_cost [$__interval]))",
           "legendFormat": "API Cost",
           "refId": "A"
@@ -546,7 +546,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "description": "GitHub API 응답 시간 (밀리초) 추이입니다.",
       "fieldConfig": {
         "defaults": {
@@ -592,7 +592,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "avg(avg_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_call_time_ms [$__interval]))",
           "legendFormat": "API Latency",
           "refId": "A"
@@ -602,7 +602,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "description": "GitHub API 호출 성공/실패 현황입니다.",
       "fieldConfig": {
         "defaults": {
@@ -636,7 +636,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "sum by (event_type) (count_over_time({app=\"api\", log_category=\"EXTERNAL_API\"} [$__interval]))",
           "legendFormat": "{{event_type}}",
           "refId": "A"
@@ -646,7 +646,7 @@
       "type": "piechart"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 25 },
       "id": 34,
       "options": {
@@ -662,7 +662,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "{app=\"api\", log_category=\"EXTERNAL_API\"} | json | __error__=\"\"",
           "refId": "A"
         }
@@ -679,7 +679,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 10, "w": 12, "x": 0, "y": 34 },
       "id": 40,
       "options": {
@@ -695,7 +695,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "{app=\"api\", log_category=\"BATCH\"}",
           "refId": "A"
         }
@@ -704,7 +704,7 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -733,7 +733,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"BATCH\", level=\"ERROR\"} [$__interval])",
           "legendFormat": "Failures",
           "refId": "A"
@@ -743,7 +743,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -771,7 +771,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "count_over_time({app=\"api\", log_category=\"BATCH\"} |= \"배치 Job 완료\" [$__interval])",
           "legendFormat": "Completed",
           "refId": "A"
@@ -781,7 +781,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -801,7 +801,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "sum by (error_code) (count_over_time({app=\"api\", level=\"ERROR\"} | json | __error__=\"\" | error_code != \"\" [$__interval]))",
           "legendFormat": "{{error_code}}",
           "refId": "A"
@@ -819,7 +819,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 45 },
       "id": 50,
       "options": {
@@ -835,7 +835,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "expr": "{app=\"api\", level=~\"ERROR|WARN\"} | json | __error__=\"\"",
           "refId": "A"
         }
@@ -849,7 +849,7 @@
       "id": 105,
       "panels": [
         {
-          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 12, "w": 24, "x": 0, "y": 58 },
           "id": 60,
           "options": {
@@ -865,7 +865,7 @@
           "pluginVersion": "10.0.0",
           "targets": [
             {
-              "datasource": { "type": "loki", "uid": "${loki_ds}" },
+              "datasource": { "type": "loki", "uid": "loki" },
               "expr": "{app=\"api\"} |= \"$search_term\" | json | __error__=\"\"",
               "refId": "A"
             }

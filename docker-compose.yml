@@ -16,6 +16,11 @@ services:
     depends_on:
       git-ranker-db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - git-ranker-net
 

@@ -27,7 +27,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -57,7 +57,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "process_uptime_seconds{application=\"git-ranker-api\"}",
           "legendFormat": "Uptime",
           "refId": "A"
@@ -67,7 +67,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -97,7 +97,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "process_cpu_usage{application=\"git-ranker-api\"}",
           "legendFormat": "CPU",
           "refId": "A"
@@ -107,7 +107,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -137,7 +137,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_used_bytes{application=\"git-ranker-api\", area=\"heap\"}) / sum(jvm_memory_max_bytes{application=\"git-ranker-api\", area=\"heap\"})",
           "legendFormat": "Heap Usage",
           "refId": "A"
@@ -147,7 +147,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -177,7 +177,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "jvm_threads_live_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Threads",
           "refId": "A"
@@ -187,7 +187,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -217,7 +217,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1m]))",
           "legendFormat": "RPS",
           "refId": "A"
@@ -227,7 +227,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -257,7 +257,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[5m])) * 100 or vector(0)",
           "legendFormat": "Error Rate",
           "refId": "A"
@@ -275,7 +275,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -321,19 +321,19 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_used_bytes{application=\"git-ranker-api\", area=\"heap\"})",
           "legendFormat": "Used Heap",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_committed_bytes{application=\"git-ranker-api\", area=\"heap\"})",
           "legendFormat": "Committed Heap",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_max_bytes{application=\"git-ranker-api\", area=\"heap\"})",
           "legendFormat": "Max Heap",
           "refId": "C"
@@ -343,7 +343,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -381,7 +381,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "jvm_memory_used_bytes{application=\"git-ranker-api\", area=\"heap\"}",
           "legendFormat": "{{id}}",
           "refId": "A"
@@ -391,7 +391,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -429,7 +429,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "rate(jvm_gc_pause_seconds_sum{application=\"git-ranker-api\"}[1m])",
           "legendFormat": "{{action}} - {{cause}}",
           "refId": "A"
@@ -439,7 +439,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -477,7 +477,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "increase(jvm_gc_pause_seconds_count{application=\"git-ranker-api\"}[1m])",
           "legendFormat": "{{action}} - {{cause}}",
           "refId": "A"
@@ -487,7 +487,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -533,19 +533,19 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "jvm_threads_live_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Live",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "jvm_threads_daemon_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Daemon",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "jvm_threads_peak_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Peak",
           "refId": "C"
@@ -563,7 +563,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -601,7 +601,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1m])) by (uri)",
           "legendFormat": "{{uri}}",
           "refId": "A"
@@ -611,7 +611,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -656,19 +656,19 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le))",
           "legendFormat": "P50",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le))",
           "legendFormat": "P95",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le))",
           "legendFormat": "P99",
           "refId": "C"
@@ -678,7 +678,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -729,7 +729,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(increase(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1m])) by (status)",
           "legendFormat": "{{status}}",
           "refId": "A"
@@ -739,7 +739,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -777,7 +777,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le, uri))",
           "legendFormat": "{{uri}}",
           "refId": "A"
@@ -787,7 +787,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -815,7 +815,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "(1 - (sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[1h])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1h])))) * 100 or vector(100)",
           "legendFormat": "Availability",
           "refId": "A"
@@ -833,7 +833,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -885,19 +885,19 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "tomcat_threads_current_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Current Threads",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "tomcat_threads_busy_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Busy Threads",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "tomcat_threads_config_max_threads{application=\"git-ranker-api\"}",
           "legendFormat": "Max Threads",
           "refId": "C"
@@ -907,7 +907,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -945,13 +945,13 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "tomcat_connections_current_connections{application=\"git-ranker-api\"}",
           "legendFormat": "Current Connections",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "tomcat_connections_keepalive_current_connections{application=\"git-ranker-api\"}",
           "legendFormat": "Keep-Alive Connections",
           "refId": "B"
@@ -969,7 +969,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1021,25 +1021,25 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "hikaricp_connections_active{application=\"git-ranker-api\"}",
           "legendFormat": "Active",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "hikaricp_connections_idle{application=\"git-ranker-api\"}",
           "legendFormat": "Idle",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "hikaricp_connections_pending{application=\"git-ranker-api\"}",
           "legendFormat": "Pending",
           "refId": "C"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "hikaricp_connections_max{application=\"git-ranker-api\"}",
           "legendFormat": "Max Pool Size",
           "refId": "D"
@@ -1049,7 +1049,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1094,19 +1094,19 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "rate(hikaricp_connections_acquire_seconds_sum{application=\"git-ranker-api\"}[1m]) / rate(hikaricp_connections_acquire_seconds_count{application=\"git-ranker-api\"}[1m])",
           "legendFormat": "Acquire Time",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "rate(hikaricp_connections_creation_seconds_sum{application=\"git-ranker-api\"}[1m]) / rate(hikaricp_connections_creation_seconds_count{application=\"git-ranker-api\"}[1m])",
           "legendFormat": "Creation Time",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "rate(hikaricp_connections_usage_seconds_sum{application=\"git-ranker-api\"}[1m]) / rate(hikaricp_connections_usage_seconds_count{application=\"git-ranker-api\"}[1m])",
           "legendFormat": "Usage Time",
           "refId": "C"
@@ -1124,7 +1124,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1169,13 +1169,13 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "process_cpu_usage{application=\"git-ranker-api\"}",
           "legendFormat": "Process CPU",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "system_cpu_usage{application=\"git-ranker-api\"}",
           "legendFormat": "System CPU",
           "refId": "B"
@@ -1185,7 +1185,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1223,13 +1223,13 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_used_bytes{application=\"git-ranker-api\"})",
           "legendFormat": "Total JVM Used",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "sum(jvm_memory_committed_bytes{application=\"git-ranker-api\"})",
           "legendFormat": "Total JVM Committed",
           "refId": "B"
