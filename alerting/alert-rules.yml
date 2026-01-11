@@ -283,7 +283,7 @@ groups:
               to: 0
             datasourceUid: loki
             model:
-              expr: last_over_time({app="api", log_category="EXTERNAL_API"} | json | unwrap github_api_remaining [5m])
+              expr: last_over_time({app="api", log_category="EXTERNAL_API", event_type="RESPONSE"} | json | unwrap github_api_remaining [5m])
               intervalMs: 1000
               maxDataPoints: 43200
         dashboardUid: git-ranker-ops

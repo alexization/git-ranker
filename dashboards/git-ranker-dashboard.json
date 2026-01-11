@@ -488,7 +488,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "{app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | __error__=\"\" | line_format \"{{.github_api_remaining}}\"",
+          "expr": "min(last_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_remaining [$__interval]))",
           "legendFormat": "Remaining",
           "refId": "A"
         }
@@ -537,7 +537,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "{app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | __error__=\"\" | line_format \"{{.github_api_cost}}\"",
+          "expr": "avg(avg_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_cost [$__interval]))",
           "legendFormat": "API Cost",
           "refId": "A"
         }
@@ -593,7 +593,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${loki_ds}" },
-          "expr": "{app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | __error__=\"\" | line_format \"{{.github_api_call_time_ms}}\"",
+          "expr": "avg(avg_over_time({app=\"api\", log_category=\"EXTERNAL_API\", event_type=\"RESPONSE\"} | json | unwrap github_api_call_time_ms [$__interval]))",
           "legendFormat": "API Latency",
           "refId": "A"
         }
