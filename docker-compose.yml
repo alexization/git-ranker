@@ -13,6 +13,13 @@ services:
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
       ADMIN_API_KEY: ${ADMIN_API_KEY}
       TZ: Asia/Seoul
+      # JVM이 컨테이너 메모리 제한을 넘지 않도록 힙 메모리 설정 (Container Limit 1.5G > Heap 1G)
+      JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1024m"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.50'
+          memory: 1536M
     depends_on:
       git-ranker-db:
         condition: service_healthy
@@ -38,6 +45,11 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -57,6 +69,13 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     depends_on:
       - git-ranker-api
     networks:
@@ -72,6 +91,11 @@ services:
       - loki_data:/loki
     command:
       - -config.file=/etc/loki/local-config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - git-ranker-net
 
@@ -85,6 +109,11 @@ services:
       - promtail_positions:/var/lib/promtail
     command:
       - -config.file=/etc/promtail/config.yml
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     depends_on:
       - loki
     networks:
@@ -109,6 +138,11 @@ services:
       GF_ALERTING_ENABLED: "false"
       GF_UNIFIED_ALERTING_EXECUTE_ALERTS: "true"
       TZ: Asia/Seoul
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     depends_on:
       - prometheus
       - loki
