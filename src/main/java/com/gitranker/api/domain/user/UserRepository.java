@@ -37,9 +37,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                                 u.tier = CASE
                                                     WHEN r.new_percentile <= 0.01 AND u.total_score >= 2000 THEN 'CHALLENGER'
                                                             WHEN r.new_percentile <= 0.05 AND u.total_score >= 2000 THEN 'MASTER'
-                                                            WHEN r.new_percentile <= 0.1 AND u.total_score >= 2000 THEN 'DIAMOND'
+                                                            WHEN r.new_percentile <= 0.12 AND u.total_score >= 2000 THEN 'DIAMOND'
                                                             WHEN r.new_percentile <= 0.25 AND u.total_score >= 2000 THEN 'EMERALD'
-                                                            WHEN r.new_percentile <= 0.40 AND u.total_score >= 2000 THEN 'PLATINUM'
+                                                            WHEN r.new_percentile <= 0.45 AND u.total_score >= 2000 THEN 'PLATINUM'
                                                             WHEN u.total_score >= 1500 THEN 'GOLD'
                                                             WHEN u.total_score >= 1000 THEN 'SILVER'
                                                             WHEN u.total_score >= 500 THEN 'BRONZE'
