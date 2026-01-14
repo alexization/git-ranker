@@ -30,12 +30,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthAttributes attributes = OAuthAttributes.ofGitHub(userNameAttributeName, oAuth2User.getAttributes());
 
-        log.info("OAuth2 Login Success - Username: {}, NodeID: {}", attributes.getUsername(), attributes.getNodeId());
+        log.info("OAuth2 Login Success - Username: {}, NodeID: {}", attributes.username(), attributes.nodeId());
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                attributes.getAttributes(),
-                attributes.getNameAttributeKey()
+                attributes.attributes(),
+                attributes.nameAttributeKey()
         );
     }
 }
