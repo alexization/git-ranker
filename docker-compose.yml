@@ -6,9 +6,9 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: ${DB_DOCKER_URL}
-      DB_USERNAME: ${DB_DOCKER_USERNAME}
-      DB_PASSWORD: ${DB_DOCKER_PASSWORD}
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       GITHUB_API_GRAPHQL_URL: ${GITHUB_API_GRAPHQL_URL}
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
       ADMIN_API_KEY: ${ADMIN_API_KEY}
@@ -35,10 +35,10 @@ services:
     container_name: git-ranker-db
     restart: always
     environment:
-      MYSQL_DATABASE: ${DB_DOCKER_NAME}
-      MYSQL_USER: ${DB_DOCKER_USERNAME}
-      MYSQL_PASSWORD: ${DB_DOCKER_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_DOCKER_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       TZ: Asia/Seoul
     ports:
       - "3306:3306"

@@ -3,9 +3,9 @@ spring:
     name: git-ranker-api
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,6 +22,18 @@ spring:
       initialize-schema: always
     job:
       enabled: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${LOCAL_GITHUB_CLIENT_ID}
+            client-secret: ${LOCAL_GITHUB_CLIENT_SECRET}
+            scope:
+              - read:user
+            redirect-uri: ${LOCAL_GITHUB_REDIRECT_URI}
+
 
 management:
   server:
