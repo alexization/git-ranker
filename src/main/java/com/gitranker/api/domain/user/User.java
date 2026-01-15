@@ -81,7 +81,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void changeProfile(String newUsername, String newProfileImage) {
+    public User changeProfile(String newUsername, String newProfileImage) {
         boolean changed = false;
 
         if (newUsername != null && !newUsername.equals(this.username)) {
@@ -97,6 +97,8 @@ public class User {
         if (changed) {
             this.updatedAt = LocalDateTime.now();
         }
+
+        return this;
     }
 
     public boolean canTriggerFullScan() {

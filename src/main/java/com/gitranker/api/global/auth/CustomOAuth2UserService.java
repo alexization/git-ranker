@@ -1,5 +1,7 @@
 package com.gitranker.api.global.auth;
 
+import com.gitranker.api.domain.user.User;
+import com.gitranker.api.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -18,7 +21,10 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private final UserRepository userRepository;
+
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
@@ -30,12 +36,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthAttributes attributes = OAuthAttributes.ofGitHub(userNameAttributeName, oAuth2User.getAttributes());
 
-        log.info("OAuth2 Login Success - Username: {}, NodeID: {}", attributes.username(), attributes.nodeId());
+        User user = saveOrUpdate(attributes);
+
+        log.info("OAuth2 Login Success - Username: {}", user.getUsername());
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 attributes.attributes(),
                 attributes.nameAttributeKey()
         );
+    }
+
+    private User saveOrUpdate(OAuthAttributes attributes) {
+        User user = userRepository.findByNodeId(attributes.nodeId())
+                .map(entity -> entity.changeProfile(attributes.username(), attributes.profileImage()))
+                .orElse(attributes.toEntity());
+
+        return userRepository.save(user);
     }
 }
