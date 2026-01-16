@@ -25,12 +25,21 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    private Long githubId;
+
+    @Column(unique = true, nullable = false)
     private String nodeId;
 
     @Column(unique = true, nullable = false)
     private String username;
 
+    private String email;
+
     private String profileImage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     @Column(name = "github_created_at")
     private LocalDateTime githubCreatedAt;
@@ -51,11 +60,14 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Builder
-    public User(String nodeId, String username, String profileImage, LocalDateTime githubCreatedAt) {
+    public User(Long githubId, String nodeId, String username, String email, String profileImage, LocalDateTime githubCreatedAt, Role role) {
+        this.githubId = githubId;
         this.nodeId = nodeId;
         this.username = username;
+        this.email = email;
         this.profileImage = profileImage;
         this.githubCreatedAt = githubCreatedAt;
+        this.role = role != null ? role : Role.USER;
         this.score = Score.zero();
         this.rankInfo = RankInfo.initial();
         this.lastFullScanAt = LocalDateTime.now();
@@ -79,6 +91,15 @@ public class User {
     public void updateRankInfo(RankInfo newRankInfo) {
         this.rankInfo = newRankInfo;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public User updateOAuthInfo(String username, String profileImage, String email) {
+        this.username = username;
+        this.profileImage = profileImage;
+        this.email = email;
+        this.updatedAt = LocalDateTime.now();
+
+        return this;
     }
 
     public User changeProfile(String newUsername, String newProfileImage) {

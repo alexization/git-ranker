@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: false
@@ -32,8 +32,12 @@ spring:
             client-secret: ${LOCAL_GITHUB_CLIENT_SECRET}
             scope:
               - read:user
+              - user:email
             redirect-uri: ${LOCAL_GITHUB_REDIRECT_URI}
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
 management:
   server:

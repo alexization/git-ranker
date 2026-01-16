@@ -48,7 +48,7 @@ public class UserRegistrationService {
             return createResponse(user, false);
         }
 
-        GitHubUserInfoResponse githubUserInfo = gitHubGraphQLClient.getUserInfo(username);
+        GitHubUserInfoResponse githubUserInfo = gitHubGraphQLClient.getUserInfo("temp", username);
         String nodeId = githubUserInfo.getNodeId();
         MdcUtils.setNodeId(nodeId);
 

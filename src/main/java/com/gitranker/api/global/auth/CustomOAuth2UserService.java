@@ -34,14 +34,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        OAuthAttributes attributes = OAuthAttributes.ofGitHub(userNameAttributeName, oAuth2User.getAttributes());
+        OAuthAttributes attributes = OAuthAttributes.of(userNameAttributeName, oAuth2User.getAttributes());
 
         User user = saveOrUpdate(attributes);
 
-        log.info("OAuth2 Login Success - Username: {}", user.getUsername());
+        log.info("GitHub 로그인 성공 - 사용자: {}", user.getUsername());
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
                 attributes.attributes(),
                 attributes.nameAttributeKey()
         );
@@ -49,7 +49,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private User saveOrUpdate(OAuthAttributes attributes) {
         User user = userRepository.findByNodeId(attributes.nodeId())
-                .map(entity -> entity.changeProfile(attributes.username(), attributes.profileImage()))
+                .map(entity -> entity.updateOAuthInfo(attributes.username(), attributes.profileImage(), attributes.email()))
                 .orElse(attributes.toEntity());
 
         return userRepository.save(user);
