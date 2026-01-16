@@ -1,11 +1,8 @@
 package com.gitranker.api.global.auth;
 
-import com.gitranker.api.domain.user.User;
-import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.domain.user.dto.RegisterUserResponse;
+import com.gitranker.api.domain.user.service.UserRegistrationService;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
-import com.gitranker.api.global.error.ErrorType;
-import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,9 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -26,28 +21,19 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final OAuth2AuthorizedClientService authorizedClientService;
-    private final GitHubActivityService gitHubActivityService;
+    private final UserRegistrationService userRegistrationService;
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
-        OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
-                authToken.getAuthorizedClientRegistrationId(),
-                authToken.getName()
-        );
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        String accessToken = client.getAccessToken().getTokenValue();
-        String username = authToken.getPrincipal().getAttribute("login");
+        String userNameAttributeName = "id";
+        OAuthAttributes attributes = OAuthAttributes.of(userNameAttributeName, oAuth2User.getAttributes());
 
-        gitHubActivityService.fetchAndSaveUserActivities(accessToken, username);
+        RegisterUserResponse userResponse = userRegistrationService.register(attributes);
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
-
-        String jwt = jwtProvider.createToken(user.getUsername(), user.getRole());
+        String jwt = jwtProvider.createToken(userResponse.username(), userResponse.role());
 
         Cookie jwtCookie = new Cookie("accessToken", jwt);
         jwtCookie.setPath("/");

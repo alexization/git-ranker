@@ -24,14 +24,7 @@ public class UserPersistenceService {
     private final ActivityLogService activityLogService;
 
     @Transactional
-    public User saveNewUser(GitHubUserInfoResponse githubUserInfo, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
-        User newUser = User.builder()
-                .nodeId(githubUserInfo.getNodeId())
-                .username(githubUserInfo.getLogin())
-                .profileImage(githubUserInfo.getAvatarUrl())
-                .githubCreatedAt(githubUserInfo.getGitHubCreatedAt())
-                .build();
-
+    public User saveNewUser(User newUser, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
         int newScore = totalStats.calculateScore().getValue();
         long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
         long totalUserCount = userRepository.count() + 1;
