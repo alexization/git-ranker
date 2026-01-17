@@ -7,7 +7,6 @@ import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,14 +23,7 @@ public class UserPersistenceService {
     private final ActivityLogService activityLogService;
 
     @Transactional
-    public User saveNewUser(GitHubUserInfoResponse githubUserInfo, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
-        User newUser = User.builder()
-                .nodeId(githubUserInfo.getNodeId())
-                .username(githubUserInfo.getLogin())
-                .profileImage(githubUserInfo.getAvatarUrl())
-                .githubCreatedAt(githubUserInfo.getGitHubCreatedAt())
-                .build();
-
+    public User saveNewUser(User newUser, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
         int newScore = totalStats.calculateScore().getValue();
         long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
         long totalUserCount = userRepository.count() + 1;
@@ -73,7 +65,7 @@ public class UserPersistenceService {
 
     @Transactional
     public User updateProfile(User user, String newUsername, String newProfileImage) {
-        user.changeProfile(newUsername, newProfileImage);
+        user.updateProfile(newUsername, newProfileImage, null);
 
         return userRepository.save(user);
     }

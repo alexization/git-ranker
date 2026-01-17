@@ -24,7 +24,6 @@ public class UserQueryService {
     private final UserRepository  userRepository;
     private final ActivityLogService activityLogService;
 
-    @Transactional(readOnly = true)
     public RegisterUserResponse findByUsername(String username) {
         MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
         MdcUtils.setUsername(username);

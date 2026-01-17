@@ -6,14 +6,13 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
+import com.gitranker.api.global.auth.OAuthAttributes;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
-import com.gitranker.api.infrastructure.github.GitHubGraphQLClient;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
-import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,48 +28,31 @@ public class UserRegistrationService {
     private final UserRepository userRepository;
     private final UserPersistenceService userPersistenceService;
     private final ActivityLogService activityLogService;
-    private final GitHubGraphQLClient gitHubGraphQLClient;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
 
-    public RegisterUserResponse register(String username) {
+    public RegisterUserResponse register(OAuthAttributes attributes) {
+        String username = attributes.username();
+
         MdcUtils.setUsername(username);
         MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
 
-        Optional<User> existingByUsername = userRepository.findByUsername(username);
-        if (existingByUsername.isPresent()) {
-            User user = existingByUsername.get();
+        Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
-            MdcUtils.setNodeId(user.getNodeId());
-            MdcUtils.setEventType(EventType.SUCCESS);
-            log.info("기존 사용자 조회 - 사용자: {}", username);
-
-            return createResponse(user, false);
-        }
-
-        GitHubUserInfoResponse githubUserInfo = gitHubGraphQLClient.getUserInfo(username);
-        String nodeId = githubUserInfo.getNodeId();
-        MdcUtils.setNodeId(nodeId);
-
-        Optional<User> existingByNodeId = userRepository.findByNodeId(nodeId);
-        if (existingByNodeId.isPresent()) {
-            return handleExistingUserWithChangedProfile(existingByNodeId.get(), githubUserInfo);
-        }
-
-        return registerNewUser(githubUserInfo);
+        return existingUser.map(user -> handleExistingUser(user, attributes))
+                .orElseGet(() -> handleNewUser(attributes));
     }
 
-    private RegisterUserResponse registerNewUser(GitHubUserInfoResponse githubUserInfo) {
-        String username = githubUserInfo.getLogin();
-        log.debug("신규 사용자 등록 시작 - 사용자: {}", username);
+    private RegisterUserResponse handleNewUser(OAuthAttributes attributes) {
+        User newUser = attributes.toEntity();
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
-                .fetchRawAllActivities(username, githubUserInfo.getGitHubCreatedAt());
+                .fetchRawAllActivities(newUser.getUsername(), newUser.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
-        ActivityStatistics baselineStats = calculateBaselineStats(githubUserInfo, rawResponse);
+        ActivityStatistics baselineStats = calculateBaselineStats(newUser, rawResponse);
 
-        User savedUser = userPersistenceService.saveNewUser(githubUserInfo, totalStats, baselineStats);
+        User savedUser = userPersistenceService.saveNewUser(newUser, totalStats, baselineStats);
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("신규 사용자 등록 완료 - 사용자: {}, 점수: {}, 티어: {}",
@@ -79,24 +61,30 @@ public class UserRegistrationService {
         return createResponse(savedUser, true);
     }
 
-    private RegisterUserResponse handleExistingUserWithChangedProfile(User existingUser, GitHubUserInfoResponse githubUserInfo) {
-        String oldUsername = existingUser.getUsername();
-        String newUsername = githubUserInfo.getLogin();
+    private RegisterUserResponse handleExistingUser(User user, OAuthAttributes attributes) {
+        MdcUtils.setNodeId(user.getNodeId());
 
-        log.info("사용자 닉네임 변경 감지 - 기존: {}, 신규: {}", oldUsername, newUsername);
+        boolean isInfoChanged = !user.getUsername().equals(attributes.username()) ||
+                                !user.getProfileImage().equals(attributes.profileImage()) ||
+                                (attributes.email()) != null && !attributes.email().equals(user.getEmail());
 
-        User updatedUser = userPersistenceService.updateProfile(existingUser, newUsername, githubUserInfo.getAvatarUrl());
+        User currentUser = user;
+
+        if (isInfoChanged) {
+            log.info("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
+            currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage());
+        }
 
         MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("사용자 프로필 업데이트 완료 - 사용자: {}", newUsername);
+        log.info("기존 사용자 로그인 성공 - 사용자: {}", currentUser.getUsername());
 
-        return createResponse(updatedUser, false);
+        return createResponse(currentUser, false);
     }
 
-    private ActivityStatistics calculateBaselineStats(GitHubUserInfoResponse githubUserInfo, GitHubAllActivitiesResponse rawResponse) {
+    private ActivityStatistics calculateBaselineStats(User user, GitHubAllActivitiesResponse rawResponse) {
         int currentYear = LocalDate.now().getYear();
 
-        if (githubUserInfo.getGitHubCreatedAt().getYear() < currentYear) {
+        if (user.getGithubCreatedAt().getYear() < currentYear) {
             int lastYear = currentYear - 1;
             return gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
         }
@@ -112,11 +100,6 @@ public class UserRegistrationService {
     }
 
     private ActivityLog createEmptyActivityLog(User user) {
-        return ActivityLog.builder()
-                .user(user)
-                .activityDate(LocalDate.now())
-                .commitCount(0).issueCount(0).prCount(0).mergedPrCount(0).reviewCount(0)
-                .diffCommitCount(0).diffIssueCount(0).diffPrCount(0).diffMergedPrCount(0).diffReviewCount(0)
-                .build();
+        return ActivityLog.empty(user, LocalDate.now());
     }
 }

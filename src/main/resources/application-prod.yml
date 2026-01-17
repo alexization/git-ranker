@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+
+app:
+  cors:
+    allowed-origins: https://git-ranker.com,https://www.git-ranker.com
+  oauth2:
+    authorized-redirect-uri: https://www.git-ranker.com/auth/callback
+  cookie:
+    domain: git-ranker.com
+    secure: true

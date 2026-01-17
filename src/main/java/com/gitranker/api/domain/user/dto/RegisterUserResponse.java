@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.user.dto;
 
 import com.gitranker.api.domain.log.ActivityLog;
+import com.gitranker.api.domain.user.Role;
 import com.gitranker.api.domain.user.Tier;
 import com.gitranker.api.domain.user.User;
 
@@ -8,9 +9,12 @@ import java.time.LocalDateTime;
 
 public record RegisterUserResponse(
         Long userId,
+        Long githubId,
         String nodeId,
         String username,
+        String email,
         String profileImage,
+        Role role,
         LocalDateTime updatedAt,
         LocalDateTime lastFullScanAt,
         int totalScore,
@@ -32,9 +36,12 @@ public record RegisterUserResponse(
     public static RegisterUserResponse of(User user, ActivityLog latestLog, boolean isNewUser) {
         return new RegisterUserResponse(
                 user.getId(),
+                user.getGithubId(),
                 user.getNodeId(),
                 user.getUsername(),
+                user.getEmail(),
                 user.getProfileImage(),
+                user.getRole(),
                 user.getUpdatedAt(),
                 user.getLastFullScanAt(),
                 user.getTotalScore(),
