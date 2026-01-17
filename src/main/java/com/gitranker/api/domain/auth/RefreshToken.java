@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
         indexes = {
                 @Index(name = "idx_token", columnList = "token"),
                 @Index(name = "idx_user_id", columnList = "user_id"),
-                @Index(name = "idx_expires_at", columnList = "expires_at")
         }
 )
 @Getter
@@ -39,43 +38,15 @@ public class RefreshToken {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    private String userAgent;
-
-    private String ipAddress;
-
-    @Column(nullable = false)
-    private boolean revoked = false;
-
     @Builder
-    public RefreshToken(String token, User user, LocalDateTime expiresAt, String userAgent, String ipAddress) {
+    public RefreshToken(String token, User user, LocalDateTime expiresAt) {
         this.token = token;
         this.user = user;
         this.expiresAt = expiresAt;
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.userAgent = userAgent;
-        this.ipAddress = ipAddress;
     }
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiresAt);
-    }
-
-    public boolean isValid() {
-        return !revoked && !isExpired();
-    }
-
-    public void revoke() {
-        this.revoked = true;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void updateToken(String newToken, LocalDateTime newExpiresAt) {
-        this.token = newToken;
-        this.expiresAt = newExpiresAt;
-        this.updatedAt = LocalDateTime.now();
     }
 }

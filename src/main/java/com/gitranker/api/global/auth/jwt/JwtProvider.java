@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 
@@ -90,26 +89,12 @@ public class JwtProvider {
 
             return "access".equals(type);
         } catch (Exception e) {
-            log.warn("토큰 타입 확인 실패: {}", e.getMessage());
-
             return false;
         }
     }
 
     public String getUsername(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public String getRole(String token) {
-        return parseClaims(token).get("role", String.class);
-    }
-
-    public LocalDateTime getExpiration(String token) {
-        Date expiration = parseClaims(token).getExpiration();
-
-        return expiration.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
     }
 
     private Claims parseClaims(String token) {

@@ -29,6 +29,10 @@ public enum ErrorType {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "등록되지 않은 사용자에요. 먼저 등록해주세요.", LogLevel.INFO),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 정보를 찾을 수 없어요.", LogLevel.INFO),
 
+    /* 인증 관련 에러 */
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "다시 로그인해주세요.", LogLevel.INFO),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었어요. 다시 로그인해주세요.", LogLevel.INFO),
+
     /* 사용자 관련 에러 */
     REFRESH_COOL_DOWN_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "데이터 갱신은 7일에 한 번만 가능해요.", LogLevel.INFO),
     ;

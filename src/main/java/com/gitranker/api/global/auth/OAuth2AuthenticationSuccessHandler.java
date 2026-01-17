@@ -59,7 +59,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String accessToken = jwtProvider.createAccessToken(userResponse.username(), userResponse.role());
 
         String refreshTokenValue = jwtProvider.createRefreshToken();
-        saveRefreshToken(user, refreshTokenValue, request);
+        saveRefreshToken(user, refreshTokenValue);
 
         addRefreshTokenCookie(response, refreshTokenValue);
 
@@ -74,13 +74,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    private void saveRefreshToken(User user, String tokenValue, HttpServletRequest request) {
+    private void saveRefreshToken(User user, String tokenValue) {
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(tokenValue)
                 .user(user)
                 .expiresAt(jwtProvider.calculateRefreshTokenExpiry())
-                .userAgent(request.getHeader("User-Agent"))
-                .ipAddress(getClientIp(request))
                 .build();
 
         refreshTokenRepository.save(refreshToken);
@@ -97,30 +95,5 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String[] headerNames = {
-                "X-Forwarded-For",
-                "Proxy-Client-IP",
-                "WL-Proxy-Client-IP",
-                "X-Real-IP"
-        };
-
-        for (String headerName : headerNames) {
-            String ip = request.getHeader(headerName);
-            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                return extractFirstIp(ip);
-            }
-        }
-
-        return request.getRemoteAddr();
-    }
-
-    private String extractFirstIp(String ip) {
-        if (ip.contains(",")) {
-            return ip.split(",")[0].trim();
-        }
-        return ip;
     }
 }
