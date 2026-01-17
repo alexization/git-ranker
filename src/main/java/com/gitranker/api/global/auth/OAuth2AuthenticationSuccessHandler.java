@@ -1,20 +1,29 @@
 package com.gitranker.api.global.auth;
 
+import com.gitranker.api.domain.auth.RefreshToken;
+import com.gitranker.api.domain.auth.RefreshTokenRepository;
+import com.gitranker.api.domain.user.User;
+import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.service.UserRegistrationService;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
+import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 @Component
@@ -23,6 +32,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final UserRegistrationService userRegistrationService;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
+
+    @Value("${app.oauth2.authorized-redirect-uri}")
+    private String authorizedRedirectUri;
+
+    @Value("${app.cookie.domain}")
+    private String cookieDomain;
+
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -33,14 +53,74 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         RegisterUserResponse userResponse = userRegistrationService.register(attributes);
 
-        String jwt = jwtProvider.createToken(userResponse.username(), userResponse.role());
+        User user = userRepository.findByUsername(userResponse.username())
+                .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
-        Cookie jwtCookie = new Cookie("accessToken", jwt);
-        jwtCookie.setPath("/");
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setMaxAge(60 * 60);
-        response.addCookie(jwtCookie);
+        String accessToken = jwtProvider.createAccessToken(userResponse.username(), userResponse.role());
 
-        getRedirectStrategy().sendRedirect(request, response, "/dashboard");
+        String refreshTokenValue = jwtProvider.createRefreshToken();
+        saveRefreshToken(user, refreshTokenValue, request);
+
+        addRefreshTokenCookie(response, refreshTokenValue);
+
+        String targetUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri)
+                .queryParam("accessToken", accessToken)
+                .build()
+                .toString();
+
+        log.info("OAuth2 인증 성공 - 사용자: {}", userResponse.username());
+
+        clearAuthenticationAttributes(request);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private void saveRefreshToken(User user, String tokenValue, HttpServletRequest request) {
+        RefreshToken refreshToken = RefreshToken.builder()
+                .token(tokenValue)
+                .user(user)
+                .expiresAt(jwtProvider.calculateRefreshTokenExpiry())
+                .userAgent(request.getHeader("User-Agent"))
+                .ipAddress(getClientIp(request))
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+    }
+
+    private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .domain(cookieDomain)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String[] headerNames = {
+                "X-Forwarded-For",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP",
+                "X-Real-IP"
+        };
+
+        for (String headerName : headerNames) {
+            String ip = request.getHeader(headerName);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                return extractFirstIp(ip);
+            }
+        }
+
+        return request.getRemoteAddr();
+    }
+
+    private String extractFirstIp(String ip) {
+        if (ip.contains(",")) {
+            return ip.split(",")[0].trim();
+        }
+        return ip;
     }
 }

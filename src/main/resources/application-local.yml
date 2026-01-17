@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://127.0.0.1:3000
+  oauth2:
+    authorized-redirect-uri: http://localhost:3000/auth/callback
+  cookie:
+    domain: localhost
+    secure: false

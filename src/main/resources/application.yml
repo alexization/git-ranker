@@ -1,6 +1,8 @@
 spring:
   application:
     name: git-ranker-api
+  profiles:
+    active: local
 
   datasource:
     url: ${LOCAL_DB_URL}
@@ -37,7 +39,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
 
 management:
   server:
