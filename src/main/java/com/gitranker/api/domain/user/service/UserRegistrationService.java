@@ -100,11 +100,6 @@ public class UserRegistrationService {
     }
 
     private ActivityLog createEmptyActivityLog(User user) {
-        return ActivityLog.builder()
-                .user(user)
-                .activityDate(LocalDate.now())
-                .commitCount(0).issueCount(0).prCount(0).mergedPrCount(0).reviewCount(0)
-                .diffCommitCount(0).diffIssueCount(0).diffPrCount(0).diffMergedPrCount(0).diffReviewCount(0)
-                .build();
+        return ActivityLog.empty(user, LocalDate.now());
     }
 }

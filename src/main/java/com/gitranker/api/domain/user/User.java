@@ -93,16 +93,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public User updateOAuthInfo(String username, String profileImage, String email) {
-        this.username = username;
-        this.profileImage = profileImage;
-        this.email = email;
-        this.updatedAt = LocalDateTime.now();
-
-        return this;
-    }
-
-    public User changeProfile(String newUsername, String newProfileImage) {
+    public boolean updateProfile(String newUsername, String newProfileImage, String newEmail) {
         boolean changed = false;
 
         if (newUsername != null && !newUsername.equals(this.username)) {
@@ -115,11 +106,16 @@ public class User {
             changed = true;
         }
 
+        if (newEmail != null && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            changed = true;
+        }
+
         if (changed) {
             this.updatedAt = LocalDateTime.now();
         }
 
-        return this;
+        return changed;
     }
 
     public boolean canTriggerFullScan() {
