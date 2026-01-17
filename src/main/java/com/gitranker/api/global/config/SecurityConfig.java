@@ -64,10 +64,8 @@ public class SecurityConfig {
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny()
-                                .xssProtection(xss -> {
-                                })
-                                .contentTypeOptions(contentType -> {
-                                })
+                                .xssProtection(xss -> {})
+                                .contentTypeOptions(contentType -> {})
                         )
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

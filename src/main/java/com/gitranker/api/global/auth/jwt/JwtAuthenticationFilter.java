@@ -4,7 +4,6 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 
 @Slf4j
@@ -33,7 +31,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+        if (StringUtils.hasText(token)) {
+            if (!jwtProvider.validateToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!jwtProvider.isAccessToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String username = jwtProvider.getUsername(token);
 
             userRepository.findByUsername(username)
@@ -60,13 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
 
-        if (request.getCookies() != null) {
-            return Arrays.stream(request.getCookies())
-                    .filter(c -> "accessToken".equals(c.getName()))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .orElse(null);
-        }
         return null;
     }
 }

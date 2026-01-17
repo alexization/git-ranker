@@ -9,6 +9,7 @@ import com.gitranker.api.domain.user.service.UserRegistrationService;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -85,14 +86,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/")
-                .maxAge(Duration.ofDays(7))
-                .domain(cookieDomain)
-                .sameSite("Lax")
-                .build();
+        ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(
+                refreshToken,
+                cookieDomain,
+                cookieSecure,
+                Duration.ofDays(7)
+        );
 
         response.addHeader("Set-Cookie", cookie.toString());
     }

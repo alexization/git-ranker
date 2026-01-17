@@ -4,6 +4,7 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,14 +60,7 @@ public class AuthService {
     }
 
     private void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/")
-                .maxAge(0)
-                .domain(cookieDomain)
-                .sameSite("Lax")
-                .build();
+        ResponseCookie cookie = CookieUtils.createDeleteRefreshTokenCookie(cookieDomain, cookieSecure);
 
         response.addHeader("Set-Cookie", cookie.toString());
     }

@@ -1,0 +1,55 @@
+package com.gitranker.api.global.util;
+
+import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseCookie;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Optional;
+
+public class CookieUtils {
+
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+
+    private CookieUtils() {
+    }
+
+    public static ResponseCookie createRefreshTokenCookie(
+            String tokenValue,
+            String domain,
+            boolean secure,
+            Duration maxAge
+    ) {
+        return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, tokenValue)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(maxAge)
+                .domain(domain)
+                .sameSite("Lax")
+                .build();
+    }
+
+    public static ResponseCookie createDeleteRefreshTokenCookie(String domain, boolean secure) {
+        return createRefreshTokenCookie("", domain, secure, Duration.ZERO);
+    }
+
+    public static Optional<String> getCookieValue(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> cookieName.equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue);
+    }
+
+    public static String extractRefreshToken(HttpServletRequest request) {
+        return getCookieValue(request, REFRESH_TOKEN_COOKIE_NAME)
+                .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
+    }
+}
