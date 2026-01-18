@@ -50,16 +50,20 @@ public class GitHubActivityService {
         return convertToSummary(response);
     }
 
-    public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
+    public GitHubAllActivitiesResponse fetchRawAllActivities(String accessToken, String username, LocalDateTime githubJoinDate) {
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
         MdcUtils.setUsername(username);
 
-        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(systemToken, username, githubJoinDate);
+        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(accessToken, username, githubJoinDate);
 
         MdcUtils.setEventType(EventType.RESPONSE);
         log.info("전체 데이터 조회 완료 - 사용자: {}", username);
 
         return response;
+    }
+
+    public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
+        return fetchRawAllActivities(systemToken, username, githubJoinDate);
     }
 
     public GitHubActivitySummary convertToSummary(GitHubAllActivitiesResponse response) {

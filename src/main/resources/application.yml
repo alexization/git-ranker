@@ -67,6 +67,9 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+  servlet:
+    session:
+      timeout: 30m
 
 github:
   api:

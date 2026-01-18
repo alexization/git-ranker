@@ -31,7 +31,7 @@ public class UserRegistrationService {
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
 
-    public RegisterUserResponse register(OAuthAttributes attributes) {
+    public RegisterUserResponse register(OAuthAttributes attributes, String githubAccessToken) {
         String username = attributes.username();
 
         MdcUtils.setUsername(username);
@@ -40,14 +40,14 @@ public class UserRegistrationService {
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
         return existingUser.map(user -> handleExistingUser(user, attributes))
-                .orElseGet(() -> handleNewUser(attributes));
+                .orElseGet(() -> handleNewUser(attributes, githubAccessToken));
     }
 
-    private RegisterUserResponse handleNewUser(OAuthAttributes attributes) {
+    private RegisterUserResponse handleNewUser(OAuthAttributes attributes, String githubAccessToken) {
         User newUser = attributes.toEntity();
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
-                .fetchRawAllActivities(newUser.getUsername(), newUser.getGithubCreatedAt());
+                .fetchRawAllActivities(githubAccessToken, newUser.getUsername(), newUser.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
         ActivityStatistics baselineStats = calculateBaselineStats(newUser, rawResponse);

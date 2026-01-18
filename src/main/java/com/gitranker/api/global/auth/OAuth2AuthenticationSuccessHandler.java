@@ -18,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -35,6 +38,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Value("${app.oauth2.authorized-redirect-uri}")
     private String authorizedRedirectUri;
@@ -52,7 +56,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String userNameAttributeName = "id";
         OAuthAttributes attributes = OAuthAttributes.of(userNameAttributeName, oAuth2User.getAttributes());
 
-        RegisterUserResponse userResponse = userRegistrationService.register(attributes);
+        String githubAccessToken = extractGitHubAccessToken(authentication);
+        request.getSession().setAttribute("GITHUB_ACCESS_TOKEN", githubAccessToken);
+
+        RegisterUserResponse userResponse = userRegistrationService.register(attributes, githubAccessToken);
 
         User user = userRepository.findByUsername(userResponse.username())
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
@@ -73,6 +80,28 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private String extractGitHubAccessToken(Authentication authentication) {
+        if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
+            throw new IllegalStateException("OAuth2 인증이 아닙니다.");
+        }
+
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                oauthToken.getAuthorizedClientRegistrationId(),
+                oauthToken.getName()
+        );
+
+        if (authorizedClient == null) {
+            log.error("OAuth2AuthorizedClient를 찾을 수 없습니다. - registrationId: {}, principalName: {}",
+                    oauthToken.getAuthorizedClientRegistrationId(), oauthToken.getName());
+
+            throw new IllegalStateException("OAuth2 인증 정보를 찾을 수 없습니다.");
+        }
+
+        String accessToken = authorizedClient.getAccessToken().getTokenValue();
+
+        return accessToken;
     }
 
     private void saveRefreshToken(User user, String tokenValue) {
