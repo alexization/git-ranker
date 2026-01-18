@@ -59,16 +59,12 @@ public class UserRefreshService {
 
         log.debug("수동 전체 갱신 시작 - 사용자: {}", username);
 
-        ActivityStatistics previousStats = activityLogService.findLatestLog(user)
-                .map(ActivityLog::toStatistics)
-                .orElse(ActivityStatistics.empty());
-
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
                 .fetchRawAllActivities(githubAccessToken, username, user.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
 
-        User updatedUser = userPersistenceService.updateUserStatistics(user.getId(), totalStats, previousStats);
+        User updatedUser = userPersistenceService.updateUserStatisticsWithoutLog(user.getId(), totalStats);
 
         MdcUtils.setEventType(EventType.SUCCESS);
         log.info("수동 전체 갱신 완료 - 사용자: {}, 신규 점수: {}", username, updatedUser.getTotalScore());

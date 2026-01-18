@@ -34,7 +34,7 @@ public enum ErrorType {
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었어요. 다시 로그인해주세요.", LogLevel.INFO),
 
     /* 사용자 관련 에러 */
-    REFRESH_COOL_DOWN_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "데이터 갱신은 7일에 한 번만 가능해요.", LogLevel.INFO),
+    REFRESH_COOL_DOWN_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "데이터 갱신은 5분에 한 번만 가능해요.", LogLevel.INFO),
     ;
 
     private final HttpStatus status;

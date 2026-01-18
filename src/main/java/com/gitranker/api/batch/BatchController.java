@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/batch")
 @RequiredArgsConstructor
 public class BatchController {
+
     private final JobLauncher jobLauncher;
     private final Job dailyScoreRecalculationJob;
-    private final Job hourlyRankingJob;
 
     @PatchMapping("/run/daily-job")
     public ApiResponse<String> runDailyScoreRecalculationJob() throws Exception {
@@ -29,16 +29,5 @@ public class BatchController {
         jobLauncher.run(dailyScoreRecalculationJob, params);
 
         return ApiResponse.success("Daily Score Recalculation Job 실행 완료");
-    }
-
-    @PatchMapping("/run/hourly-job")
-    public ApiResponse<String> runHourlyRankingJob() throws Exception {
-        JobParameters params = new JobParametersBuilder()
-                .addLocalDateTime("runTime", LocalDateTime.now())
-                .toJobParameters();
-
-        jobLauncher.run(hourlyRankingJob, params);
-
-        return ApiResponse.success("Hourly Ranking Job 실행 완료");
     }
 }

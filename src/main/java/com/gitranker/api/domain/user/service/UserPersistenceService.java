@@ -1,6 +1,5 @@
 package com.gitranker.api.domain.user.service;
 
-import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
@@ -32,12 +31,13 @@ public class UserPersistenceService {
         userRepository.save(newUser);
 
         saveNewUserActivityLogs(newUser, totalStats, baselineStats);
+        recalculateRankings();
 
         return newUser;
     }
 
     @Transactional
-    public User updateUserStatistics(Long userId, ActivityStatistics newStats, ActivityStatistics previousStats) {
+    public User updateUserStatisticsWithoutLog(Long userId, ActivityStatistics newStats) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
@@ -48,17 +48,7 @@ public class UserPersistenceService {
         user.updateActivityStatistics(newStats, higherScoreCount, totalUserCount);
         user.recordFullScan();
 
-        ActivityStatistics diffStats;
-        if (previousStats != null) {
-            diffStats = newStats.calculateDiff(previousStats);
-        } else {
-            diffStats = activityLogService.findLatestLog(user)
-                    .map(ActivityLog::toStatistics)
-                    .map(newStats::calculateDiff)
-                    .orElse(ActivityStatistics.zeroDiff());
-        }
-
-        activityLogService.saveActivityLog(user, newStats, diffStats, LocalDate.now());
+        recalculateRankings();
 
         return user;
     }
@@ -82,5 +72,9 @@ public class UserPersistenceService {
         }
 
         activityLogService.saveActivityLog(user, totalStats, zeroDiff, today);
+    }
+
+    private void recalculateRankings() {
+        userRepository.bulkUpdateRanking();
     }
 }

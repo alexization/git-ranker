@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
-    private static final Duration FULL_SCAN_COOLDOWN = Duration.ofDays(7);
+    private static final Duration FULL_SCAN_COOLDOWN = Duration.ofMinutes(5);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
