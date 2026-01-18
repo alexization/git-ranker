@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.user.service;
 
 import com.gitranker.api.domain.log.ActivityLogService;
+import com.gitranker.api.domain.ranking.RankingRecalculationService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
@@ -20,6 +21,7 @@ public class UserPersistenceService {
 
     private final UserRepository userRepository;
     private final ActivityLogService activityLogService;
+    private final RankingRecalculationService rankingRecalculationService;
 
     @Transactional
     public User saveNewUser(User newUser, ActivityStatistics totalStats, ActivityStatistics baselineStats) {
@@ -31,7 +33,8 @@ public class UserPersistenceService {
         userRepository.save(newUser);
 
         saveNewUserActivityLogs(newUser, totalStats, baselineStats);
-        recalculateRankings();
+
+        rankingRecalculationService.recalculateIfNeeded();
 
         return newUser;
     }
@@ -48,7 +51,7 @@ public class UserPersistenceService {
         user.updateActivityStatistics(newStats, higherScoreCount, totalUserCount);
         user.recordFullScan();
 
-        recalculateRankings();
+        rankingRecalculationService.recalculateIfNeeded();
 
         return user;
     }
