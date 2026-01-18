@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
@@ -48,13 +48,9 @@ public class GlobalExceptionHandler {
 
         log.info("리소스 없음 - Path: {}", e.getResourcePath());
 
-        if (request.getRequestURI().startsWith("/api/")) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
-        }
-
-        return "error/404";
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ErrorType.RESOURCE_NOT_FOUND));
     }
 
     @ExceptionHandler(GitHubRateLimitException.class)
