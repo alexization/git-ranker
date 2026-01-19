@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false
@@ -69,7 +69,7 @@ server:
       enabled: true
   servlet:
     session:
-      timeout: 30m
+      timeout: 1d
 
 github:
   api:

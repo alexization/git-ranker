@@ -1,5 +1,6 @@
 package com.gitranker.api.global.config;
 
+import com.gitranker.api.global.auth.CustomAuthenticationEntryPoint;
 import com.gitranker.api.global.auth.CustomOAuth2UserService;
 import com.gitranker.api.global.auth.OAuth2AuthenticationSuccessHandler;
 import com.gitranker.api.global.auth.jwt.JwtAuthenticationFilter;
@@ -24,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -62,6 +64,9 @@ public class SecurityConfig {
                                 "/actuator/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
