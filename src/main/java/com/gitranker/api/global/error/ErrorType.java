@@ -32,6 +32,8 @@ public enum ErrorType {
     /* 인증 관련 에러 */
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "다시 로그인해주세요.", LogLevel.INFO),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었어요. 다시 로그인해주세요.", LogLevel.INFO),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요해요. 로그인해주세요.", LogLevel.INFO),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없어요. 본인의 정보만 수정할 수 있어요.", LogLevel.INFO),
 
     /* 사용자 관련 에러 */
     REFRESH_COOL_DOWN_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "데이터 갱신은 5분에 한 번만 가능해요.", LogLevel.INFO),

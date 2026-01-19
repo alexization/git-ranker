@@ -45,11 +45,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/ranking/**",
                                 "/api/v1/users/*/profile",
+                                "/api/v1/users/{username}",
                                 "/api/v1/auth/refresh",
+                                "/api/v1/badges/**",
                                 "/login/**",
                                 "/oauth2/**",
                                 "/actuator/health"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/users/*/refresh",
+                                "/api/v1/auth/logout",
+                                "/api/v1/auth/logout/all"
+                        ).authenticated()
                         .requestMatchers(
                                 "/api/batch/**",
                                 "/actuator/**"

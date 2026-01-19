@@ -42,43 +42,4 @@ public class BadgeController {
                 .contentType(MediaType.valueOf("image/svg+xml"))
                 .body(svgContent);
     }
-
-    @GetMapping(value = "/preview/all", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<String> getAllTierBadgesPreview() {
-        StringBuilder html = new StringBuilder();
-        html.append("""
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body {
-                                display: flex;
-                                flex-direction: row;
-                                flex-wrap: wrap;
-                                justify-content: center;
-                                align-items: center;
-                                padding: 40px;
-                                gap: 20px;
-                            }
-                            h1 { color: #fff; margin-bottom: 20px; }
-                            .badge-container {
-                                transition: transform 0.2s;
-                            }
-                            .badge-container:hover { transform: scale(1.02); }
-                        </style>
-                    </head>
-                    <body>
-                """);
-
-        for (Tier tier : Tier.values()) {
-            html.append(String.format(
-                    "<div class='badge-container'><img src='/api/v1/badges/%s/badge' alt='%s Tier Badge' /></div>",
-                    tier.name(), tier.name()
-            ));
-        }
-
-        html.append("</body></html>");
-
-        return ResponseEntity.ok(html.toString());
-    }
 }

@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.auth;
 
 import com.gitranker.api.domain.user.User;
+import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.response.ApiResponse;
 import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,11 +33,16 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
+            @AuthenticationPrincipal User user,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
+        }
+
         String refreshToken = CookieUtils.extractRefreshToken(request);
-        authService.logout(refreshToken, response);
+        authService.logout(user, refreshToken, response);
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }

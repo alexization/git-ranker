@@ -3,8 +3,11 @@ package com.gitranker.api.domain.user;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.service.UserQueryService;
 import com.gitranker.api.domain.user.service.UserRefreshService;
+import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -22,7 +25,18 @@ public class UserController {
     }
 
     @PostMapping("/{username}/refresh")
-    public ApiResponse<RegisterUserResponse> refreshUser(@PathVariable String username) {
+    public ApiResponse<RegisterUserResponse> refreshUser(
+            @PathVariable String username,
+            @AuthenticationPrincipal User user
+    ) {
+        if (user == null) {
+            throw new BusinessException(ErrorType.UNAUTHORIZED);
+        }
+
+        if (!user.getUsername().equals(username)) {
+            throw new BusinessException(ErrorType.FORBIDDEN);
+        }
+
         RegisterUserResponse response = userRefreshService.refresh(username);
 
         return ApiResponse.success(response);

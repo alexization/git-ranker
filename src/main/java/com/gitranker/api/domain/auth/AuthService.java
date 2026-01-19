@@ -46,9 +46,18 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshTokenValue, HttpServletResponse response) {
+    public void logout(User user, String refreshTokenValue, HttpServletResponse response) {
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
+                .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
+
+        if (!refreshToken.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorType.FORBIDDEN);
+        }
+
         refreshTokenRepository.deleteByToken(refreshTokenValue);
         clearRefreshTokenCookie(response);
+
+        log.info("로그아웃 성공 - 사용자: {}", user.getUsername());
     }
 
     @Transactional
