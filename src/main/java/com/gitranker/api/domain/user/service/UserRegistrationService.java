@@ -7,8 +7,7 @@ import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.auth.OAuthAttributes;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
+import com.gitranker.api.global.logging.BusinessEventLogger;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
@@ -30,12 +29,11 @@ public class UserRegistrationService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
+    private final BusinessEventLogger eventLogger;
 
     public RegisterUserResponse register(OAuthAttributes attributes, String githubAccessToken) {
         String username = attributes.username();
-
         MdcUtils.setUsername(username);
-        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
 
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
@@ -54,9 +52,7 @@ public class UserRegistrationService {
 
         User savedUser = userPersistenceService.saveNewUser(newUser, totalStats, baselineStats);
 
-        MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("신규 사용자 등록 완료 - 사용자: {}, 점수: {}, 티어: {}",
-                savedUser.getUsername(), savedUser.getTotalScore(), savedUser.getTier());
+        eventLogger.userRegistered(savedUser);
 
         return createResponse(savedUser, true);
     }
@@ -71,12 +67,11 @@ public class UserRegistrationService {
         User currentUser = user;
 
         if (isInfoChanged) {
-            log.info("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
+            log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
             currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage());
         }
 
-        MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("기존 사용자 로그인 성공 - 사용자: {}", currentUser.getUsername());
+        eventLogger.authSuccess(currentUser.getUsername(), "OAUTH2");
 
         return createResponse(currentUser, false);
     }

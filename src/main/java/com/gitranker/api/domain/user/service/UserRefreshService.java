@@ -8,8 +8,7 @@ import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
+import com.gitranker.api.global.logging.BusinessEventLogger;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
@@ -30,9 +29,9 @@ public class UserRefreshService {
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
     private final HttpSession httpSession;
+    private final BusinessEventLogger eventLogger;
 
     public RegisterUserResponse refresh(String username) {
-        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
         MdcUtils.setUsername(username);
 
         User user = userRepository.findByUsername(username)
@@ -41,8 +40,7 @@ public class UserRefreshService {
         MdcUtils.setNodeId(user.getNodeId());
 
         if (!user.canTriggerFullScan()) {
-            MdcUtils.setEventType(EventType.FAILURE);
-            log.info("갱신 쿨다운 미충족 - 사용자: {}, 다음 가능 시간: {}",
+            log.debug("갱신 쿨다운 미충족 - 사용자: {}, 다음 가능 시간: {}",
                     username, user.getNextFullScanAvailableAt());
 
             throw new BusinessException(ErrorType.REFRESH_COOL_DOWN_EXCEEDED);
@@ -51,11 +49,12 @@ public class UserRefreshService {
         String githubAccessToken = (String) httpSession.getAttribute("GITHUB_ACCESS_TOKEN");
 
         if (githubAccessToken == null || githubAccessToken.isBlank()) {
-            MdcUtils.setEventType(EventType.FAILURE);
-            log.info("GitHub Access Token이 세션에 없습니다. - 사용자: {}", username);
+            log.debug("GitHub Access Token이 세션에 없습니다. - 사용자: {}", username);
 
             throw new BusinessException(ErrorType.SESSION_EXPIRED);
         }
+
+        int oldScore = user.getTotalScore();
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
                 .fetchRawAllActivities(githubAccessToken, username, user.getGithubCreatedAt());
@@ -64,8 +63,7 @@ public class UserRefreshService {
 
         User updatedUser = userPersistenceService.updateUserStatisticsWithoutLog(user.getId(), totalStats);
 
-        MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("수동 전체 갱신 완료 - 사용자: {}, 신규 점수: {}", username, updatedUser.getTotalScore());
+        eventLogger.userRefreshed(updatedUser, oldScore, updatedUser.getTotalScore());
 
         return createResponse(updatedUser);
     }

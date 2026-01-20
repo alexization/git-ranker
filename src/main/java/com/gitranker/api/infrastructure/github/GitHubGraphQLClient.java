@@ -46,19 +46,22 @@ public class GitHubGraphQLClient {
     private final ZoneId appZoneId;
     private final TimeUtils timeUtils;
     private final String graphqlUrl;
+    private final GitHubApiMetrics apiMetrics;
 
     public GitHubGraphQLClient(
             @Value("${github.api.graphql-url}") String graphqlUrl,
             GraphQLQueryBuilder queryBuilder,
             ZoneId appZoneId,
             TimeUtils timeUtils,
-            WebClient.Builder webClientBuilder
+            WebClient.Builder webClientBuilder,
+            GitHubApiMetrics apiMetrics
     ) {
         this.graphqlUrl = graphqlUrl;
         this.queryBuilder = queryBuilder;
         this.appZoneId = appZoneId;
         this.timeUtils = timeUtils;
         this.webClientBuilder = webClientBuilder;
+        this.apiMetrics = apiMetrics;
     }
 
     private WebClient createWebClient(String accessToken) {
@@ -147,8 +150,10 @@ public class GitHubGraphQLClient {
 
     private void checkRateLimitSafety(int remaining, LocalDateTime resetAt) {
         if (remaining < SAFE_REMAINING_THRESHOLD) {
-            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_RATE_THRESHOLD);
             log.warn("Rate Limit 임계값 도달 - Remaining: {}, ResetAt: {}", remaining, resetAt);
+
+            apiMetrics.recordRateLimitExceeded();
 
             throw new GitHubRateLimitException(resetAt);
         }
@@ -163,22 +168,28 @@ public class GitHubGraphQLClient {
                     if (response.statusCode().value() == 403 || response.statusCode().value() == 429) {
                         LocalDateTime resetAt = parseResetTime(response.headers());
 
-                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.THRESHOLD);
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_RATE_THRESHOLD);
                         log.warn("Rate Limit 초과 - Status: {}, ResetAt: {}", response.statusCode().value(), resetAt);
+
+                        apiMetrics.recordRateLimitExceeded();
 
                         return Mono.error(new GitHubRateLimitException(resetAt));
                     }
 
                     if (response.statusCode().is4xxClientError()) {
-                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_FAILED);
                         log.error("API 클라이언트 에러 - Status: {}", response.statusCode());
+
+                        apiMetrics.recordFailure();
 
                         return Mono.error(new GitHubApiRetryableException(ErrorType.GITHUB_API_CLIENT_ERROR, "Status: " + response.statusCode()));
                     }
 
                     if (response.statusCode().is5xxServerError()) {
-                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
+                        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_FAILED);
                         log.error("API 서버 에러 - Status: {}", response.statusCode());
+
+                        apiMetrics.recordFailure();
 
                         return Mono.error(new GitHubApiRetryableException(ErrorType.GITHUB_API_SERVER_ERROR, "Status: " + response.statusCode()));
                     }
@@ -278,11 +289,15 @@ public class GitHubGraphQLClient {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
         MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
+
+        apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
     }
 
     private void recordRateLimitInfo(GitHubUserInfoResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
         MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
+
+        apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
     }
 }

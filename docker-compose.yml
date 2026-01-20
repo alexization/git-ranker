@@ -2,16 +2,24 @@ services:
   git-ranker-api:
     build: .
     container_name: git-ranker-api
+    restart: unless-stopped
     ports:
       - "8080:8080"
+      - "9090:9090"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: ${DB_URL}
+      DB_URL: jdbc:mysql://git-ranker-db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      GITHUB_API_GRAPHQL_URL: ${GITHUB_API_GRAPHQL_URL}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI}
+      GITHUB_API_GRAPHQL_URL: https://api.github.com/graphql
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
       ADMIN_API_KEY: ${ADMIN_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION}
       TZ: Asia/Seoul
       JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1024m"
     deploy:
@@ -60,11 +68,12 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: git-ranker-prometheus
+    restart: unless-stopped
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
-      - "9090:9090"
+      - "9091:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -83,6 +92,7 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: git-ranker-loki
+    restart: unless-stopped
     ports:
       - "3100:3100"
     volumes:
@@ -101,6 +111,7 @@ services:
   promtail:
     image: grafana/promtail:latest
     container_name: git-ranker-promtail
+    restart: unless-stopped
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -121,8 +132,9 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: git-ranker-grafana
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - ./datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
       - grafana_data:/var/lib/grafana

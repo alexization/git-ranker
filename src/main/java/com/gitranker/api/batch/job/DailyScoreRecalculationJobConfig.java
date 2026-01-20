@@ -1,5 +1,6 @@
 package com.gitranker.api.batch.job;
 
+import com.gitranker.api.batch.listener.BatchProgressListener;
 import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.batch.listener.UserScoreCalculationSkipListener;
 import com.gitranker.api.batch.processor.ScoreRecalculationProcessor;
@@ -34,6 +35,7 @@ public class DailyScoreRecalculationJobConfig {
     private final UserScoreCalculationSkipListener userScoreCalculationSkipListener;
     private final UserItemWriter userItemWriter;
     private final GitHubCostListener gitHubCostListener;
+    private final BatchProgressListener batchProgressListener;
 
     @Bean
     public Job dailyScoreRecalculationJob() {
@@ -59,6 +61,7 @@ public class DailyScoreRecalculationJobConfig {
                 .skip(GitHubApiRetryableException.class)
                 .skipLimit(100)
                 .listener(userScoreCalculationSkipListener)
+                .listener(batchProgressListener)
                 .build();
     }
 

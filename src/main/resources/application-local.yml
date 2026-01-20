@@ -3,6 +3,37 @@ spring:
     activate:
       on-profile: local
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/git_ranker?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${LOCAL_GITHUB_CLIENT_ID}
+            client-secret: ${LOCAL_GITHUB_CLIENT_SECRET}
+            scope:
+              - read:user
+              - user:email
+            redirect-uri: ${LOCAL_GITHUB_REDIRECT_URI}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+github:
+  api:
+    graphql-url: https://api.github.com/graphql
+    token: ${GITHUB_API_TOKEN}
+
+admin:
+  api-key: ${ADMIN_API_KEY}
+
 app:
   cors:
     allowed-origins: http://localhost:3000,http://127.0.0.1:3000
