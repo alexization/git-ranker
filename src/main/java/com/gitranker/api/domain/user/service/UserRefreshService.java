@@ -52,12 +52,10 @@ public class UserRefreshService {
 
         if (githubAccessToken == null || githubAccessToken.isBlank()) {
             MdcUtils.setEventType(EventType.FAILURE);
-            log.error("GitHub Access Token이 세션에 없습니다. - 사용자: {}", username);
+            log.info("GitHub Access Token이 세션에 없습니다. - 사용자: {}", username);
 
-            throw new BusinessException(ErrorType.UNAUTHORIZED_ACCESS);
+            throw new BusinessException(ErrorType.SESSION_EXPIRED);
         }
-
-        log.debug("수동 전체 갱신 시작 - 사용자: {}", username);
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
                 .fetchRawAllActivities(githubAccessToken, username, user.getGithubCreatedAt());

@@ -2,6 +2,8 @@ package com.gitranker.api.domain.log;
 
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
+import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -52,6 +54,6 @@ public class ActivityLogService {
     @Transactional(readOnly = true)
     public ActivityLog getLatestLog(User user) {
         return findLatestLog(user)
-                .orElseThrow(() -> new IllegalArgumentException("활동 로그가 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorType.ACTIVITY_LOG_NOT_FOUND));
     }
 }

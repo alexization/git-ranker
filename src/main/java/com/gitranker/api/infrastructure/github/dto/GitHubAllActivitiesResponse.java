@@ -62,6 +62,8 @@ public record GitHubAllActivitiesResponse(
     }
 
     public int getReviewCount() {
+        if (data == null || data.getYearDataMap() == null) return 0;
+
         return data.getYearDataMap().values().stream()
                 .mapToInt(yearData -> yearData.contributionsCollection().totalPullRequestReviewContributions())
                 .sum();
