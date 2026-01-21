@@ -1,5 +1,8 @@
-package com.gitranker.api.domain.auth;
+package com.gitranker.api.domain.auth.service;
 
+import com.gitranker.api.domain.auth.RefreshToken;
+import com.gitranker.api.domain.auth.RefreshTokenRepository;
+import com.gitranker.api.domain.auth.TokenResponse;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;

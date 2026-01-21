@@ -1,7 +1,6 @@
 package com.gitranker.api.global.auth;
 
-import com.gitranker.api.domain.auth.RefreshToken;
-import com.gitranker.api.domain.auth.RefreshTokenRepository;
+import com.gitranker.api.domain.auth.service.RefreshTokenService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
@@ -36,7 +35,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final UserRegistrationService userRegistrationService;
     private final JwtProvider jwtProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final OAuth2AuthorizedClientService authorizedClientService;
 
@@ -66,8 +65,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String accessToken = jwtProvider.createAccessToken(userResponse.username(), userResponse.role());
 
-        String refreshTokenValue = jwtProvider.createRefreshToken();
-        saveRefreshToken(user, refreshTokenValue);
+        String refreshTokenValue = refreshTokenService.issueRefreshToken(user);
 
         addRefreshTokenCookie(response, refreshTokenValue);
 
@@ -99,19 +97,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             throw new IllegalStateException("OAuth2 인증 정보를 찾을 수 없습니다.");
         }
 
-        String accessToken = authorizedClient.getAccessToken().getTokenValue();
-
-        return accessToken;
-    }
-
-    private void saveRefreshToken(User user, String tokenValue) {
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(tokenValue)
-                .user(user)
-                .expiresAt(jwtProvider.calculateRefreshTokenExpiry())
-                .build();
-
-        refreshTokenRepository.save(refreshToken);
+        return authorizedClient.getAccessToken().getTokenValue();
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
@@ -119,7 +105,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 refreshToken,
                 cookieDomain,
                 cookieSecure,
-                Duration.ofDays(7)
+                Duration.ofDays(1)
         );
 
         response.addHeader("Set-Cookie", cookie.toString());

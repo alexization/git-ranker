@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.auth;
 
+import com.gitranker.api.domain.auth.service.AuthService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.response.ApiResponse;
