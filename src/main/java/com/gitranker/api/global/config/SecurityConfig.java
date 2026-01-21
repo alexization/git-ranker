@@ -52,18 +52,15 @@ public class SecurityConfig {
                                 "/api/v1/badges/**",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/actuator/health",
-                                "/api/live/ws"
+                                "/actuator/**",
+                                "/api/live/ws",
+                                "/api/batch/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/users/*/refresh",
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/logout/all"
                         ).authenticated()
-                        .requestMatchers(
-                                "/api/batch/**",
-                                "/actuator/**"
-                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
