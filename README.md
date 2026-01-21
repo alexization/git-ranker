@@ -154,7 +154,7 @@ Git Ranker는 **절대 평가와 상대 평가를 결합**한 하이브리드 �
 - **Radar Chart**: 활동 분포 시각화
 
 <p align="center">
-  <img width="1280" height="1059" alt="image" src="https://github.com/user-attachments/assets/6689e95a-f84b-4132-a907-eae38152f5be" />
+  <img width="1058" height="843" alt="상세 페이지" src="https://github.com/user-attachments/assets/391acffb-de8e-44c5-b0a5-bc1448e304f5" />
 </p>
 
 > [!TIP]
