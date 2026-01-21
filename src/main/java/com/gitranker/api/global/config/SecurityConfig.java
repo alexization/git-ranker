@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 "/api/v1/badges/**",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/api/live/ws"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/users/*/refresh",
