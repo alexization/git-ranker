@@ -42,7 +42,7 @@ public class AuthController {
         }
 
         String refreshToken = CookieUtils.extractRefreshToken(request);
-        authService.logout(user, refreshToken, response);
+        authService.logout(user, refreshToken, request, response);
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -50,9 +50,10 @@ public class AuthController {
     @PostMapping("/logout/all")
     public ResponseEntity<ApiResponse<Void>> logoutAll(
             @AuthenticationPrincipal User user,
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
-        authService.logoutAll(user, response);
+        authService.logoutAll(user, request, response);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

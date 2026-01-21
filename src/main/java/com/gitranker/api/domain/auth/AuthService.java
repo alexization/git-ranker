@@ -5,7 +5,9 @@ import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.util.CookieUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +48,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(User user, String refreshTokenValue, HttpServletResponse response) {
+    public void logout(User user, String refreshTokenValue, HttpServletRequest request, HttpServletResponse response) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
 
@@ -56,12 +58,13 @@ public class AuthService {
 
         refreshTokenRepository.deleteByToken(refreshTokenValue);
         clearRefreshTokenCookie(response);
+        invalidateSession(request);
 
         log.info("로그아웃 성공 - 사용자: {}", user.getUsername());
     }
 
     @Transactional
-    public void logoutAll(User user, HttpServletResponse response) {
+    public void logoutAll(User user, HttpServletRequest request, HttpServletResponse response) {
         refreshTokenRepository.deleteAllByUser(user);
         clearRefreshTokenCookie(response);
 
@@ -72,5 +75,12 @@ public class AuthService {
         ResponseCookie cookie = CookieUtils.createDeleteRefreshTokenCookie(cookieDomain, cookieSecure);
 
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void invalidateSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
     }
 }
