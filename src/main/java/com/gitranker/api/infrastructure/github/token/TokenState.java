@@ -13,9 +13,9 @@ public class TokenState {
     private volatile int remaining;
     private volatile Instant resetAt;
 
-    public TokenState(String value, int remaining, Instant resetAt) {
+    public TokenState(String value) {
         this.value = value;
-        this.remaining = remaining;
+        this.remaining = DEFAULT_LIMIT;
         this.resetAt = Instant.now().plusSeconds(3600);
     }
 
