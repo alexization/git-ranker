@@ -29,7 +29,7 @@ jwt:
 github:
   api:
     graphql-url: https://api.github.com/graphql
-    token: ${GITHUB_API_TOKENS}
+    tokens: ${GITHUB_API_TOKENS}
     threshold: 100
 
 admin:

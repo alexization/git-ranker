@@ -13,7 +13,6 @@ import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class UserRefreshService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
-    private final HttpSession httpSession;
     private final BusinessEventLogger eventLogger;
 
     public RegisterUserResponse refresh(String username) {
@@ -46,18 +44,10 @@ public class UserRefreshService {
             throw new BusinessException(ErrorType.REFRESH_COOL_DOWN_EXCEEDED);
         }
 
-        String githubAccessToken = (String) httpSession.getAttribute("GITHUB_ACCESS_TOKEN");
-
-        if (githubAccessToken == null || githubAccessToken.isBlank()) {
-            log.debug("GitHub Access Token이 세션에 없습니다. - 사용자: {}", username);
-
-            throw new BusinessException(ErrorType.SESSION_EXPIRED);
-        }
-
         int oldScore = user.getTotalScore();
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
-                .fetchRawAllActivities(githubAccessToken, username, user.getGithubCreatedAt());
+                .fetchRawAllActivities(username, user.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
 
