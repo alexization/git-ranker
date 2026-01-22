@@ -44,9 +44,6 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
-  servlet:
-    session:
-      timeout: 1d
 
 app:
   timezone: Asia/Seoul
