@@ -12,6 +12,7 @@ import com.gitranker.api.global.util.TimeUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
+import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
 import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ public class GitHubGraphQLClient {
     private final TimeUtils timeUtils;
     private final String graphqlUrl;
     private final GitHubApiMetrics apiMetrics;
+    private final GitHubTokenPool tokenPool;
 
     public GitHubGraphQLClient(
             @Value("${github.api.graphql-url}") String graphqlUrl,
@@ -54,7 +56,8 @@ public class GitHubGraphQLClient {
             ZoneId appZoneId,
             TimeUtils timeUtils,
             WebClient.Builder webClientBuilder,
-            GitHubApiMetrics apiMetrics
+            GitHubApiMetrics apiMetrics,
+            GitHubTokenPool tokenPool
     ) {
         this.graphqlUrl = graphqlUrl;
         this.queryBuilder = queryBuilder;
@@ -62,6 +65,7 @@ public class GitHubGraphQLClient {
         this.timeUtils = timeUtils;
         this.webClientBuilder = webClientBuilder;
         this.apiMetrics = apiMetrics;
+        this.tokenPool = tokenPool;
     }
 
     private WebClient createWebClient(String accessToken) {
@@ -82,7 +86,7 @@ public class GitHubGraphQLClient {
         GitHubUserInfoResponse response = executeQuery(accessToken, query, GitHubUserInfoResponse.class);
 
         if (response.data().rateLimit() != null) {
-            recordRateLimitInfo(response.data().rateLimit());
+            recordRateLimitInfo(accessToken, response.data().rateLimit());
 
             checkRateLimitSafety(
                     response.data().rateLimit().remaining(),
@@ -125,7 +129,7 @@ public class GitHubGraphQLClient {
         }
 
         if (aggregatedResponse.data().rateLimit() != null) {
-            recordRateLimitInfo(aggregatedResponse.data().rateLimit());
+            recordRateLimitInfo(accessToken, aggregatedResponse.data().rateLimit());
         }
 
         return aggregatedResponse;
@@ -137,7 +141,7 @@ public class GitHubGraphQLClient {
         GitHubAllActivitiesResponse response = executeQuery(accessToken, query, GitHubAllActivitiesResponse.class);
 
         if (response.data().rateLimit() != null) {
-            recordRateLimitInfo(response.data().rateLimit());
+            recordRateLimitInfo(accessToken, response.data().rateLimit());
 
             checkRateLimitSafety(
                     response.data().rateLimit().remaining(),
@@ -285,19 +289,23 @@ public class GitHubGraphQLClient {
         throw new GitHubApiRetryableException(ErrorType.GITHUB_PARTIAL_ERROR);
     }
 
-    private void recordRateLimitInfo(GitHubAllActivitiesResponse.RateLimit rateLimit) {
+    private void recordRateLimitInfo(String accessToken, GitHubAllActivitiesResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
         MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
 
         apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
+
+        tokenPool.updateTokenState(accessToken, rateLimit.remaining(), rateLimit.resetAt());
     }
 
-    private void recordRateLimitInfo(GitHubUserInfoResponse.RateLimit rateLimit) {
+    private void recordRateLimitInfo(String accessToken, GitHubUserInfoResponse.RateLimit rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
         MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
 
         apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
+
+        tokenPool.updateTokenState(accessToken, rateLimit.remaining(), rateLimit.resetAt());
     }
 }

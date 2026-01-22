@@ -1,9 +1,11 @@
 package com.gitranker.api.infrastructure.github.token;
 
+import com.gitranker.api.global.error.exception.GitHubRateLimitExhaustedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -77,5 +79,19 @@ public class GitHubTokenPool {
                 .min(Comparator.naturalOrder())
                 .map(instant -> LocalDateTime.ofInstant(instant, appZoneId))
                 .orElse(LocalDateTime.now(appZoneId).plusHours(1));
+    }
+
+    public void updateTokenState(String tokenValue, int remaining, LocalDateTime resetAt) {
+        tokens.stream()
+                .filter(t -> t.getValue().equals(tokenValue))
+                .findFirst()
+                .ifPresent(token -> {
+                    Instant resetInstant = resetAt.atZone(appZoneId).toInstant();
+                    token.update(remaining, resetInstant);
+
+                    if (remaining <= threshold) {
+                        log.warn("토큰 임계값 도달 - Remaining: {}, ResetAt: {}", remaining, resetAt);
+                    }
+                });
     }
 }
