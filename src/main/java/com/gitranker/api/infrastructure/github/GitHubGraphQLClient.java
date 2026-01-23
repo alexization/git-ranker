@@ -5,6 +5,7 @@ import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
+import com.gitranker.api.global.error.message.ConfigurationMessages;
 import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
@@ -71,7 +72,7 @@ public class GitHubGraphQLClient {
 
     private WebClient createWebClient(String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
-            throw new IllegalArgumentException("GitHub Access Token은 필수입니다.");
+            throw new IllegalStateException(ConfigurationMessages.GITHUB_ACCESS_TOKEN_REQUIRED);
         }
 
         return webClientBuilder

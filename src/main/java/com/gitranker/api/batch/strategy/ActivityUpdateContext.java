@@ -1,6 +1,7 @@
 package com.gitranker.api.batch.strategy;
 
 import com.gitranker.api.domain.log.ActivityLog;
+import com.gitranker.api.global.error.message.BatchMessages;
 
 public record ActivityUpdateContext(
         ActivityLog baselineLog,
@@ -8,7 +9,7 @@ public record ActivityUpdateContext(
 ) {
     public static ActivityUpdateContext forIncremental(ActivityLog baselineLog, int currentYear) {
         if (baselineLog == null) {
-            throw new IllegalArgumentException("증분 업데이트에는 baselineLog가 필요합니다.");
+            throw new IllegalStateException(BatchMessages.BASELINE_LOG_REQUIRED_FOR_INCREMENTAL);
         }
 
         return new ActivityUpdateContext(baselineLog, currentYear);
@@ -16,9 +17,5 @@ public record ActivityUpdateContext(
 
     public static ActivityUpdateContext forFull(int currentYear) {
         return new ActivityUpdateContext(null, currentYear);
-    }
-
-    public boolean hasBaselineLog() {
-        return baselineLog != null;
     }
 }

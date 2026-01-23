@@ -1,6 +1,7 @@
 package com.gitranker.api.infrastructure.github.token;
 
 import com.gitranker.api.global.error.exception.GitHubRateLimitExhaustedException;
+import com.gitranker.api.global.error.message.ConfigurationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class GitHubTokenPool {
 
     private List<TokenState> parseTokens(String tokensConfig) {
         if (tokensConfig == null || tokensConfig.isBlank()) {
-            throw new IllegalArgumentException("GitHub 토큰이 설정되지 않았습니다.");
+            throw new IllegalStateException(ConfigurationMessages.GITHUB_TOKEN_NOT_CONFIGURED);
         }
 
         List<TokenState> parsedTokens = Arrays.stream(tokensConfig.split(","))
@@ -44,7 +45,7 @@ public class GitHubTokenPool {
                 .toList();
 
         if (parsedTokens.isEmpty()) {
-            throw new IllegalArgumentException("유효한 GitHub API 토큰이 없습니다.");
+            throw new IllegalStateException(ConfigurationMessages.GITHUB_TOKEN_INVALID);
         }
 
         return parsedTokens;

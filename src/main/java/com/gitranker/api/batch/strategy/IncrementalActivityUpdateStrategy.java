@@ -18,10 +18,6 @@ public class IncrementalActivityUpdateStrategy implements ActivityUpdateStrategy
 
     @Override
     public ActivityStatistics update(User user, ActivityUpdateContext context) {
-        if (!context.hasBaselineLog()) {
-            throw new IllegalArgumentException("증분 업데이트에는 baselineLog가 필요합니다.");
-        }
-
         GitHubActivitySummary currentYearSummary = activityService.collectActivityForYear(user.getUsername(), context.currentYear());
 
         ActivityStatistics mergedStats = mergeWithBaseline(context.baselineLog(), currentYearSummary);
