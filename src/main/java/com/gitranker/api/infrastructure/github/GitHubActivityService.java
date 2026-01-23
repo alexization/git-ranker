@@ -20,7 +20,7 @@ public class GitHubActivityService {
     private final GitHubGraphQLClient graphQLClient;
     private final GitHubTokenPool tokenPool;
 
-    public GitHubActivitySummary collectActivityForYear(String username, int year) {
+    public GitHubActivitySummary fetchActivityForYear(String username, int year) {
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
         MdcUtils.setUsername(username);
 
@@ -30,7 +30,7 @@ public class GitHubActivityService {
         MdcUtils.setEventType(EventType.RESPONSE);
         log.info("증분 데이터 조회 완료 - 사용자: {}, 연도: {}", username, year);
 
-        return convertToSummary(response);
+        return toSummary(response);
     }
 
     public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
@@ -46,7 +46,7 @@ public class GitHubActivityService {
         return response;
     }
 
-    public GitHubActivitySummary convertToSummary(GitHubAllActivitiesResponse response) {
+    public GitHubActivitySummary toSummary(GitHubAllActivitiesResponse response) {
         return new GitHubActivitySummary(
                 response.getCommitCount(),
                 response.getPRCount(),

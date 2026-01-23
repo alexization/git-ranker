@@ -20,7 +20,7 @@ public class FullActivityUpdateStrategy implements ActivityUpdateStrategy {
         GitHubAllActivitiesResponse fullResponse =
                 activityService.fetchRawAllActivities(user.getUsername(), user.getGithubCreatedAt());
 
-        ActivityStatistics stats = activityService.convertToSummary(fullResponse).toActivityStatistics();
+        ActivityStatistics stats = activityService.toSummary(fullResponse).toActivityStatistics();
 
         log.info("전체 업데이트 완료 - 사용자: {}", user.getUsername());
 

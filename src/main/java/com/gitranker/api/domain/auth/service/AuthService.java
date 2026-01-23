@@ -30,7 +30,7 @@ public class AuthService {
     private String cookieDomain;
 
     @Value("${app.cookie.secure}")
-    private boolean cookieSecure;
+    private boolean isCookieSecure;
 
     @Transactional(readOnly = true)
     public TokenResponse refreshAccessToken(String refreshTokenValue) {
@@ -67,7 +67,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutAll(User user, HttpServletRequest request, HttpServletResponse response) {
+    public void logoutAll(User user, HttpServletResponse response) {
         refreshTokenRepository.deleteAllByUser(user);
         clearRefreshTokenCookie(response);
 
@@ -75,7 +75,7 @@ public class AuthService {
     }
 
     private void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie = CookieUtils.createDeleteRefreshTokenCookie(cookieDomain, cookieSecure);
+        ResponseCookie cookie = CookieUtils.createDeleteRefreshTokenCookie(cookieDomain, isCookieSecure);
 
         response.addHeader("Set-Cookie", cookie.toString());
     }

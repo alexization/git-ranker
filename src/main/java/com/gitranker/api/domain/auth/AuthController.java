@@ -51,10 +51,10 @@ public class AuthController {
     @PostMapping("/logout/all")
     public ResponseEntity<ApiResponse<Void>> logoutAll(
             @AuthenticationPrincipal User user,
-            HttpServletRequest request,
             HttpServletResponse response
     ) {
-        authService.logoutAll(user, request, response);
+        authService.logoutAll(user, response);
+
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

@@ -18,7 +18,7 @@ public class IncrementalActivityUpdateStrategy implements ActivityUpdateStrategy
 
     @Override
     public ActivityStatistics update(User user, ActivityUpdateContext context) {
-        GitHubActivitySummary currentYearSummary = activityService.collectActivityForYear(user.getUsername(), context.currentYear());
+        GitHubActivitySummary currentYearSummary = activityService.fetchActivityForYear(user.getUsername(), context.currentYear());
 
         ActivityStatistics mergedStats = mergeWithBaseline(context.baselineLog(), currentYearSummary);
 
@@ -29,11 +29,11 @@ public class IncrementalActivityUpdateStrategy implements ActivityUpdateStrategy
 
     private ActivityStatistics mergeWithBaseline(ActivityLog baseline, GitHubActivitySummary currentYear) {
         return ActivityStatistics.of(
-                baseline.getCommitCount() + currentYear.totalCommitCount(),
-                baseline.getIssueCount() + currentYear.totalIssueCount(),
-                baseline.getPrCount() + currentYear.totalPrOpenedCount(),
-                currentYear.totalPrMergedCount(),
-                baseline.getReviewCount() + currentYear.totalReviewCount()
+                baseline.getCommitCount() + currentYear.commitCount(),
+                baseline.getIssueCount() + currentYear.issueCount(),
+                baseline.getPrCount() + currentYear.prOpenedCount(),
+                currentYear.prMergedCount(),
+                baseline.getReviewCount() + currentYear.reviewCount()
         );
     }
 }
