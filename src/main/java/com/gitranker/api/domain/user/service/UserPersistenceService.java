@@ -76,8 +76,4 @@ public class UserPersistenceService {
 
         activityLogService.saveActivityLog(user, totalStats, zeroDiff, today);
     }
-
-    private void recalculateRankings() {
-        userRepository.bulkUpdateRanking();
-    }
 }
