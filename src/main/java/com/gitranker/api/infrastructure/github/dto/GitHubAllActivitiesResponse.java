@@ -74,7 +74,7 @@ public record GitHubAllActivitiesResponse(
             int cost,
             int remaining,
             LocalDateTime resetAt
-    ) {
+    ) implements GitHubRateLimitInfo {
     }
 
     public static class Data {

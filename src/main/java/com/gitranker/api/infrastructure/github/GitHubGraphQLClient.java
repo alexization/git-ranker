@@ -11,6 +11,7 @@ import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.global.util.TimeUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
+import com.gitranker.api.infrastructure.github.dto.GitHubRateLimitInfo;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
 import com.gitranker.api.infrastructure.github.util.GraphQLQueryBuilder;
@@ -289,17 +290,7 @@ public class GitHubGraphQLClient {
         throw new GitHubApiRetryableException(ErrorType.GITHUB_PARTIAL_ERROR);
     }
 
-    private void recordRateLimitInfo(String accessToken, GitHubAllActivitiesResponse.RateLimit rateLimit) {
-        MdcUtils.setGithubApiCost(rateLimit.cost());
-        MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
-
-        apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
-
-        tokenPool.updateTokenState(accessToken, rateLimit.remaining(), rateLimit.resetAt());
-    }
-
-    private void recordRateLimitInfo(String accessToken, GitHubUserInfoResponse.RateLimit rateLimit) {
+    private void recordRateLimitInfo(String accessToken, GitHubRateLimitInfo rateLimit) {
         MdcUtils.setGithubApiCost(rateLimit.cost());
         MdcUtils.setGithubApiRemaining(rateLimit.remaining());
         MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
