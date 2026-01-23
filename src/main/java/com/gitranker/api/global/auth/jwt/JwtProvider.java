@@ -20,6 +20,10 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
+    private static final String CLAIM_ROLE = "role";
+    private static final String CLAIM_TYPE = "type";
+    private static final String TOKEN_TYPE_ACCESS = "access";
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -43,8 +47,8 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .subject(username)
-                .claim("role", role.getKey())
-                .claim("type", "access")
+                .claim(CLAIM_ROLE, role.getKey())
+                .claim(CLAIM_TYPE, TOKEN_TYPE_ACCESS)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(key, Jwts.SIG.HS512)
@@ -85,9 +89,9 @@ public class JwtProvider {
     public boolean isAccessToken(String token) {
         try {
             Claims claims = parseClaims(token);
-            String type = claims.get("type", String.class);
+            String type = claims.get(CLAIM_TYPE, String.class);
 
-            return "access".equals(type);
+            return TOKEN_TYPE_ACCESS.equals(type);
         } catch (Exception e) {
             return false;
         }

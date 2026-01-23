@@ -42,7 +42,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private String cookieDomain;
 
     @Value("${app.cookie.secure}")
-    private boolean cookieSecure;
+    private boolean isCookieSecure;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -77,7 +77,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(
                 refreshToken,
                 cookieDomain,
-                cookieSecure,
+                isCookieSecure,
                 Duration.ofDays(1)
         );
 

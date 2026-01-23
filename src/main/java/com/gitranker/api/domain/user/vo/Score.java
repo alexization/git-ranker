@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.user.vo;
 
+import com.gitranker.api.global.error.message.DomainMessages;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -55,7 +56,7 @@ public class Score {
 
     private void validateNonNegative(int value) {
         if (value < 0) {
-            throw new IllegalArgumentException("점수는 음수가 될 수 없습니다: " + value);
+            throw new IllegalArgumentException(String.format(DomainMessages.SCORE_CANNOT_BE_NEGATIVE, value));
         }
     }
 

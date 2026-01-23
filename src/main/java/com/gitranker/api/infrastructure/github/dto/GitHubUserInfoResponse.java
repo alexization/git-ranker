@@ -1,8 +1,8 @@
 package com.gitranker.api.infrastructure.github.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.ErrorType;
+import com.gitranker.api.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -59,6 +59,6 @@ public record GitHubUserInfoResponse(
             int cost,
             int remaining,
             LocalDateTime resetAt
-    ) {
+    ) implements GitHubRateLimitInfo {
     }
 }

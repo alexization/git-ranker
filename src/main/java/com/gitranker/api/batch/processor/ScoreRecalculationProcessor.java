@@ -1,6 +1,10 @@
 package com.gitranker.api.batch.processor;
 
 import com.gitranker.api.batch.listener.GitHubCostListener;
+import com.gitranker.api.batch.strategy.ActivityUpdateContext;
+import com.gitranker.api.batch.strategy.ActivityUpdateStrategy;
+import com.gitranker.api.batch.strategy.FullActivityUpdateStrategy;
+import com.gitranker.api.batch.strategy.IncrementalActivityUpdateStrategy;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
 import com.gitranker.api.domain.log.ActivityLogService;
@@ -15,9 +19,6 @@ import com.gitranker.api.global.logging.EventType;
 import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcKey;
 import com.gitranker.api.global.logging.MdcUtils;
-import com.gitranker.api.infrastructure.github.GitHubActivityService;
-import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
-import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepExecution;
@@ -33,9 +34,10 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
-    private final GitHubActivityService activityService;
     private final ActivityLogRepository activityLogRepository;
     private final ActivityLogService activityLogService;
+    private final IncrementalActivityUpdateStrategy incrementalStrategy;
+    private final FullActivityUpdateStrategy fullStrategy;
 
     private StepExecution stepExecution;
 
@@ -52,42 +54,17 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         try {
             int oldScore = user.getTotalScore();
             int currentYear = LocalDate.now().getYear();
-            LocalDate startOfThisYear = LocalDate.of(currentYear, 1, 1);
 
-            ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
-            ActivityStatistics previousStats = (lastLog != null)
-                    ? lastLog.toStatistics()
-                    : ActivityStatistics.empty();
+            ActivityStatistics previousStats = findPreviousStats(user);
+            ActivityStatistics updateStats = executeUpdate(user, currentYear);
 
-            ActivityStatistics newStats;
-            ActivityLog pastLog = activityLogRepository
-                    .findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(user, startOfThisYear)
-                    .orElse(null);
-
-            if (pastLog != null) {
-                GitHubActivitySummary currentYearSummary =
-                        activityService.collectActivityForYear(user.getUsername(), currentYear);
-
-                newStats = mergeWithPastLog(pastLog, currentYearSummary);
-
-                log.info("증분 업데이트 적용 - 사용자: {}", user.getUsername());
-            } else {
-                GitHubAllActivitiesResponse fullResponse =
-                        activityService.fetchRawAllActivities(user.getUsername(), user.getGithubCreatedAt());
-
-                newStats = activityService.convertToSummary(fullResponse).toActivityStatistics();
-
-                log.info("전체 업데이트 수행 - 사용자: {}", user.getUsername());
-            }
-
-            Score newScore = newStats.calculateScore();
+            Score newScore = updateStats.calculateScore();
             user.updateScore(newScore);
 
-            ActivityStatistics diffStats = newStats.calculateDiff(previousStats);
-            activityLogService.saveActivityLog(user, newStats, diffStats, LocalDate.now());
+            ActivityStatistics diffStats = updateStats.calculateDiff(previousStats);
+            activityLogService.saveActivityLog(user, updateStats, diffStats, LocalDate.now());
 
-            int cost = Integer.parseInt(MdcUtils.getGithubApiCost());
-            addCostToJobContext(cost);
+            recordApiCost();
 
             MdcUtils.setEventType(EventType.SUCCESS);
             log.info("점수 갱신 완료 - 사용자: {}, 변동: {}",
@@ -108,21 +85,47 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         }
     }
 
+    private ActivityStatistics findPreviousStats(User user) {
+        ActivityLog lastLog = activityLogRepository.getTopByUserOrderByActivityDateDesc(user);
+
+        return (lastLog != null) ? lastLog.toStatistics() : ActivityStatistics.empty();
+    }
+
+    private ActivityStatistics executeUpdate(User user, int currentYear) {
+        LocalDate startOfThisYear = LocalDate.of(currentYear, 1, 1);
+
+        ActivityLog baselineLog = activityLogRepository
+                .findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(user, startOfThisYear)
+                .orElse(null);
+
+        ActivityUpdateStrategy strategy = selectStrategy(baselineLog);
+        ActivityUpdateContext context = createContext(baselineLog, currentYear);
+
+        ActivityStatistics stats = strategy.update(user, context);
+
+        return stats;
+    }
+
+    private ActivityUpdateStrategy selectStrategy(ActivityLog baselineLog) {
+        return (baselineLog != null) ? incrementalStrategy : fullStrategy;
+    }
+
+    private ActivityUpdateContext createContext(ActivityLog baselineLog, int currentYear) {
+        return (baselineLog != null)
+                ? ActivityUpdateContext.forIncremental(baselineLog, currentYear)
+                : ActivityUpdateContext.forFull(currentYear);
+    }
+
+    private void recordApiCost() {
+        int cost = Integer.parseInt(MdcUtils.getGithubApiCost());
+        addCostToJobContext(cost);
+    }
+
     private synchronized void addCostToJobContext(int cost) {
         if (stepExecution != null) {
             ExecutionContext jobContext = stepExecution.getJobExecution().getExecutionContext();
             int currentCost = jobContext.getInt(GitHubCostListener.TOTAL_COST_KEY, 0);
             jobContext.putInt(GitHubCostListener.TOTAL_COST_KEY, currentCost + cost);
         }
-    }
-
-    private ActivityStatistics mergeWithPastLog(ActivityLog past, GitHubActivitySummary current) {
-        return ActivityStatistics.of(
-                past.getCommitCount() + current.totalCommitCount(),
-                past.getIssueCount() + current.totalIssueCount(),
-                past.getPrCount() + current.totalPrOpenedCount(),
-                current.totalPrMergedCount(),
-                past.getReviewCount() + current.totalReviewCount()
-        );
     }
 }

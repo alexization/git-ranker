@@ -1,6 +1,7 @@
 package com.gitranker.api.domain.user.vo;
 
 import com.gitranker.api.domain.user.Tier;
+import com.gitranker.api.global.error.message.DomainMessages;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -92,13 +93,13 @@ public class RankInfo {
 
     private void validateRanking(int ranking) {
         if (ranking < 0) {
-            throw new IllegalArgumentException("순위는 음수가 될 수 없습니다.: " + ranking);
+            throw new IllegalArgumentException(String.format(DomainMessages.RANKING_CANNOT_BE_NEGATIVE, ranking));
         }
     }
 
     private void validatePercentile(double percentile) {
         if (percentile < 0 || percentile > 100) {
-            throw new IllegalArgumentException("백분율은 0~100 사이여야 합니다. " + percentile);
+            throw new IllegalArgumentException(String.format(DomainMessages.PERCENTILE_OUT_OF_RANGE, percentile));
         }
     }
 
