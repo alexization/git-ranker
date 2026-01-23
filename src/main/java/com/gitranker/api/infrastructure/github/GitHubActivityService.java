@@ -10,8 +10,9 @@ import com.gitranker.api.global.logging.LogCategory;
 import com.gitranker.api.global.logging.MdcUtils;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,30 +20,20 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GitHubActivityService {
 
     private final GitHubGraphQLClient graphQLClient;
     private final GitHubDataMapper dataMapper;
     private final UserRepository userRepository;
-    private final String systemToken;
-
-    public GitHubActivityService(
-            GitHubGraphQLClient graphQLClient,
-            GitHubDataMapper dataMapper,
-            UserRepository userRepository,
-            @Value("${github.api.token}") String systemToken
-    ) {
-        this.graphQLClient = graphQLClient;
-        this.dataMapper = dataMapper;
-        this.userRepository = userRepository;
-        this.systemToken = systemToken;
-    }
+    private final GitHubTokenPool tokenPool;
 
     public GitHubActivitySummary collectActivityForYear(String username, int year) {
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
         MdcUtils.setUsername(username);
 
-        GitHubAllActivitiesResponse response = graphQLClient.getActivitiesForYear(systemToken, username, year);
+        String token = tokenPool.getToken();
+        GitHubAllActivitiesResponse response = graphQLClient.getActivitiesForYear(token, username, year);
 
         MdcUtils.setEventType(EventType.RESPONSE);
         log.info("증분 데이터 조회 완료 - 사용자: {}, 연도: {}", username, year);
@@ -50,20 +41,17 @@ public class GitHubActivityService {
         return convertToSummary(response);
     }
 
-    public GitHubAllActivitiesResponse fetchRawAllActivities(String accessToken, String username, LocalDateTime githubJoinDate) {
+    public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
         MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.REQUEST);
         MdcUtils.setUsername(username);
 
-        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(accessToken, username, githubJoinDate);
+        String token = tokenPool.getToken();
+        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(token, username, githubJoinDate);
 
         MdcUtils.setEventType(EventType.RESPONSE);
         log.info("전체 데이터 조회 완료 - 사용자: {}", username);
 
         return response;
-    }
-
-    public GitHubAllActivitiesResponse fetchRawAllActivities(String username, LocalDateTime githubJoinDate) {
-        return fetchRawAllActivities(systemToken, username, githubJoinDate);
     }
 
     public GitHubActivitySummary convertToSummary(GitHubAllActivitiesResponse response) {
@@ -77,11 +65,12 @@ public class GitHubActivityService {
     }
 
     @Transactional
-    public void fetchAndSaveUserActivities(String accessToken, String username) {
+    public void fetchAndSaveUserActivities(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
-        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(accessToken, username, user.getGithubCreatedAt());
+        String token = tokenPool.getToken();
+        GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(token, username, user.getGithubCreatedAt());
 
         ActivityStatistics statistics = dataMapper.toActivityStatistics(response);
 

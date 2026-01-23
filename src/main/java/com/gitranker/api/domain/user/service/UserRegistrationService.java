@@ -31,21 +31,21 @@ public class UserRegistrationService {
     private final GitHubDataMapper gitHubDataMapper;
     private final BusinessEventLogger eventLogger;
 
-    public RegisterUserResponse register(OAuthAttributes attributes, String githubAccessToken) {
+    public RegisterUserResponse register(OAuthAttributes attributes) {
         String username = attributes.username();
         MdcUtils.setUsername(username);
 
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
         return existingUser.map(user -> handleExistingUser(user, attributes))
-                .orElseGet(() -> handleNewUser(attributes, githubAccessToken));
+                .orElseGet(() -> handleNewUser(attributes));
     }
 
-    private RegisterUserResponse handleNewUser(OAuthAttributes attributes, String githubAccessToken) {
+    private RegisterUserResponse handleNewUser(OAuthAttributes attributes) {
         User newUser = attributes.toEntity();
 
         GitHubAllActivitiesResponse rawResponse = gitHubActivityService
-                .fetchRawAllActivities(githubAccessToken, newUser.getUsername(), newUser.getGithubCreatedAt());
+                .fetchRawAllActivities(newUser.getUsername(), newUser.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
         ActivityStatistics baselineStats = calculateBaselineStats(newUser, rawResponse);

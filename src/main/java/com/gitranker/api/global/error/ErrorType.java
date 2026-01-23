@@ -12,6 +12,7 @@ public enum ErrorType {
     GITHUB_API_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "GitHub 서버와 연결할 수 없어요. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
     GITHUB_PARTIAL_ERROR(HttpStatus.MULTI_STATUS, "일부 데이터를 불러오지 못했어요. 랭킹이 정확하지 않을 수 있어요.", LogLevel.WARN),
     GITHUB_RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "지금은 요청이 너무 많아요.", LogLevel.WARN),
+    GITHUB_RATE_LIMIT_EXHAUSTED(HttpStatus.SERVICE_UNAVAILABLE, "일시적으로 서비스 이용이 어려워요. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
 
     /* Batch/API 안정성 관련 에러 */
     GITHUB_API_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "요청 시간이 너무 오래 걸려요. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
