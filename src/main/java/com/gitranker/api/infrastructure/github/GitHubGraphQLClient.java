@@ -1,5 +1,6 @@
 package com.gitranker.api.infrastructure.github;
 
+import com.gitranker.api.global.auth.AuthConstants;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
@@ -77,7 +78,7 @@ public class GitHubGraphQLClient {
 
         return webClientBuilder
                 .baseUrl(graphqlUrl)
-                .defaultHeader("Authorization", "Bearer " + accessToken)
+                .defaultHeader("Authorization", AuthConstants.BEARER_PREFIX + accessToken)
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

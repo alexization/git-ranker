@@ -1,5 +1,6 @@
 package com.gitranker.api.infrastructure.github;
 
+import com.gitranker.api.infrastructure.github.token.TokenState;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,7 +17,7 @@ public class GitHubApiMetrics {
 
     private static final String METRIC_PREFIX = "github_api";
 
-    private final AtomicInteger remaining = new AtomicInteger(5000);
+    private final AtomicInteger remaining = new AtomicInteger(TokenState.DEFAULT_LIMIT);
     private final AtomicLong resetAtEpoch = new AtomicLong(0);
     private final AtomicReference<String> resetAtFormatted = new AtomicReference<>("N/A");
 

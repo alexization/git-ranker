@@ -2,6 +2,7 @@ package com.gitranker.api.global.auth.jwt;
 
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
+import com.gitranker.api.global.auth.AuthConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,8 +65,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
         }
 
         return null;

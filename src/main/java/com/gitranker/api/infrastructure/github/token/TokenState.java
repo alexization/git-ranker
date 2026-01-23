@@ -7,7 +7,7 @@ import java.time.Instant;
 @Getter
 public class TokenState {
 
-    private static final int DEFAULT_LIMIT = 5000;
+    public static final int DEFAULT_LIMIT = 5000;
 
     private final String value;
     private volatile int remaining;
