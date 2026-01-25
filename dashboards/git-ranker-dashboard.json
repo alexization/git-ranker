@@ -36,7 +36,7 @@
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
       "id": 100,
       "panels": [],
-      "title": "🚦 Golden Signals (Service Health)",
+      "title": "Service Health",
       "type": "row"
     },
     {
@@ -76,7 +76,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Request Rate",
+      "title": "Request Rate",
       "type": "stat"
     },
     {
@@ -116,7 +116,7 @@
           "refId": "A"
         }
       ],
-      "title": "🚨 Error Rate (5xx)",
+      "title": "Error Rate (5xx)",
       "type": "stat"
     },
     {
@@ -156,7 +156,7 @@
           "refId": "A"
         }
       ],
-      "title": "⏱️ Latency P99",
+      "title": "Latency P99",
       "type": "stat"
     },
     {
@@ -191,12 +191,12 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", log_category=\"HTTP\"} |= \"느린 요청\" [1h])",
+          "expr": "count_over_time({app=\"api\", event=\"HTTP_RESPONSE\"} | json | latency_ms > 3000 [1h])",
           "legendFormat": "Slow Requests",
           "refId": "A"
         }
       ],
-      "title": "🐢 Slow Requests (1h)",
+      "title": "Slow Requests (1h)",
       "type": "stat"
     },
     {
@@ -234,7 +234,7 @@
           "refId": "A"
         }
       ],
-      "title": "✅ Availability (1h)",
+      "title": "Availability (1h)",
       "type": "gauge"
     },
     {
@@ -273,7 +273,7 @@
           "refId": "A"
         }
       ],
-      "title": "❌ Error Logs (1h)",
+      "title": "Error Logs (1h)",
       "type": "stat"
     },
     {
@@ -281,7 +281,7 @@
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
       "id": 101,
       "panels": [],
-      "title": "📈 Business Metrics (Growth & Activity)",
+      "title": "User Metrics",
       "type": "row"
     },
     {
@@ -300,7 +300,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 8 },
       "id": 10,
       "options": {
         "colorMode": "value",
@@ -314,16 +314,131 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event_type=\"USER_REGISTERED\"} [$__interval])",
+          "expr": "count_over_time({app=\"api\", event=\"USER_REGISTERED\"} [$__range])",
           "legendFormat": "New Users",
           "refId": "A"
         }
       ],
-      "title": "👤 New User Registrations",
+      "title": "New Registrations",
       "type": "stat"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 8 },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "count_over_time({app=\"api\", event=\"USER_LOGIN\"} [$__range])",
+          "legendFormat": "Logins",
+          "refId": "A"
+        }
+      ],
+      "title": "Login Count",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "purple", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 8 },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "count_over_time({app=\"api\", event=\"BADGE_VIEWED\"} [$__range])",
+          "legendFormat": "Badge Views",
+          "refId": "A"
+        }
+      ],
+      "title": "Badge Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "orange", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 8 },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "count_over_time({app=\"api\", event=\"PROFILE_VIEWED\"} [$__range])",
+          "legendFormat": "Profile Views",
+          "refId": "A"
+        }
+      ],
+      "title": "Profile Views",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "User activity trends over time",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -352,8 +467,8 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
-      "id": 11,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "id": 14,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
@@ -362,93 +477,134 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event_type=\"USER_REFRESHED\"} [$__interval]))",
-          "legendFormat": "Profile Refreshes",
+          "expr": "sum(count_over_time({app=\"api\", event=\"USER_REGISTERED\"} [$__interval]))",
+          "legendFormat": "Registrations",
           "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum(count_over_time({app=\"api\", event=\"USER_LOGIN\"} [$__interval]))",
+          "legendFormat": "Logins",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum(count_over_time({app=\"api\", event=\"USER_REFRESH_REQUESTED\"} [$__interval]))",
+          "legendFormat": "Refreshes",
+          "refId": "C"
         }
       ],
-      "title": "🔄 User Profile Refresh Activity",
+      "title": "User Activity Trend",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Profile and Badge view trends",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "normal" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "id": 15,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum(count_over_time({app=\"api\", event=\"PROFILE_VIEWED\"} [$__interval]))",
+          "legendFormat": "Profile Views",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum(count_over_time({app=\"api\", event=\"BADGE_VIEWED\"} [$__interval]))",
+          "legendFormat": "Badge Views",
+          "refId": "B"
+        }
+      ],
+      "title": "Content Views",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 102,
+      "panels": [],
+      "title": "System Resources (GitHub API)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "GitHub API Rate Limit remaining calls",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
           "mappings": [],
+          "max": 5000,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null }
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 100 },
+              { "color": "yellow", "value": 500 },
+              { "color": "green", "value": 1000 }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
-      "id": 12,
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 23 },
+      "id": 30,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event_type=\"API_SUCCEEDED\"} [$__interval])",
-          "legendFormat": "API Calls",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "github_api_remaining{application=\"git-ranker-api\"}",
+          "legendFormat": "Remaining",
           "refId": "A"
         }
       ],
-      "title": "📞 Total GitHub API Calls",
-      "type": "stat"
+      "title": "Token Pool Status",
+      "type": "gauge"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event_type=\"BATCH_COMPLETED\"} [$__interval])",
-          "legendFormat": "Completed Jobs",
-          "refId": "A"
-        }
-      ],
-      "title": "✅ Batch Jobs Completed",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "티어 변동 이벤트 추이. 배치 작업 후 사용자 티어 변동 현황을 모니터링합니다.",
+      "description": "GitHub API call volume by success/failure",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -477,184 +633,42 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": ".*→CHALLENGER.*" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }]
+            "matcher": { "id": "byName", "options": "Success" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           },
           {
-            "matcher": { "id": "byRegexp", "options": ".*→GRANDMASTER.*" },
+            "matcher": { "id": "byName", "options": "Failure" },
             "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byRegexp", "options": ".*→MASTER.*" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byRegexp", "options": ".*→DIAMOND.*" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
           }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
-      "id": 14,
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 23 },
+      "id": 31,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum by (tier_from, tier_to) (count_over_time({app=\"api\", event_type=\"TIER_CHANGED\"} | json | __error__=\"\" [$__interval]))",
-          "legendFormat": "{{tier_from}}→{{tier_to}}",
+          "expr": "sum(count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"true\"} [$__interval]))",
+          "legendFormat": "Success",
           "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum(count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"false\"} [$__interval]))",
+          "legendFormat": "Failure",
+          "refId": "B"
         }
       ],
-      "title": "🏆 Tier Changes",
+      "title": "API Call Volume",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "description": "점수 갱신 이벤트 추이. 사용자별 점수 변동 현황을 모니터링합니다.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "id": 15,
-      "options": {
-        "legend": { "calcs": ["sum", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event_type=\"SCORE_UPDATED\"} [$__interval])",
-          "legendFormat": "Score Updates",
-          "refId": "A"
-        }
-      ],
-      "title": "📊 Score Updates",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
-      "id": 102,
-      "panels": [],
-      "title": "🐙 GitHub API Monitoring",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "GitHub API Rate Limit 잔량 (Prometheus Gauge). Loki 대비 100배 이상 빠른 조회 성능.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 5000,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 100 },
-              { "color": "yellow", "value": 500 },
-              { "color": "green", "value": 1000 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 17 },
-      "id": 30,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "github_api_remaining{application=\"git-ranker-api\"}",
-          "legendFormat": "Remaining",
-          "refId": "A"
-        }
-      ],
-      "title": "🔢 API Rate Limit Remaining",
-      "type": "gauge"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "GitHub API 총 비용 (Prometheus Counter). 빠른 조회 성능.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 3000 },
-              { "color": "red", "value": 4500 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 25 },
-      "id": 35,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "github_api_cost_total{application=\"git-ranker-api\"}",
-          "legendFormat": "Total Cost",
-          "refId": "A"
-        }
-      ],
-      "title": "💰 API Total Cost (Prometheus)",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "GitHub API 호출 성공/실패 비율 (Prometheus Counter).",
+      "description": "GitHub API success/failure ratio",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -663,173 +677,20 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "success" },
+            "matcher": { "id": "byName", "options": "Success" },
             "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           },
           {
-            "matcher": { "id": "byName", "options": "failure" },
+            "matcher": { "id": "byName", "options": "Failure" },
             "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "rate_limited" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
           }
         ]
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 25 },
-      "id": 36,
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 23 },
+      "id": 32,
       "options": {
         "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
         "pieType": "donut",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "github_api_calls_total{application=\"git-ranker-api\"}",
-          "legendFormat": "{{result}}",
-          "refId": "A"
-        }
-      ],
-      "title": "📊 API Calls (Prometheus)",
-      "type": "piechart"
-    },
-    {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "GitHub API 호출당 소비되는 GraphQL 포인트 비용의 추이입니다.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Cost",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 17 },
-      "id": 31,
-      "options": {
-        "legend": { "calcs": ["sum", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "avg(avg_over_time({app=\"api\", event_type=\"API_SUCCEEDED\"} | json | unwrap github_api_cost [$__interval]))",
-          "legendFormat": "API Cost",
-          "refId": "A"
-        }
-      ],
-      "title": "💰 GitHub API Cost per Call",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "GitHub API 응답 시간 (밀리초) 추이입니다.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Latency (ms)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "line+area" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 3000 },
-              { "color": "red", "value": 5000 }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 17 },
-      "id": 32,
-      "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "avg(avg_over_time({app=\"api\", event_type=\"API_SUCCEEDED\"} | json | unwrap github_api_call_time_ms [$__interval]))",
-          "legendFormat": "API Latency",
-          "refId": "A"
-        }
-      ],
-      "title": "⏱️ GitHub API Latency",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "GitHub API 호출 성공/실패 현황입니다.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
-          "mappings": []
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "API_SUCCEEDED" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "API_FAILED" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "API_RATE_THRESHOLD" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
-          }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 17 },
-      "id": 33,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
-        "pieType": "pie",
         "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
         "tooltip": { "mode": "single", "sort": "none" }
       },
@@ -837,50 +698,71 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum by (event_type) (count_over_time({app=\"api\", event_type=~\"API_SUCCEEDED|API_FAILED|API_RATE_THRESHOLD\"} [$__interval]))",
-          "legendFormat": "{{event_type}}",
+          "expr": "count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"true\"} [$__range])",
+          "legendFormat": "Success",
           "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"false\"} [$__range])",
+          "legendFormat": "Failure",
+          "refId": "B"
         }
       ],
-      "title": "📊 API Call Results",
+      "title": "API Success Rate",
       "type": "piechart"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 25 },
-      "id": 34,
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 23 },
+      "id": 33,
       "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{app=\"api\", event_type=~\"API_CALLED|API_SUCCEEDED|API_FAILED|API_RATE_THRESHOLD\"} | json | __error__=\"\"",
+          "expr": "count_over_time({app=\"api\", event=\"RATE_LIMIT_WARNING\"} [$__range])",
+          "legendFormat": "Warnings",
           "refId": "A"
         }
       ],
-      "title": "📋 GitHub API Call Logs",
-      "type": "logs"
+      "title": "Rate Limit Warnings",
+      "type": "stat"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 33 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
       "id": 103,
       "panels": [],
-      "title": "⚙️ Operations & Batch Jobs",
+      "title": "Batch Jobs",
       "type": "row"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 34 },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 32 },
       "id": 40,
       "options": {
         "dedupStrategy": "none",
@@ -896,53 +778,50 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{app=\"api\", log_category=\"BATCH\"}",
+          "expr": "{app=\"api\", event=~\"BATCH_COMPLETED|BATCH_ITEM_FAILED\"}",
           "refId": "A"
         }
       ],
-      "title": "📋 Batch Job Execution Log",
+      "title": "Batch Job Logs",
       "type": "logs"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "description": "최근 배치 작업의 진행률. 10% 단위로 기록됩니다.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
           "mappings": [],
-          "max": 100,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "green", "value": 90 }
+              { "color": "green", "value": null }
             ]
           },
-          "unit": "percent"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 34 },
-      "id": 44,
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 32 },
+      "id": 41,
       "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
       },
       "pluginVersion": "10.0.0",
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "max(last_over_time({app=\"api\", event_type=\"BATCH_PROGRESS\"} | json | unwrap batch_progress_percent [$__interval]))",
-          "legendFormat": "Progress",
+          "expr": "count_over_time({app=\"api\", event=\"BATCH_COMPLETED\"} [$__range])",
+          "legendFormat": "Completed",
           "refId": "A"
         }
       ],
-      "title": "📊 Batch Progress",
-      "type": "gauge"
+      "title": "Batch Jobs Completed",
+      "type": "stat"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
@@ -961,8 +840,8 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 34 },
-      "id": 41,
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 32 },
+      "id": 42,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -975,16 +854,17 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event_type=\"BATCH_ITEM_FAILED\"} [$__interval])",
+          "expr": "count_over_time({app=\"api\", event=\"BATCH_ITEM_FAILED\"} [$__range])",
           "legendFormat": "Failures",
           "refId": "A"
         }
       ],
-      "title": "❌ Batch Item Failures",
+      "title": "Batch Item Failures",
       "type": "stat"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Batch failure details",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -993,7 +873,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 39 },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 37 },
       "id": 43,
       "options": {
         "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] },
@@ -1005,25 +885,25 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum by (error_code) (count_over_time({app=\"api\", level=\"ERROR\"} | json | __error__=\"\" | error_code != \"\" [$__interval]))",
-          "legendFormat": "{{error_code}}",
+          "expr": "sum by (error_type) (count_over_time({app=\"api\", event=\"BATCH_ITEM_FAILED\"} | json | __error__=\"\" [$__range]))",
+          "legendFormat": "{{error_type}}",
           "refId": "A"
         }
       ],
-      "title": "📊 Exception Type Breakdown",
+      "title": "Failure Types",
       "type": "piechart"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
       "id": 104,
       "panels": [],
-      "title": "🔍 Troubleshooting (Live Logs)",
+      "title": "Troubleshooting",
       "type": "row"
     },
     {
       "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 45 },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 43 },
       "id": 50,
       "options": {
         "dedupStrategy": "none",
@@ -1043,17 +923,17 @@
           "refId": "A"
         }
       ],
-      "title": "🚨 Live Error & Warn Logs",
+      "title": "Error & Warning Logs",
       "type": "logs"
     },
     {
       "collapsed": true,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 57 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 55 },
       "id": 105,
       "panels": [
         {
           "datasource": { "type": "loki", "uid": "loki" },
-          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 58 },
+          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 56 },
           "id": 60,
           "options": {
             "dedupStrategy": "none",
@@ -1073,18 +953,18 @@
               "refId": "A"
             }
           ],
-          "title": "🔎 Search Results",
+          "title": "Search Results",
           "type": "logs"
         }
       ],
-      "title": "🔎 Log Search",
+      "title": "Log Search",
       "type": "row"
     }
   ],
   "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["git-ranker", "ops", "business", "loki"],
+  "tags": ["git-ranker", "loki"],
   "templating": {
     "list": [
       {
@@ -1132,6 +1012,6 @@
   "timezone": "Asia/Seoul",
   "title": "Git Ranker - Operations Dashboard",
   "uid": "git-ranker-ops",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
