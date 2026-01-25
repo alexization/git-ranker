@@ -4,9 +4,6 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,14 +21,11 @@ public class ActivityLogService {
 
     @Transactional
     public void saveActivityLog(User user, ActivityStatistics currentStats, ActivityStatistics diffStats, LocalDate logDate) {
-        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
-
         ActivityLog activityLog = ActivityLog.of(user, currentStats, diffStats, logDate);
 
         activityLogRepository.save(activityLog);
 
-        MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("활동 로그 저장 완료 - 사용자: {}, 일자: {}", user.getUsername(), logDate);
+        log.debug("활동 로그 저장 완료 - 사용자: {}, 일자: {}", user.getUsername(), logDate);
     }
 
     @Transactional

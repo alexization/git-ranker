@@ -2,6 +2,8 @@ package com.gitranker.api.infrastructure.github.token;
 
 import com.gitranker.api.global.error.exception.GitHubRateLimitExhaustedException;
 import com.gitranker.api.global.error.message.ConfigurationMessages;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -91,7 +93,11 @@ public class GitHubTokenPool {
                     token.update(remaining, resetInstant);
 
                     if (remaining <= threshold) {
-                        log.warn("토큰 임계값 도달 - Remaining: {}, ResetAt: {}", remaining, resetAt);
+                        LogContext.event(Event.RATE_LIMIT_WARNING)
+                                .with("remaining", remaining)
+                                .with("threshold", threshold)
+                                .with("reset_at", resetAt.toString())
+                                .warn();
                     }
                 });
     }

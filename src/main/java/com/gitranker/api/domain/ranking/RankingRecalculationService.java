@@ -1,9 +1,6 @@
 package com.gitranker.api.domain.ranking;
 
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,20 +20,16 @@ public class RankingRecalculationService {
 
     @Transactional
     public synchronized boolean recalculateIfNeeded() {
-        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.REQUEST);
-
         LocalDateTime now = LocalDateTime.now();
 
         if (shouldSkipRecalculation(now)) {
-            MdcUtils.setEventType(EventType.SKIP);
             return false;
         }
 
         userRepository.bulkUpdateRanking();
         lastRecalculationTime = now;
 
-        MdcUtils.setEventType(EventType.SUCCESS);
-        log.info("랭킹 재산정 완료");
+        log.debug("랭킹 재산정 완료");
 
         return true;
     }

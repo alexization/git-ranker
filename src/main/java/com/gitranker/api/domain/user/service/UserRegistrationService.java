@@ -7,8 +7,8 @@ import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.auth.OAuthAttributes;
-import com.gitranker.api.global.logging.BusinessEventLogger;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
@@ -29,12 +29,8 @@ public class UserRegistrationService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
-    private final BusinessEventLogger eventLogger;
 
     public RegisterUserResponse register(OAuthAttributes attributes) {
-        String username = attributes.username();
-        MdcUtils.setUsername(username);
-
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
         return existingUser.map(user -> handleExistingUser(user, attributes))
@@ -52,14 +48,17 @@ public class UserRegistrationService {
 
         User savedUser = userPersistenceService.saveNewUser(newUser, totalStats, baselineStats);
 
-        eventLogger.userRegistered(savedUser);
+        LogContext.event(Event.USER_REGISTERED)
+                .with("username", savedUser.getUsername())
+                .with("node_id", savedUser.getNodeId())
+                .with("initial_score", savedUser.getTotalScore())
+                .with("initial_tier", savedUser.getTier().name())
+                .info();
 
         return createResponse(savedUser, true);
     }
 
     private RegisterUserResponse handleExistingUser(User user, OAuthAttributes attributes) {
-        MdcUtils.setNodeId(user.getNodeId());
-
         boolean isInfoChanged = !user.getUsername().equals(attributes.username()) ||
                                 !user.getProfileImage().equals(attributes.profileImage()) ||
                                 (attributes.email()) != null && !attributes.email().equals(user.getEmail());
@@ -70,8 +69,6 @@ public class UserRegistrationService {
             log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
             currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage());
         }
-
-        eventLogger.authSuccess(currentUser.getUsername(), "OAUTH2");
 
         return createResponse(currentUser, false);
     }

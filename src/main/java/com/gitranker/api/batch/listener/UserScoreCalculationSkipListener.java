@@ -5,9 +5,8 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.SkipListener;
@@ -23,36 +22,39 @@ public class UserScoreCalculationSkipListener implements SkipListener<User, User
 
     @Override
     public void onSkipInRead(Throwable t) {
-        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
-        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
-
-        log.error("배치 읽기 단계 Skip - Reason: {}", t.getMessage());
+        LogContext.event(Event.BATCH_ITEM_FAILED)
+                .with("username", "UNKNOWN")
+                .with("phase", "READ")
+                .with("error_type", t.getClass().getSimpleName())
+                .with("error_message", t.getMessage())
+                .with("retryable", isRetryableError(t))
+                .error();
 
         saveFailureLog("UNKNOWN_USER", t, "READ_PHASE");
     }
 
     @Override
     public void onSkipInWrite(User user, Throwable t) {
-        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
-        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
-        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
-
-        log.error("배치 쓰기 단계 Skip - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
+        LogContext.event(Event.BATCH_ITEM_FAILED)
+                .with("username", user.getUsername())
+                .with("phase", "WRITE")
+                .with("error_type", t.getClass().getSimpleName())
+                .with("error_message", t.getMessage())
+                .with("retryable", isRetryableError(t))
+                .error();
 
         saveFailureLog(user.getUsername(), t, "WRITE_PHASE");
     }
 
     @Override
     public void onSkipInProcess(User user, Throwable t) {
-        MdcUtils.setLogContext(LogCategory.BATCH, EventType.SKIP);
-        MdcUtils.setUserContext(user.getUsername(), user.getNodeId());
-        MdcUtils.setError(t.getClass().getSimpleName(), t.getMessage());
-
-        if (isRetryableError(t)) {
-            log.warn("배치 처리 단계 Skip (재시도 소진) - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
-        } else {
-            log.info("배치 처리 단계 Skip (재시도 불가) - 사용자: {}, Reason: {}", user.getUsername(), t.getMessage());
-        }
+        LogContext.event(Event.BATCH_ITEM_FAILED)
+                .with("username", user.getUsername())
+                .with("phase", "PROCESS")
+                .with("error_type", t.getClass().getSimpleName())
+                .with("error_message", t.getMessage())
+                .with("retryable", isRetryableError(t))
+                .warn();
 
         saveFailureLog(user.getUsername(), t, "PROCESS_PHASE");
     }
