@@ -9,18 +9,15 @@ import com.gitranker.api.domain.user.vo.RankInfo;
 import com.gitranker.api.domain.user.vo.Score;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BadgeService {
@@ -40,8 +37,9 @@ public class BadgeService {
                 activityLogRepository.getTopByUserOrderByActivityDateDesc(user)
         ).orElseGet(() -> ActivityLog.empty(user, LocalDate.now()));
 
-        MdcUtils.setUserContext(user.getUsername(), nodeId);
-        MdcUtils.setLogContext(LogCategory.DOMAIN, EventType.SUCCESS);
+        LogContext.event(Event.BADGE_VIEWED)
+                .with("target_username", user.getUsername())
+                .info();
 
         return createSvgContent(user, user.getTier(), activityLog);
     }

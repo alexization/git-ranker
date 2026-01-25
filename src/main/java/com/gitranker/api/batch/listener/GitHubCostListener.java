@@ -1,12 +1,10 @@
 package com.gitranker.api.batch.listener;
 
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.logging.BusinessEventLogger;
-import com.gitranker.api.global.logging.MdcKey;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
@@ -17,45 +15,35 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GitHubCostListener implements JobExecutionListener {
 
-    public static final String TOTAL_COST_KEY = "totalGitHubCost";
-
     private final UserRepository userRepository;
-    private final BusinessEventLogger eventLogger;
     private final BatchProgressListener progressListener;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
-        jobExecution.getExecutionContext().putInt(TOTAL_COST_KEY, 0);
-
         progressListener.reset();
 
         int totalUserCount = (int) userRepository.count();
 
-        eventLogger.batchStarted(jobExecution.getJobInstance().getJobName(), totalUserCount);
+        log.debug("배치 작업 시작 - Job: {}, 총 사용자 수: {}",
+                jobExecution.getJobInstance().getJobName(), totalUserCount);
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
         String jobName = jobExecution.getJobInstance().getJobName();
-        int totalCost = jobExecution.getExecutionContext().getInt(TOTAL_COST_KEY, 0);
         long durationMs = calculateDuration(jobExecution);
 
         BatchStatistics stats = aggregateStepStatistics(jobExecution);
 
-        MDC.put(MdcKey.GITHUB_API_COST, String.valueOf(totalCost));
-
-        eventLogger.batchCompleted(
-                jobName,
-                stats.totalCount,
-                stats.successCount,
-                stats.failCount,
-                stats.skipCount,
-                durationMs
-        );
-
-        if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-            log.info("배치 작업 GitHub API 총 비용: {}", totalCost);
-        }
+        LogContext.event(Event.BATCH_COMPLETED)
+                .with("job_name", jobName)
+                .with("status", jobExecution.getStatus().toString())
+                .with("total_count", stats.totalCount)
+                .with("success_count", stats.successCount)
+                .with("fail_count", stats.failCount)
+                .with("skip_count", stats.skipCount)
+                .with("duration_ms", durationMs)
+                .info();
     }
 
     private long calculateDuration(JobExecution jobExecution) {

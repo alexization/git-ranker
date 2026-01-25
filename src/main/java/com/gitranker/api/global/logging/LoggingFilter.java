@@ -3,14 +3,12 @@ package com.gitranker.api.global.logging;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class LoggingFilter implements Filter {
@@ -29,31 +27,30 @@ public class LoggingFilter implements Filter {
             return;
         }
 
-        MdcUtils.setupHttpRequestContext(httpRequest);
-        MdcUtils.setEventType(EventType.REQUEST);
+        LogContext.setTraceId(LogContext.generateTraceId());
 
         long start = System.currentTimeMillis();
-
-        log.debug("{} {} 요청 수신", httpRequest.getMethod(), requestUri);
 
         try {
             chain.doFilter(request, response);
         } finally {
             long latency = System.currentTimeMillis() - start;
             int status = httpResponse.getStatus();
+            String method = httpRequest.getMethod();
 
-            MdcUtils.setHttpResponse(status, latency);
-            MdcUtils.setLogContext(LogCategory.HTTP, EventType.RESPONSE);
+            LogContext logContext = LogContext.event(Event.HTTP_RESPONSE)
+                    .with("method", method)
+                    .with("uri", requestUri)
+                    .with("status", status)
+                    .with("latency_ms", latency);
 
             if (latency > SLOW_REQUEST_THRESHOLD_MS) {
-                log.warn("{} {} 응답 완료 (느린 요청) - Status: {}, Latency: {}ms",
-                        httpRequest.getMethod(), requestUri, status, latency);
+                logContext.warn();
             } else {
-                log.info("{} {} 응답 완료 - Status: {}, Latency: {}ms",
-                        httpRequest.getMethod(), requestUri, status, latency);
+                logContext.info();
             }
 
-            MdcUtils.clear();
+            LogContext.clear();
         }
     }
 

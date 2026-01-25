@@ -2,9 +2,7 @@ package com.gitranker.api.batch.scheduler;
 
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -30,8 +28,7 @@ public class BatchScheduler {
     public void runDailyScoreRecalculationJob() {
         final String jobName = "DailyScoreRecalculation";
 
-        MdcUtils.setupBatchJobContext(jobName);
-        MdcUtils.setEventType(EventType.REQUEST);
+        LogContext.setTraceId(LogContext.generateTraceId());
 
         log.debug("배치 Job 시작 - Name: {}", jobName);
 
@@ -42,18 +39,12 @@ public class BatchScheduler {
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
-            MdcUtils.setEventType(EventType.SUCCESS);
-            log.info("배치 Job 완료 - Name: {}", jobName);
-
         } catch (Exception e) {
-            MdcUtils.setLogContext(LogCategory.BATCH, EventType.FAILURE);
-            MdcUtils.setError(ErrorType.BATCH_JOB_FAILED.name(), e.getMessage());
-
             log.error("배치 Job 실패 - Name: {}, Reason: {}", jobName, e.getMessage(), e);
 
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {
-            MdcUtils.clear();
+            LogContext.clear();
         }
     }
 }

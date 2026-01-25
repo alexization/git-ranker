@@ -1,8 +1,7 @@
 package com.gitranker.api.global.aop;
 
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.GitHubApiMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,6 @@ public class GitHubApiLoggingAspect {
     public Object logGithubApiCall(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();
 
-        MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_CALLED);
         log.debug("GitHub API 호출 시작 - Method: {}", methodName);
 
         long start = System.currentTimeMillis();
@@ -32,13 +30,12 @@ public class GitHubApiLoggingAspect {
             Object result = joinPoint.proceed();
 
             long latency = System.currentTimeMillis() - start;
-            MdcUtils.setGithubApiCallTime(latency);
 
-            String cost = MdcUtils.getGithubApiCost();
-
-            MdcUtils.setEventType(EventType.API_SUCCEEDED);
-            log.info("GitHub API 응답 수신 - Method: {}, Latency: {}ms, Cost: {}",
-                    methodName, latency, cost);
+            LogContext.event(Event.GITHUB_API_CALLED)
+                    .with("method", methodName)
+                    .with("latency_ms", latency)
+                    .with("success", true)
+                    .info();
 
             apiMetrics.recordSuccess(latency);
 
@@ -46,12 +43,14 @@ public class GitHubApiLoggingAspect {
 
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
-            MdcUtils.setGithubApiCallTime(latency);
 
-            MdcUtils.setEventType(EventType.API_FAILED);
-            MdcUtils.setError(e.getClass().getSimpleName(), e.getMessage());
-            log.error("GitHub API 실패 - Method: {}, Latency: {}ms, Error: {}",
-                    methodName, latency, e.getMessage());
+            LogContext.event(Event.GITHUB_API_CALLED)
+                    .with("method", methodName)
+                    .with("latency_ms", latency)
+                    .with("success", false)
+                    .with("error_type", e.getClass().getSimpleName())
+                    .with("error_message", e.getMessage())
+                    .error();
 
             throw e;
         }

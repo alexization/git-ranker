@@ -8,8 +8,8 @@ import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.logging.BusinessEventLogger;
-import com.gitranker.api.global.logging.MdcUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
@@ -27,15 +27,10 @@ public class UserRefreshService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
-    private final BusinessEventLogger eventLogger;
 
     public RegisterUserResponse refresh(String username) {
-        MdcUtils.setUsername(username);
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
-
-        MdcUtils.setNodeId(user.getNodeId());
 
         if (!user.canTriggerFullScan()) {
             log.debug("갱신 쿨다운 미충족 - 사용자: {}, 다음 가능 시간: {}",
@@ -53,7 +48,14 @@ public class UserRefreshService {
 
         User updatedUser = userPersistenceService.updateUserStatisticsWithoutLog(user.getId(), totalStats);
 
-        eventLogger.userRefreshed(updatedUser, oldScore, updatedUser.getTotalScore());
+        int scoreDiff = updatedUser.getTotalScore() - oldScore;
+
+        LogContext.event(Event.USER_REFRESH_REQUESTED)
+                .with("username", updatedUser.getUsername())
+                .with("old_score", oldScore)
+                .with("new_score", updatedUser.getTotalScore())
+                .with("score_diff", scoreDiff >= 0 ? "+" + scoreDiff : String.valueOf(scoreDiff))
+                .info();
 
         return createResponse(updatedUser);
     }

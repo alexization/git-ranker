@@ -1,7 +1,6 @@
 package com.gitranker.api.batch.listener;
 
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.global.logging.BusinessEventLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ChunkListener;
@@ -16,7 +15,6 @@ public class BatchProgressListener implements ChunkListener {
     private static final int PROGRESS_LOG_INTERVAL = 10;
 
     private final UserRepository userRepository;
-    private final BusinessEventLogger eventLogger;
 
     private int totalCount = 0;
     private int lastLoggedPercentage = 0;
@@ -43,12 +41,8 @@ public class BatchProgressListener implements ChunkListener {
         if (currentPercentage >= lastLoggedPercentage + PROGRESS_LOG_INTERVAL) {
             int roundedPercentage = (currentPercentage / PROGRESS_LOG_INTERVAL) * PROGRESS_LOG_INTERVAL;
 
-            eventLogger.batchProgress(
-                    jobName,
-                    (int) processedCount,
-                    totalCount,
-                    roundedPercentage
-            );
+            log.debug("배치 진행 - Job: {}, 진행: {}/{} ({}%)",
+                    jobName, processedCount, totalCount, roundedPercentage);
 
             lastLoggedPercentage = roundedPercentage;
         }

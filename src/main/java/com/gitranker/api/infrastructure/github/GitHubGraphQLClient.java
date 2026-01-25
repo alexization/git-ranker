@@ -7,10 +7,8 @@ import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.error.message.ConfigurationMessages;
-import com.gitranker.api.global.logging.EventType;
-import com.gitranker.api.global.logging.LogCategory;
-import com.gitranker.api.global.logging.MdcUtils;
-import com.gitranker.api.global.util.TimeUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
 import com.gitranker.api.infrastructure.github.dto.GitHubRateLimitInfo;
@@ -45,7 +43,6 @@ public class GitHubGraphQLClient {
     private final WebClient.Builder webClientBuilder;
     private final GraphQLQueryBuilder queryBuilder;
     private final ZoneId appZoneId;
-    private final TimeUtils timeUtils;
     private final String graphqlUrl;
     private final GitHubApiMetrics apiMetrics;
     private final GitHubTokenPool tokenPool;
@@ -55,7 +52,6 @@ public class GitHubGraphQLClient {
             @Value("${github.api.graphql-url}") String graphqlUrl,
             GraphQLQueryBuilder queryBuilder,
             ZoneId appZoneId,
-            TimeUtils timeUtils,
             WebClient.Builder webClientBuilder,
             GitHubApiMetrics apiMetrics,
             GitHubTokenPool tokenPool,
@@ -64,7 +60,6 @@ public class GitHubGraphQLClient {
         this.graphqlUrl = graphqlUrl;
         this.queryBuilder = queryBuilder;
         this.appZoneId = appZoneId;
-        this.timeUtils = timeUtils;
         this.webClientBuilder = webClientBuilder;
         this.apiMetrics = apiMetrics;
         this.tokenPool = tokenPool;
@@ -124,8 +119,6 @@ public class GitHubGraphQLClient {
                 .block();
 
         if (aggregatedResponse == null || aggregatedResponse.data() == null) {
-            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
-            MdcUtils.setError(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED.name(), "응답 데이터 없음");
             log.error("활동 데이터 수집 실패 - 사용자: {}", username);
 
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
@@ -157,8 +150,11 @@ public class GitHubGraphQLClient {
 
     private void checkRateLimitSafety(int remaining, LocalDateTime resetAt) {
         if (remaining < SAFE_REMAINING_THRESHOLD) {
-            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.API_RATE_THRESHOLD);
-            log.warn("Rate Limit 임계값 도달 - Remaining: {}, ResetAt: {}", remaining, resetAt);
+            LogContext.event(Event.RATE_LIMIT_WARNING)
+                    .with("remaining", remaining)
+                    .with("threshold", SAFE_REMAINING_THRESHOLD)
+                    .with("reset_at", resetAt.toString())
+                    .warn();
 
             apiMetrics.recordRateLimitExceeded();
 
@@ -205,9 +201,6 @@ public class GitHubGraphQLClient {
         } catch (GitHubApiRetryableException | GitHubApiNonRetryableException e) {
             throw e;
         } catch (Exception e) {
-            MdcUtils.setLogContext(LogCategory.EXTERNAL_API, EventType.FAILURE);
-            MdcUtils.setError(e.getClass().getSimpleName(), e.getMessage());
-
             log.error("예기치 않은 API 에러 발생", e);
 
             throw new BusinessException(ErrorType.GITHUB_API_ERROR, e.getMessage());
@@ -215,10 +208,6 @@ public class GitHubGraphQLClient {
     }
 
     private void recordRateLimitInfo(String accessToken, GitHubRateLimitInfo rateLimit) {
-        MdcUtils.setGithubApiCost(rateLimit.cost());
-        MdcUtils.setGithubApiRemaining(rateLimit.remaining());
-        MdcUtils.setGithubApiResetAt(timeUtils.formatForLog(rateLimit.resetAt()));
-
         apiMetrics.recordRateLimit(rateLimit.cost(), rateLimit.remaining(), rateLimit.resetAt());
 
         tokenPool.updateTokenState(accessToken, rateLimit.remaining(), rateLimit.resetAt());
