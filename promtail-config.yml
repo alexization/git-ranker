@@ -32,62 +32,34 @@ scrape_configs:
     pipeline_stages:
       - docker: {}
 
-      # JSON 파싱 - 모든 필드 추출
       - json:
           expressions:
             level: level
-            log_category: log_category
-            event_type: event_type
+            event: event
             trace_id: trace_id
             msg: message
-            http_method: http_method
-            request_uri: request_uri
-            http_status: http_status
-            latency_ms: latency_ms
             username: username
-            node_id: node_id
-            tier: tier
-            tier_from: tier_from
-            tier_to: tier_to
-            score: score
-            score_from: score_from
-            score_to: score_to
-            ranking: ranking
             job_name: job_name
-            step_name: step_name
-            batch_total_count: batch_total_count
-            batch_processed_count: batch_processed_count
-            batch_success_count: batch_success_count
-            batch_fail_count: batch_fail_count
-            batch_skip_count: batch_skip_count
-            batch_progress_percent: batch_progress_percent
-            batch_duration_ms: batch_duration_ms
-            github_api_cost: github_api_cost
-            github_api_remaining: github_api_remaining
-            github_api_reset_at: github_api_reset_at
-            github_api_call_time_ms: github_api_call_time_ms
-            error_code: error_code
-            error_message: error_message
-            auth_method: auth_method
-            auth_failure_reason: auth_failure_reason
+            status: status
+            success: success
+            method: method
+            latency_ms: latency_ms
 
       - labels:
           level:
-          log_category:
-          event_type:
-          http_method:
+          event:
 
       - template:
-          source: http_status
-          template: '{{ if .http_status }}{{ if regexMatch "^2" .http_status }}2xx{{ else if regexMatch "^3" .http_status }}3xx{{ else if regexMatch "^4" .http_status }}4xx{{ else if regexMatch "^5" .http_status }}5xx{{ else }}other{{ end }}{{ end }}'
+          source: success
+          template: '{{ if eq .success "true" }}true{{ else if eq .success "false" }}false{{ else }}{{ end }}'
+      - labels:
+          success:
+
+      - template:
+          source: status
+          template: '{{ if .status }}{{ if regexMatch "^2" .status }}2xx{{ else if regexMatch "^4" .status }}4xx{{ else if regexMatch "^5" .status }}5xx{{ else }}other{{ end }}{{ end }}'
       - labels:
           status_group:
-
-      - match:
-          selector: '{log_category="BATCH"}'
-          stages:
-            - labels:
-                job_name:
 
       - timestamp:
           source: "@timestamp"
