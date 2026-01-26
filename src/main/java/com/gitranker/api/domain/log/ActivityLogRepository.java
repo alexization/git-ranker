@@ -11,4 +11,6 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
     ActivityLog getTopByUserOrderByActivityDateDesc(User user);
 
     Optional<ActivityLog> findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(User user, LocalDate date);
+
+    void deleteAllByUser(User user);
 }
