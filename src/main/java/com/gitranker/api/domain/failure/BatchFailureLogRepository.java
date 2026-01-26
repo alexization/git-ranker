@@ -11,4 +11,6 @@ public interface BatchFailureLogRepository extends JpaRepository<BatchFailureLog
     List<BatchFailureLog> findByJobNameOrderByCreatedAtDesc(String jobName);
 
     List<BatchFailureLog> findByTargetId(String targetId);
+
+    void deleteAllByTargetId(String targetId);
 }

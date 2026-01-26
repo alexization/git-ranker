@@ -8,6 +8,7 @@ public enum Event {
     USER_REGISTERED("신규 사용자 등록 완료"),
     USER_LOGIN("로그인 성공"),
     USER_REFRESH_REQUESTED("수동 갱신 요청"),
+    USER_DELETED("사용자 계정 삭제"),
     PROFILE_VIEWED("프로필 조회"),
     BADGE_VIEWED("배지 조회"),
 
