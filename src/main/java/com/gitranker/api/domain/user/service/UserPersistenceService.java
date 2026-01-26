@@ -67,7 +67,7 @@ public class UserPersistenceService {
                                          ActivityStatistics totalStats,
                                          ActivityStatistics baselineStats) {
         LocalDate today = LocalDate.now();
-        ActivityStatistics zeroDiff = ActivityStatistics.zeroDiff();
+        ActivityStatistics zeroDiff = ActivityStatistics.empty();
 
         if (baselineStats != null) {
             int lastYear = today.getYear() - 1;

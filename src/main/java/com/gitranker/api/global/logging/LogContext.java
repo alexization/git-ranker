@@ -1,8 +1,6 @@
 package com.gitranker.api.global.logging;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.LinkedHashMap;
@@ -26,6 +24,32 @@ public class LogContext {
         clearEventFields();
 
         return new LogContext(event);
+    }
+
+    private static void clearEventFields() {
+        String traceId = MDC.get(MDC_KEY_TRACE_ID);
+
+        MDC.clear();
+
+        if (traceId != null) {
+            MDC.put(MDC_KEY_TRACE_ID, traceId);
+        }
+    }
+
+    public static String getTraceId() {
+        return MDC.get(MDC_KEY_TRACE_ID);
+    }
+
+    public static void setTraceId(String traceId) {
+        MDC.put(MDC_KEY_TRACE_ID, traceId);
+    }
+
+    public static void clear() {
+        MDC.clear();
+    }
+
+    public static String generateTraceId() {
+        return java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 
     public LogContext with(String key, Object value) {
@@ -101,32 +125,6 @@ public class LogContext {
             case WARN -> log.warn(message);
             case ERROR -> log.error(message);
         }
-    }
-
-    private static void clearEventFields() {
-        String traceId = MDC.get(MDC_KEY_TRACE_ID);
-
-        MDC.clear();
-
-        if (traceId != null) {
-            MDC.put(MDC_KEY_TRACE_ID, traceId);
-        }
-    }
-
-    public static void setTraceId(String traceId) {
-        MDC.put(MDC_KEY_TRACE_ID, traceId);
-    }
-
-    public static String getTraceId() {
-        return MDC.get(MDC_KEY_TRACE_ID);
-    }
-
-    public static void clear() {
-        MDC.clear();
-    }
-
-    public static String generateTraceId() {
-        return java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 
     private enum LogLevel {
