@@ -84,8 +84,6 @@ public record GitHubAllActivitiesResponse(
         RateLimit rateLimit;
         @JsonProperty("mergedPRs")
         private Search mergedPRs;
-        @JsonProperty("reviewedPRs")
-        private Search reviewedPRs;
 
         @JsonAnySetter
         public void setYearData(String key, YearData value) {
@@ -146,22 +144,7 @@ public record GitHubAllActivitiesResponse(
 
     public record Search(
             @JsonProperty("issueCount")
-            Integer issueCount,
-
-            @JsonProperty("nodes")
-            List<Node> nodes
-    ) {
-    }
-
-    public record Node(
-            @JsonProperty("reviews")
-            Reviews reviews
-    ) {
-    }
-
-    public record Reviews(
-            @JsonProperty("totalCount")
-            int totalCount
+            Integer issueCount
     ) {
     }
 }

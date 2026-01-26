@@ -29,10 +29,6 @@ public class ActivityStatistics {
         return new ActivityStatistics(0, 0, 0, 0, 0);
     }
 
-    public static ActivityStatistics zeroDiff() {
-        return new ActivityStatistics(0, 0, 0, 0, 0);
-    }
-
     public Score calculateScore() {
         return Score.calculate(commitCount, issueCount, reviewCount, prOpenedCount, prMergedCount);
     }
