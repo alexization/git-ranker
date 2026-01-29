@@ -75,7 +75,7 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/git-ranker:latest
 
             echo "[2/3] Restarting container..."
-            docker-compose up -d --no-deps --force-recreate backend
+            docker-compose up -d --no-deps --force-recreate git-ranker-api
 
             echo "[3/3] Cleaning up old images..."
             docker image prune -f
