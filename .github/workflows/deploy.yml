@@ -72,10 +72,10 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
 
             echo "[1/3] Pulling latest image..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/git-ranker:latest
+            docker compose pull git-ranker-api
 
             echo "[2/3] Restarting container..."
-            docker-compose up -d --no-deps --force-recreate git-ranker-api
+            docker compose up -d --no-deps --force-recreate git-ranker-api
 
             echo "[3/3] Cleaning up old images..."
             docker image prune -f
@@ -90,13 +90,14 @@ jobs:
           sleep 45
 
           for i in {1..5}; do
-            if curl -sf "${{ secrets.BACKEND_URL }}/actuator/health" > /dev/null 2>&1; then
-              echo "Health check passed!"
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.BACKEND_URL }}" || echo "000")
+            if [ "$HTTP_STATUS" != "000" ]; then
+              echo "Health check passed! (HTTP $HTTP_STATUS)"
               exit 0
             fi
             echo "Attempt $i/5 failed, retrying in 15s..."
             sleep 15
           done
 
-          echo "Health check failed!"
+          echo "Health check failed! Server not responding."
           exit 1
