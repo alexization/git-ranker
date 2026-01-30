@@ -50,4 +50,24 @@ public class ActivityLogService {
         return findLatestLog(user)
                 .orElseThrow(() -> new BusinessException(ErrorType.ACTIVITY_LOG_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public Optional<ActivityLog> findByDate(User user, LocalDate date) {
+        return activityLogRepository.findByUserAndActivityDate(user, date);
+    }
+
+    @Transactional
+    public void updateActivityLog(ActivityLog activityLog, ActivityStatistics newStats, ActivityStatistics diff) {
+        activityLog.updateStatisticsWithDiff(newStats, diff);
+    }
+
+    @Transactional
+    public void updateBaselineLog(ActivityLog baselineLog, ActivityStatistics newBaselineStats) {
+        baselineLog.updateStatistics(newBaselineStats);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ActivityLog> findPreviousDayLog(User user, LocalDate date) {
+        return activityLogRepository.findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(user, date);
+    }
 }

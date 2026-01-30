@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.user.service;
 
+import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.ranking.RankingRecalculationService;
 import com.gitranker.api.domain.user.User;
@@ -40,27 +41,77 @@ public class UserPersistenceService {
     }
 
     @Transactional
-    public User updateUserStatisticsWithoutLog(Long userId, ActivityStatistics newStats) {
+    public User updateProfile(User user, String newUsername, String newProfileImage) {
+        user.updateProfile(newUsername, newProfileImage, null);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUserStatisticsWithLog(Long userId,
+                                            ActivityStatistics totalStats,
+                                            ActivityStatistics baselineStats) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
-        int newScore = newStats.calculateScore().getValue();
+        int newScore = totalStats.calculateScore().getValue();
         long higherScoreCount = userRepository.countByScoreValueGreaterThan(newScore);
         long totalUserCount = userRepository.count();
 
-        user.updateActivityStatistics(newStats, higherScoreCount, totalUserCount);
+        user.updateActivityStatistics(totalStats, higherScoreCount, totalUserCount);
         user.recordFullScan();
+
+        updateActivityLogsForRefresh(user, totalStats, baselineStats);
 
         rankingRecalculationService.recalculateIfNeeded();
 
         return user;
     }
 
-    @Transactional
-    public User updateProfile(User user, String newUsername, String newProfileImage) {
-        user.updateProfile(newUsername, newProfileImage, null);
+    private void updateActivityLogsForRefresh(User user,
+                                              ActivityStatistics totalStats,
+                                              ActivityStatistics baselineStats) {
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        LocalDate baselineDate = LocalDate.of(currentYear - 1, 12, 31);
 
-        return userRepository.save(user);
+        if (baselineStats != null) {
+            activityLogService.findByDate(user, baselineDate)
+                    .ifPresent(baselineLog -> activityLogService.updateBaselineLog(baselineLog, baselineStats));
+        }
+
+        activityLogService.findByDate(user, today)
+                .ifPresentOrElse(
+                        todayLog -> updateExistingTodayLog(user, todayLog, today, totalStats),
+                        () -> createNewTodayLog(user, today, totalStats)
+                );
+    }
+
+    private void updateExistingTodayLog(User user,
+                                        ActivityLog todayLog,
+                                        LocalDate today,
+                                        ActivityStatistics totalStats) {
+        activityLogService.findPreviousDayLog(user, today)
+                .ifPresentOrElse(
+                        previousLog -> {
+                            ActivityStatistics previousStats = previousLog.toStatistics();
+                            ActivityStatistics diff = totalStats.calculateDiff(previousStats);
+                            activityLogService.updateActivityLog(todayLog, totalStats, diff);
+                        },
+                        () -> activityLogService.updateActivityLog(todayLog, totalStats, ActivityStatistics.empty())
+                );
+    }
+
+    private void createNewTodayLog(User user, LocalDate today, ActivityStatistics totalStats) {
+        activityLogService.findPreviousDayLog(user, today)
+                .ifPresentOrElse(
+                        previousLog -> {
+                            ActivityStatistics previousStats = previousLog.toStatistics();
+                            ActivityStatistics diff = totalStats.calculateDiff(previousStats);
+                            activityLogService.saveActivityLog(user, totalStats, diff, today);
+                        },
+                        () -> activityLogService.saveActivityLog(user, totalStats, ActivityStatistics.empty(), today)
+                );
     }
 
     private void saveNewUserActivityLogs(User user,
