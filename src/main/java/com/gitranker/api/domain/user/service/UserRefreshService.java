@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,9 +35,6 @@ public class UserRefreshService {
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
         if (!user.canTriggerFullScan()) {
-            log.debug("갱신 쿨다운 미충족 - 사용자: {}, 다음 가능 시간: {}",
-                    username, user.getNextFullScanAvailableAt());
-
             throw new BusinessException(ErrorType.REFRESH_COOL_DOWN_EXCEEDED);
         }
 
@@ -45,8 +44,10 @@ public class UserRefreshService {
                 .fetchRawAllActivities(username, user.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
+        ActivityStatistics baselineStats = calculateBaselineStats(user, rawResponse);
 
-        User updatedUser = userPersistenceService.updateUserStatisticsWithoutLog(user.getId(), totalStats);
+        User updatedUser = userPersistenceService.updateUserStatisticsWithLog(
+                user.getId(), totalStats, baselineStats);
 
         int scoreDiff = updatedUser.getTotalScore() - oldScore;
 
@@ -58,6 +59,17 @@ public class UserRefreshService {
                 .info();
 
         return createResponse(updatedUser);
+    }
+
+    private ActivityStatistics calculateBaselineStats(User user, GitHubAllActivitiesResponse rawResponse) {
+        int currentYear = LocalDate.now().getYear();
+
+        if (user.getGithubCreatedAt().getYear() < currentYear) {
+            int lastYear = currentYear - 1;
+            return gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
+        }
+
+        return null;
     }
 
     private RegisterUserResponse createResponse(User user) {
