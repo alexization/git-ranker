@@ -125,4 +125,25 @@ public class ActivityLog {
                 this.reviewCount
         );
     }
+
+    public void updateStatistics(ActivityStatistics stats) {
+        this.commitCount = stats.getCommitCount();
+        this.issueCount = stats.getIssueCount();
+        this.prCount = stats.getPrOpenedCount();
+        this.mergedPrCount = stats.getPrMergedCount();
+        this.reviewCount = stats.getReviewCount();
+    }
+
+    public void updateStatisticsWithDiff(ActivityStatistics stats, ActivityStatistics diff) {
+        this.commitCount = stats.getCommitCount();
+        this.issueCount = stats.getIssueCount();
+        this.prCount = stats.getPrOpenedCount();
+        this.mergedPrCount = stats.getPrMergedCount();
+        this.reviewCount = stats.getReviewCount();
+        this.diffCommitCount = diff.getCommitCount();
+        this.diffIssueCount = diff.getIssueCount();
+        this.diffPrCount = diff.getPrOpenedCount();
+        this.diffMergedPrCount = diff.getPrMergedCount();
+        this.diffReviewCount = diff.getReviewCount();
+    }
 }
