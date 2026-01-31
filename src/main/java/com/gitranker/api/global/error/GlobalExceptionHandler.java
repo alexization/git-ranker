@@ -5,6 +5,7 @@ import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.response.ApiResponse;
 import com.gitranker.api.global.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType, e.getData()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .map(violation -> violation.getMessage())
+                .findFirst()
+                .orElse("잘못된 요청입니다");
+
+        log.warn("입력값 검증 실패 - Message: {}", message);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(ErrorType.INVALID_REQUEST, message));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
