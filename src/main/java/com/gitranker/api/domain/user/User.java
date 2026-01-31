@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_score", columnList = "score_value DESC"),
+        @Index(name = "idx_user_score", columnList = "total_score DESC"),
         @Index(name = "idx_user_tier", columnList = "tier"),
         @Index(name = "idx_user_node_id", columnList = "node_id")
 })
