@@ -53,8 +53,7 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/oauth2/**",
                                 "/actuator/**",
-                                "/api/live/ws",
-                                "/api/batch/**"
+                                "/api/live/ws"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/users/*/refresh",
