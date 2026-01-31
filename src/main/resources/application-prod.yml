@@ -32,6 +32,9 @@ github:
     tokens: ${GITHUB_API_TOKENS}
     threshold: 100
 
+batch:
+  chunk-size: ${BATCH_CHUNK_SIZE:100}
+
 app:
   cors:
     allowed-origins: https://git-ranker.com,https://www.git-ranker.com

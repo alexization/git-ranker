@@ -16,6 +16,7 @@ public class RankingRecalculationService {
 
     private static final Duration DEBOUNCE_DURATION = Duration.ofMinutes(5);
     private final UserRepository userRepository;
+    private final RankingService rankingService;
     private volatile LocalDateTime lastRecalculationTime = null;
 
     @Transactional
@@ -28,6 +29,7 @@ public class RankingRecalculationService {
 
         userRepository.bulkUpdateRanking();
         lastRecalculationTime = now;
+        rankingService.evictRankingCache();
 
         log.debug("랭킹 재산정 완료");
 

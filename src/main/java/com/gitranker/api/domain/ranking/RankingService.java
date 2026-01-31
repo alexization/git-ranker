@@ -6,6 +6,8 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ public class RankingService {
 
     private final UserRepository userRepository;
 
+    @Cacheable(value = "rankings", key = "'page:' + #page + ':tier:' + #tier")
     @Transactional(readOnly = true)
     public RankingList getRankingList(int page, Tier tier) {
         PageRequest pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE);
@@ -45,5 +48,10 @@ public class RankingService {
         log.debug("랭킹 리스트 조회 - Page: {}, Tier: {}", page + 1, tier);
 
         return RankingList.from(rankingPage);
+    }
+
+    @CacheEvict(value = "rankings", allEntries = true)
+    public void evictRankingCache() {
+        log.debug("랭킹 캐시 무효화");
     }
 }

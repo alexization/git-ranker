@@ -3,7 +3,16 @@ package com.gitranker.api.domain.user;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.domain.user.vo.RankInfo;
 import com.gitranker.api.domain.user.vo.Score;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +22,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_user_score", columnList = "total_score DESC"),
+        @Index(name = "idx_user_tier", columnList = "tier"),
+        @Index(name = "idx_user_node_id", columnList = "node_id")
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
