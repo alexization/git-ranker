@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,7 @@ public class UserRefreshService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
+    private final BaselineStatsCalculator baselineStatsCalculator;
 
     public RegisterUserResponse refresh(String username) {
         User user = userRepository.findByUsername(username)
@@ -44,7 +43,7 @@ public class UserRefreshService {
                 .fetchRawAllActivities(username, user.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
-        ActivityStatistics baselineStats = calculateBaselineStats(user, rawResponse);
+        ActivityStatistics baselineStats = baselineStatsCalculator.calculate(user, rawResponse);
 
         User updatedUser = userPersistenceService.updateUserStatisticsWithLog(
                 user.getId(), totalStats, baselineStats);
@@ -59,17 +58,6 @@ public class UserRefreshService {
                 .info();
 
         return createResponse(updatedUser);
-    }
-
-    private ActivityStatistics calculateBaselineStats(User user, GitHubAllActivitiesResponse rawResponse) {
-        int currentYear = LocalDate.now().getYear();
-
-        if (user.getGithubCreatedAt().getYear() < currentYear) {
-            int lastYear = currentYear - 1;
-            return gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
-        }
-
-        return null;
     }
 
     private RegisterUserResponse createResponse(User user) {

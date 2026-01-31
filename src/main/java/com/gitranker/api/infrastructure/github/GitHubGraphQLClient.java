@@ -40,10 +40,9 @@ public class GitHubGraphQLClient {
     private static final int CONCURRENCY_LIMIT = 5;
     private static final int SAFE_REMAINING_THRESHOLD = 50;
 
-    private final WebClient.Builder webClientBuilder;
+    private final WebClient webClient;
     private final GraphQLQueryBuilder queryBuilder;
     private final ZoneId appZoneId;
-    private final String graphqlUrl;
     private final GitHubApiMetrics apiMetrics;
     private final GitHubTokenPool tokenPool;
     private final GitHubApiErrorHandler errorHandler;
@@ -57,25 +56,21 @@ public class GitHubGraphQLClient {
             GitHubTokenPool tokenPool,
             GitHubApiErrorHandler errorHandler
     ) {
-        this.graphqlUrl = graphqlUrl;
+        this.webClient = webClientBuilder
+                .baseUrl(graphqlUrl)
+                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .build();
         this.queryBuilder = queryBuilder;
         this.appZoneId = appZoneId;
-        this.webClientBuilder = webClientBuilder;
         this.apiMetrics = apiMetrics;
         this.tokenPool = tokenPool;
         this.errorHandler = errorHandler;
     }
 
-    private WebClient createWebClient(String accessToken) {
+    private void validateAccessToken(String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalStateException(ConfigurationMessages.GITHUB_ACCESS_TOKEN_REQUIRED);
         }
-
-        return webClientBuilder
-                .baseUrl(graphqlUrl)
-                .defaultHeader("Authorization", AuthConstants.BEARER_PREFIX + accessToken)
-                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .build();
     }
 
     public GitHubUserInfoResponse getUserInfo(String accessToken, String username) {
@@ -96,6 +91,8 @@ public class GitHubGraphQLClient {
     }
 
     public GitHubAllActivitiesResponse getAllActivities(String accessToken, String username, LocalDateTime githubJoinDate) {
+        validateAccessToken(accessToken);
+
         int joinYear = githubJoinDate.getYear();
         int currentYear = LocalDateTime.now(appZoneId).getYear();
 
@@ -105,12 +102,10 @@ public class GitHubGraphQLClient {
                         .map(year -> queryBuilder.buildYearlyContributionQuery(username, year, githubJoinDate))
         );
 
-        WebClient webClient = createWebClient(accessToken);
-
         GitHubAllActivitiesResponse aggregatedResponse = queries
                 .parallel(CONCURRENCY_LIMIT)
                 .runOn(Schedulers.boundedElastic())
-                .flatMap(query -> executeQueryReactive(webClient, query, GitHubAllActivitiesResponse.class))
+                .flatMap(query -> executeQueryReactive(accessToken, query, GitHubAllActivitiesResponse.class))
                 .sequential()
                 .reduce(GitHubAllActivitiesResponse.empty(), (acc, current) -> {
                     acc.merge(current);
@@ -162,10 +157,11 @@ public class GitHubGraphQLClient {
         }
     }
 
-    private <T> Mono<T> executeQueryReactive(WebClient client, String query, Class<T> responseType) {
+    private <T> Mono<T> executeQueryReactive(String accessToken, String query, Class<T> responseType) {
         GitHubGraphQLRequest request = GitHubGraphQLRequest.of(query);
 
-        return client.post()
+        return webClient.post()
+                .header("Authorization", AuthConstants.BEARER_PREFIX + accessToken)
                 .bodyValue(request)
                 .exchangeToMono(response -> {
                     RuntimeException httpError = errorHandler.handleHttpStatus(response);
@@ -193,10 +189,10 @@ public class GitHubGraphQLClient {
     }
 
     private <T> T executeQuery(String accessToken, String query, Class<T> responseType) {
-        WebClient client = createWebClient(accessToken);
+        validateAccessToken(accessToken);
 
         try {
-            return executeQueryReactive(client, query, responseType)
+            return executeQueryReactive(accessToken, query, responseType)
                     .block();
         } catch (GitHubApiRetryableException | GitHubApiNonRetryableException e) {
             throw e;

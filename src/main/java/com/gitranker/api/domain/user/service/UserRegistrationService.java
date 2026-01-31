@@ -29,6 +29,7 @@ public class UserRegistrationService {
     private final ActivityLogService activityLogService;
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
+    private final BaselineStatsCalculator baselineStatsCalculator;
 
     public RegisterUserResponse register(OAuthAttributes attributes) {
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
@@ -44,7 +45,7 @@ public class UserRegistrationService {
                 .fetchRawAllActivities(newUser.getUsername(), newUser.getGithubCreatedAt());
 
         ActivityStatistics totalStats = gitHubDataMapper.toActivityStatistics(rawResponse);
-        ActivityStatistics baselineStats = calculateBaselineStats(newUser, rawResponse);
+        ActivityStatistics baselineStats = baselineStatsCalculator.calculate(newUser, rawResponse);
 
         User savedUser = userPersistenceService.saveNewUser(newUser, totalStats, baselineStats);
 
@@ -71,17 +72,6 @@ public class UserRegistrationService {
         }
 
         return createResponse(currentUser, false);
-    }
-
-    private ActivityStatistics calculateBaselineStats(User user, GitHubAllActivitiesResponse rawResponse) {
-        int currentYear = LocalDate.now().getYear();
-
-        if (user.getGithubCreatedAt().getYear() < currentYear) {
-            int lastYear = currentYear - 1;
-            return gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, lastYear);
-        }
-
-        return null;
     }
 
     private RegisterUserResponse createResponse(User user, boolean isNewUser) {
