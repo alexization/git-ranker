@@ -19,6 +19,9 @@ spring:
     job:
       enabled: false
 
+batch:
+  chunk-size: 100
+
 management:
   server:
     port: 9090

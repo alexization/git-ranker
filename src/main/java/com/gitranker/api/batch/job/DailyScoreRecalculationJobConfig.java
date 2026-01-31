@@ -17,6 +17,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
@@ -26,7 +27,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 public class DailyScoreRecalculationJobConfig {
-    private static final int CHUNK_SIZE = 50;
+
+    @Value("${batch.chunk-size:100}")
+    private int chunkSize;
+
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final UserItemReader userItemReader;
@@ -49,8 +53,8 @@ public class DailyScoreRecalculationJobConfig {
     @Bean
     public Step scoreRecalculationStep() {
         return new StepBuilder("scoreRecalculationStep", jobRepository)
-                .<User, User>chunk(CHUNK_SIZE, transactionManager)
-                .reader(userItemReader.createReader(CHUNK_SIZE))
+                .<User, User>chunk(chunkSize, transactionManager)
+                .reader(userItemReader.createReader(chunkSize))
                 .processor(scoreRecalculationProcessor)
                 .writer(userItemWriter)
                 .faultTolerant()
