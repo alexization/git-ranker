@@ -20,8 +20,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -44,6 +44,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Value("${app.cookie.secure}")
     private boolean isCookieSecure;
 
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenExpirationMs;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -60,12 +63,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String refreshTokenValue = refreshTokenService.issueRefreshToken(user);
 
+        addAccessTokenCookie(response, accessToken);
         addRefreshTokenCookie(response, refreshTokenValue);
 
-        String targetUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri)
-                .queryParam("accessToken", accessToken)
-                .build()
-                .toString();
+        String targetUrl = authorizedRedirectUri;
 
         LogContext.event(Event.USER_LOGIN)
                 .with("username", userResponse.username())
@@ -73,6 +74,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
+        ResponseCookie cookie = CookieUtils.createAccessTokenCookie(
+                accessToken,
+                cookieDomain,
+                isCookieSecure,
+                Duration.ofMillis(accessTokenExpirationMs)
+        );
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
@@ -83,6 +95,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 Duration.ofDays(1)
         );
 
-        response.addHeader("Set-Cookie", cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }

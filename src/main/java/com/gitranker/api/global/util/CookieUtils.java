@@ -13,8 +13,29 @@ import java.util.Optional;
 public class CookieUtils {
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+    private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 
     private CookieUtils() {
+    }
+
+    public static ResponseCookie createAccessTokenCookie(
+            String tokenValue,
+            String domain,
+            boolean secure,
+            Duration maxAge
+    ) {
+        return ResponseCookie.from(ACCESS_TOKEN_COOKIE_NAME, tokenValue)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(maxAge)
+                .domain(domain)
+                .sameSite("Strict")
+                .build();
+    }
+
+    public static ResponseCookie createDeleteAccessTokenCookie(String domain, boolean secure) {
+        return createAccessTokenCookie("", domain, secure, Duration.ZERO);
     }
 
     public static ResponseCookie createRefreshTokenCookie(
