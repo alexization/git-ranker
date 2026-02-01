@@ -18,6 +18,11 @@ public class CookieUtils {
     private CookieUtils() {
     }
 
+    /**
+     * Access Token 쿠키 생성.
+     * SameSite=Lax: OAuth2 리다이렉트(GitHub → 우리 사이트) 시 쿠키 전송을 허용합니다.
+     * SameSite=Strict는 cross-site navigation에서 쿠키를 전송하지 않아 로그인이 실패합니다.
+     */
     public static ResponseCookie createAccessTokenCookie(
             String tokenValue,
             String domain,
@@ -30,7 +35,7 @@ public class CookieUtils {
                 .path("/")
                 .maxAge(maxAge)
                 .domain(domain)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
     }
 
