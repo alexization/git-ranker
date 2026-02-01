@@ -8,21 +8,29 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
+
+    private static final String USERNAME_PATTERN = "^(?=.{1,39}$)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$";
+    private static final String USERNAME_MESSAGE = "GitHub 사용자명은 1-39자의 영문, 숫자, 하이픈만 허용됩니다";
     private final UserQueryService userQueryService;
     private final UserRefreshService userRefreshService;
     private final UserDeletionService userDeletionService;
 
     @GetMapping("/{username}")
-    public ApiResponse<RegisterUserResponse> getUser(@PathVariable String username) {
+    public ApiResponse<RegisterUserResponse> getUser(
+            @PathVariable @Pattern(regexp = USERNAME_PATTERN, message = USERNAME_MESSAGE) String username
+    ) {
         RegisterUserResponse response = userQueryService.findByUsername(username);
 
         return ApiResponse.success(response);
@@ -30,7 +38,7 @@ public class UserController {
 
     @PostMapping("/{username}/refresh")
     public ApiResponse<RegisterUserResponse> refreshUser(
-            @PathVariable String username,
+            @PathVariable @Pattern(regexp = USERNAME_PATTERN, message = USERNAME_MESSAGE) String username,
             @AuthenticationPrincipal User user
     ) {
         if (user == null) {
