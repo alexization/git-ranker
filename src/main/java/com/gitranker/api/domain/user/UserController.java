@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$";
+    private static final String USERNAME_PATTERN = "^(?=.{1,39}$)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$";
     private static final String USERNAME_MESSAGE = "GitHub 사용자명은 1-39자의 영문, 숫자, 하이픈만 허용됩니다";
     private final UserQueryService userQueryService;
     private final UserRefreshService userRefreshService;
