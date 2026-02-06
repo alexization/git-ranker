@@ -8,22 +8,19 @@ import com.gitranker.api.domain.user.service.UserRegistrationService;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
-import com.gitranker.api.global.util.CookieUtils;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.gitranker.api.global.logging.Event;
-import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
-import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -33,21 +30,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
+    private final AuthCookieManager authCookieManager;
 
     @Value("${app.oauth2.authorized-redirect-uri}")
     private String authorizedRedirectUri;
-
-    @Value("${app.cookie.domain}")
-    private String cookieDomain;
-
-    @Value("${app.cookie.secure}")
-    private boolean isCookieSecure;
-
-    @Value("${jwt.access-token-expiration}")
-    private long accessTokenExpirationMs;
-
-    @Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenExpirationMs;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -65,8 +51,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String refreshTokenValue = refreshTokenService.issueRefreshToken(user);
 
-        addAccessTokenCookie(response, accessToken);
-        addRefreshTokenCookie(response, refreshTokenValue);
+        authCookieManager.addAccessTokenCookie(response, accessToken);
+        authCookieManager.addRefreshTokenCookie(response, refreshTokenValue);
 
         LogContext.event(Event.USER_LOGIN)
                 .with("username", userResponse.username())
@@ -74,27 +60,5 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, authorizedRedirectUri);
-    }
-
-    private void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        ResponseCookie cookie = CookieUtils.createAccessTokenCookie(
-                accessToken,
-                cookieDomain,
-                isCookieSecure,
-                Duration.ofMillis(accessTokenExpirationMs)
-        );
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
-
-    private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(
-                refreshToken,
-                cookieDomain,
-                isCookieSecure,
-                Duration.ofMillis(refreshTokenExpirationMs)
-        );
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
