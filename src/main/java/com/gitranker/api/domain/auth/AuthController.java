@@ -52,6 +52,10 @@ public class AuthController {
             @AuthenticationPrincipal User user,
             HttpServletResponse response
     ) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
+        }
+
         authService.logoutAll(user, response);
 
         return ResponseEntity.ok(ApiResponse.success(null));
