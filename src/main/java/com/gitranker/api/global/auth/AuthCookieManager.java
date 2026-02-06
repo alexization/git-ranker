@@ -2,7 +2,6 @@ package com.gitranker.api.global.auth;
 
 import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-@RequiredArgsConstructor
 public class AuthCookieManager {
 
     @Value("${app.cookie.domain}")

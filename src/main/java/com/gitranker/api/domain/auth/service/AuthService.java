@@ -64,10 +64,11 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutAll(User user, HttpServletResponse response) {
+    public void logoutAll(User user, HttpServletRequest request, HttpServletResponse response) {
         refreshTokenRepository.deleteAllByUser(user);
         authCookieManager.clearAccessTokenCookie(response);
         authCookieManager.clearRefreshTokenCookie(response);
+        invalidateSession(request);
 
         log.info("전체 로그아웃 성공 - 사용자: {}", user.getUsername());
     }

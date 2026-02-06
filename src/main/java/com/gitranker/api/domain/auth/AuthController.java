@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<AuthMeResponse>> me(@AuthenticationPrincipal User user) {
         if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
         }
 
         return ResponseEntity.ok(ApiResponse.success(AuthMeResponse.from(user)));
@@ -49,7 +50,7 @@ public class AuthController {
             HttpServletResponse response
     ) {
         if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
         }
 
         String refreshToken = CookieUtils.extractRefreshToken(request);
@@ -61,13 +62,14 @@ public class AuthController {
     @PostMapping("/logout/all")
     public ResponseEntity<ApiResponse<Void>> logoutAll(
             @AuthenticationPrincipal User user,
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
         if (user == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
         }
 
-        authService.logoutAll(user, response);
+        authService.logoutAll(user, request, response);
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
