@@ -47,6 +47,7 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
 
         if (refreshToken.isExpired()) {
+            refreshTokenRepository.delete(refreshToken);
             throw new BusinessException(ErrorType.EXPIRED_REFRESH_TOKEN);
         }
 

@@ -46,6 +46,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Value("${jwt.access-token-expiration}")
     private long accessTokenExpirationMs;
 
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpirationMs;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -89,7 +92,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 refreshToken,
                 cookieDomain,
                 isCookieSecure,
-                Duration.ofDays(1)
+                Duration.ofMillis(refreshTokenExpirationMs)
         );
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
