@@ -26,6 +26,7 @@ import java.time.Duration;
 public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
 
     @Value("${app.cookie.domain}")
@@ -37,7 +38,10 @@ public class AuthService {
     @Value("${jwt.access-token-expiration}")
     private long accessTokenExpirationMs;
 
-    @Transactional(readOnly = true)
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpirationMs;
+
+    @Transactional
     public void refreshAccessToken(String refreshTokenValue, HttpServletResponse response) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
@@ -51,7 +55,10 @@ public class AuthService {
         String newAccessToken = jwtProvider.createAccessToken(user.getUsername(), user.getRole());
         addAccessTokenCookie(response, newAccessToken);
 
-        log.info("Access Token 재발급 성공 - 사용자: {}", user.getUsername());
+        String newRefreshTokenValue = refreshTokenService.issueRefreshToken(user);
+        addRefreshTokenCookie(response, newRefreshTokenValue);
+
+        log.info("토큰 갱신 성공 - 사용자: {}", user.getUsername());
     }
 
     @Transactional
@@ -83,6 +90,13 @@ public class AuthService {
     private void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
         ResponseCookie cookie = CookieUtils.createAccessTokenCookie(
                 accessToken, cookieDomain, isCookieSecure, Duration.ofMillis(accessTokenExpirationMs));
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie cookie = CookieUtils.createRefreshTokenCookie(
+                refreshToken, cookieDomain, isCookieSecure, Duration.ofMillis(refreshTokenExpirationMs));
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
