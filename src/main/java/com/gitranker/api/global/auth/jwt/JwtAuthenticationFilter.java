@@ -3,6 +3,7 @@ package com.gitranker.api.global.auth.jwt;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.auth.AuthConstants;
+import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
         }
 
-        return null;
+        return CookieUtils.getCookieValue(request, CookieUtils.ACCESS_TOKEN_COOKIE_NAME)
+                .orElse(null);
     }
 }

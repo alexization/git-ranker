@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public class CookieUtils {
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
-    private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
+    public static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+    public static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 
     private CookieUtils() {
     }

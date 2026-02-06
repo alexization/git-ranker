@@ -2,7 +2,6 @@ package com.gitranker.api.domain.auth.service;
 
 import com.gitranker.api.domain.auth.RefreshToken;
 import com.gitranker.api.domain.auth.RefreshTokenRepository;
-import com.gitranker.api.domain.auth.TokenResponse;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
@@ -14,9 +13,12 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 @Slf4j
 @Service
@@ -32,8 +34,11 @@ public class AuthService {
     @Value("${app.cookie.secure}")
     private boolean isCookieSecure;
 
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenExpirationMs;
+
     @Transactional(readOnly = true)
-    public TokenResponse refreshAccessToken(String refreshTokenValue) {
+    public void refreshAccessToken(String refreshTokenValue, HttpServletResponse response) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new BusinessException(ErrorType.INVALID_REFRESH_TOKEN));
 
@@ -44,10 +49,9 @@ public class AuthService {
         User user = refreshToken.getUser();
 
         String newAccessToken = jwtProvider.createAccessToken(user.getUsername(), user.getRole());
+        addAccessTokenCookie(response, newAccessToken);
 
         log.info("Access Token 재발급 성공 - 사용자: {}", user.getUsername());
-
-        return new TokenResponse(newAccessToken);
     }
 
     @Transactional
@@ -60,6 +64,7 @@ public class AuthService {
         }
 
         refreshTokenRepository.deleteByToken(refreshTokenValue);
+        clearAccessTokenCookie(response);
         clearRefreshTokenCookie(response);
         invalidateSession(request);
 
@@ -69,15 +74,29 @@ public class AuthService {
     @Transactional
     public void logoutAll(User user, HttpServletResponse response) {
         refreshTokenRepository.deleteAllByUser(user);
+        clearAccessTokenCookie(response);
         clearRefreshTokenCookie(response);
 
         log.info("전체 로그아웃 성공 - 사용자: {}", user.getUsername());
     }
 
+    private void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
+        ResponseCookie cookie = CookieUtils.createAccessTokenCookie(
+                accessToken, cookieDomain, isCookieSecure, Duration.ofMillis(accessTokenExpirationMs));
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private void clearAccessTokenCookie(HttpServletResponse response) {
+        ResponseCookie cookie = CookieUtils.createDeleteAccessTokenCookie(cookieDomain, isCookieSecure);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
     private void clearRefreshTokenCookie(HttpServletResponse response) {
         ResponseCookie cookie = CookieUtils.createDeleteRefreshTokenCookie(cookieDomain, isCookieSecure);
 
-        response.addHeader("Set-Cookie", cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     private void invalidateSession(HttpServletRequest request) {

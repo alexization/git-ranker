@@ -24,12 +24,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<TokenResponse>> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtils.extractRefreshToken(request);
-        TokenResponse tokenResponse = authService.refreshAccessToken(refreshToken);
+        authService.refreshAccessToken(refreshToken, response);
 
-        return ResponseEntity.ok(ApiResponse.success(tokenResponse));
-
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @PostMapping("/logout")
