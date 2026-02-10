@@ -102,9 +102,9 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: loki
+            datasourceUid: prometheus
             model:
-              expr: min(last_over_time({app="api", log_category="EXTERNAL_API", event_type="RESPONSE"} | json | unwrap github_api_remaining [5m]))
+              expr: github_api_remaining{application="git-ranker-api"}
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
@@ -156,13 +156,13 @@ groups:
           - refId: C
             datasourceUid: __expr__
             model:
-              expression: $B > 0
+              expression: $B > 5
               type: math
         dashboardUid: git-ranker-ops
         panelId: 6
         noDataState: OK
         execErrState: Error
-        for: 0s
+        for: 2m
         annotations:
           summary: Error logs detected
           description: "Error logs count (last 1m): {{ $values.B.Value }}"
@@ -184,7 +184,7 @@ groups:
               to: 0
             datasourceUid: loki
             model:
-              expr: count_over_time({app="api", log_category="BATCH", level="ERROR"} [1h])
+              expr: count_over_time({app="api", event=~"BATCH_COMPLETED|BATCH_ITEM_FAILED", level="ERROR"} [1h])
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B

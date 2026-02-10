@@ -56,7 +56,7 @@ scrape_configs:
           success:
 
       - template:
-          source: status
+          source: status_group
           template: '{{ if .status }}{{ if regexMatch "^2" .status }}2xx{{ else if regexMatch "^4" .status }}4xx{{ else if regexMatch "^5" .status }}5xx{{ else }}other{{ end }}{{ end }}'
       - labels:
           status_group:
