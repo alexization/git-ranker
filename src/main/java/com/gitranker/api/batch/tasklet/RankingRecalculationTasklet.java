@@ -28,8 +28,6 @@ public class RankingRecalculationTasklet implements Tasklet {
             log.debug("랭킹 벌크 업데이트 완료 - Latency: {}ms", latency);
 
         } catch (Exception e) {
-            log.error("랭킹 벌크 업데이트 실패 - Reason: {}", e.getMessage(), e);
-
             throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "랭킹 재산정 실패");
         }
 

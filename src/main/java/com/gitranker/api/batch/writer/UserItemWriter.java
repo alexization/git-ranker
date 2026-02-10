@@ -25,8 +25,6 @@ public class UserItemWriter implements ItemWriter<User> {
             log.debug("배치 Chunk 저장 완료 - Size: {}", chunk.getItems().size());
 
         } catch (Exception e) {
-            log.error("배치 Chunk 저장 실패 - Size: {}, Reason: {}", chunk.getItems().size(), e.getMessage(), e);
-
             throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "DB 저장 실패");
         }
     }

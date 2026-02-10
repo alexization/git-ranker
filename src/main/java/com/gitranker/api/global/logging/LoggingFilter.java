@@ -27,7 +27,13 @@ public class LoggingFilter implements Filter {
             return;
         }
 
-        LogContext.setTraceId(LogContext.generateTraceId());
+        LogContext.initRequest(
+                LogContext.generateTraceId(),
+                resolveClientIp(httpRequest),
+                httpRequest.getHeader("User-Agent"),
+                httpRequest.getMethod(),
+                requestUri
+        );
 
         long start = System.currentTimeMillis();
 
@@ -36,11 +42,8 @@ public class LoggingFilter implements Filter {
         } finally {
             long latency = System.currentTimeMillis() - start;
             int status = httpResponse.getStatus();
-            String method = httpRequest.getMethod();
 
             LogContext logContext = LogContext.event(Event.HTTP_RESPONSE)
-                    .with("method", method)
-                    .with("uri", requestUri)
                     .with("status", status)
                     .with("latency_ms", latency);
 
@@ -52,6 +55,17 @@ public class LoggingFilter implements Filter {
 
             LogContext.clear();
         }
+    }
+
+    private String resolveClientIp(HttpServletRequest request) {
+        String[] headers = {"X-Forwarded-For", "X-Real-IP", "Proxy-Client-IP"};
+        for (String header : headers) {
+            String ip = request.getHeader(header);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                return ip.split(",")[0].trim();
+            }
+        }
+        return request.getRemoteAddr();
     }
 
     private boolean isStaticResource(String uri) {

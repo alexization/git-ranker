@@ -57,7 +57,6 @@ public class GitHubDataMapper {
         try {
             return Integer.parseInt(yearKey.replace("year", ""));
         } catch (NumberFormatException e) {
-            log.warn("연도 파싱 실패: {}", yearKey);
             return -1;
         }
     }

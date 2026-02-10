@@ -36,9 +36,12 @@ scrape_configs:
           expressions:
             level: level
             event: event
+            log_category: log_category
             trace_id: trace_id
             msg: message
             username: username
+            client_ip: client_ip
+            user_agent: user_agent
             job_name: job_name
             status: status
             success: success
@@ -48,6 +51,7 @@ scrape_configs:
       - labels:
           level:
           event:
+          log_category:
 
       - template:
           source: success

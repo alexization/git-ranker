@@ -7,15 +7,15 @@ import com.gitranker.api.global.auth.AuthCookieManager;
 import com.gitranker.api.global.auth.jwt.JwtProvider;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -43,7 +43,9 @@ public class AuthService {
         String newRefreshTokenValue = refreshTokenService.issueRefreshToken(user);
         authCookieManager.addRefreshTokenCookie(response, newRefreshTokenValue);
 
-        log.info("토큰 갱신 성공 - 사용자: {}", user.getUsername());
+        LogContext.event(Event.TOKEN_REFRESHED)
+                .with("username", user.getUsername())
+                .info();
     }
 
     @Transactional
@@ -60,7 +62,9 @@ public class AuthService {
         authCookieManager.clearRefreshTokenCookie(response);
         invalidateSession(request);
 
-        log.info("로그아웃 성공 - 사용자: {}", user.getUsername());
+        LogContext.event(Event.LOGOUT)
+                .with("username", user.getUsername())
+                .info();
     }
 
     @Transactional
@@ -70,7 +74,9 @@ public class AuthService {
         authCookieManager.clearRefreshTokenCookie(response);
         invalidateSession(request);
 
-        log.info("전체 로그아웃 성공 - 사용자: {}", user.getUsername());
+        LogContext.event(Event.LOGOUT)
+                .with("username", user.getUsername())
+                .info();
     }
 
     private void invalidateSession(HttpServletRequest request) {

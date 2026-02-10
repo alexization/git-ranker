@@ -4,9 +4,10 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -21,7 +22,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GitHubApiErrorHandler {
@@ -54,36 +54,57 @@ public class GitHubApiErrorHandler {
         String errorString = errors.toString();
 
         if (errorString.contains("Could not resolve to a User")) {
-            log.warn("GitHub 사용자 조회 실패 - 사용자를 찾을 수 없습니다.");
+            LogContext.event(Event.GITHUB_API_CALLED)
+                    .with("success", false)
+                    .with("error_type", "USER_NOT_FOUND")
+                    .warn();
 
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_USER_NOT_FOUND);
         }
 
-        log.warn("GraphQL 부분 에러 발생 - Errors: {}", errors);
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "GRAPHQL_PARTIAL_ERROR")
+                .warn();
 
         throw new GitHubApiRetryableException(ErrorType.GITHUB_PARTIAL_ERROR);
     }
 
     public GitHubApiRetryableException handleTimeout(TimeoutException e, Duration timeout) {
-        log.warn("API 타임아웃 발생 - Timeout: {}초", timeout.getSeconds());
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "TIMEOUT")
+                .with("timeout_seconds", timeout.getSeconds())
+                .warn();
 
         return new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e);
     }
 
     public GitHubApiRetryableException handleReadTimeout(ReadTimeoutException e) {
-        log.warn("읽기 타임아웃 발생");
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "READ_TIMEOUT")
+                .warn();
 
         return new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, e);
     }
 
     public GitHubApiRetryableException handleIOException(IOException e) {
-        log.warn("IO 에러 발생 - {}", e.getMessage());
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "IO_ERROR")
+                .with("error_message", e.getMessage())
+                .warn();
 
         return new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
     }
 
     public GitHubApiRetryableException handleNetworkError(WebClientRequestException e) {
-        log.warn("네트워크 에러 발생 - {}", e.getMessage());
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "NETWORK_ERROR")
+                .with("error_message", e.getMessage())
+                .warn();
 
         throw new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
     }
@@ -91,7 +112,12 @@ public class GitHubApiErrorHandler {
     private GitHubRateLimitException handleRateLimitExceeded(ClientResponse response, int statusValue) {
         LocalDateTime resetAt = parseResetTime(response.headers());
 
-        log.warn("Rate Limit 초과 - Status: {}, ResetAt: {}", statusValue, resetAt);
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "RATE_LIMIT_EXCEEDED")
+                .with("status", statusValue)
+                .with("reset_at", resetAt.toString())
+                .warn();
 
         apiMetrics.recordRateLimitExceeded();
 
@@ -99,7 +125,11 @@ public class GitHubApiErrorHandler {
     }
 
     private GitHubApiRetryableException handleClientError(int statusValue) {
-        log.error("API 클라이언트 에러 - Status: {}", statusValue);
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "CLIENT_ERROR")
+                .with("status", statusValue)
+                .error();
 
         apiMetrics.recordFailure();
 
@@ -107,7 +137,11 @@ public class GitHubApiErrorHandler {
     }
 
     private GitHubApiRetryableException handleServerError(int statusValue) {
-        log.error("API 서버 에러 - Status: {}", statusValue);
+        LogContext.event(Event.GITHUB_API_CALLED)
+                .with("success", false)
+                .with("error_type", "SERVER_ERROR")
+                .with("status", statusValue)
+                .error();
 
         apiMetrics.recordFailure();
 

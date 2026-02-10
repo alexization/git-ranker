@@ -66,7 +66,6 @@ public class GitHubTokenPool {
 
                 if (token.isAvailable(threshold)) {
                     if (idx != startIndex) {
-                        log.info("{}번 토큰에서 {}번 토큰으로 전환", startIndex, idx);
                         currentIndex = idx;
                     }
                     return token.getValue();
@@ -74,7 +73,6 @@ public class GitHubTokenPool {
             }
 
             LocalDateTime earliestResetAt = findEarliestResetAt();
-            log.warn("모든 토큰 소진 - 복구 예정 시간: {}", earliestResetAt);
 
             throw new GitHubRateLimitExhaustedException(earliestResetAt);
         } finally {
