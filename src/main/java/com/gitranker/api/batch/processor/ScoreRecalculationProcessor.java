@@ -54,8 +54,6 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         } catch (GitHubApiRetryableException | GitHubApiNonRetryableException e) {
             throw e;
         } catch (Exception e) {
-            log.error("점수 재계산 실패 - 사용자: {}, Reason: {}", user.getUsername(), e.getMessage(), e);
-
             throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + user.getUsername());
         }
     }

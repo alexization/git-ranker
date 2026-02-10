@@ -54,6 +54,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         authCookieManager.addAccessTokenCookie(response, accessToken);
         authCookieManager.addRefreshTokenCookie(response, refreshTokenValue);
 
+        LogContext.setAuthContext(userResponse.username());
+
         LogContext.event(Event.USER_LOGIN)
                 .with("username", userResponse.username())
                 .info();

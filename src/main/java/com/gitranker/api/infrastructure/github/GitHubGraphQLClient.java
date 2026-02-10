@@ -114,8 +114,6 @@ public class GitHubGraphQLClient {
                 .block();
 
         if (aggregatedResponse == null || aggregatedResponse.data() == null) {
-            log.error("활동 데이터 수집 실패 - 사용자: {}", username);
-
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_COLLECT_ACTIVITY_FAILED);
         }
 
@@ -197,8 +195,6 @@ public class GitHubGraphQLClient {
         } catch (GitHubApiRetryableException | GitHubApiNonRetryableException e) {
             throw e;
         } catch (Exception e) {
-            log.error("예기치 않은 API 에러 발생", e);
-
             throw new BusinessException(ErrorType.GITHUB_API_ERROR, e.getMessage());
         }
     }

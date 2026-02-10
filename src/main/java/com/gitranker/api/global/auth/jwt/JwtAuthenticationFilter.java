@@ -3,6 +3,7 @@ package com.gitranker.api.global.auth.jwt;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.auth.AuthConstants;
+import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -50,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .ifPresent(user -> {
                         Authentication auth = getAuthentication(user);
                         SecurityContextHolder.getContext().setAuthentication(auth);
+                        LogContext.setAuthContext(user.getUsername());
                     });
         }
 

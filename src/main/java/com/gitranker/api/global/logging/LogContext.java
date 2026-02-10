@@ -5,13 +5,20 @@ import org.slf4j.MDC;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Slf4j
 public class LogContext {
 
     private static final String MDC_KEY_EVENT = "event";
+    private static final String MDC_KEY_LOG_CATEGORY = "log_category";
     private static final String MDC_KEY_TRACE_ID = "trace_id";
+
+    private static final Set<String> REQUEST_SCOPED_KEYS = Set.of(
+            "trace_id", "username", "client_ip", "user_agent", "request_method", "request_uri"
+    );
 
     private final Event event;
     private final Map<String, Object> fields = new LinkedHashMap<>();
@@ -27,12 +34,28 @@ public class LogContext {
     }
 
     private static void clearEventFields() {
-        String traceId = MDC.get(MDC_KEY_TRACE_ID);
+        Map<String, String> ctx = MDC.getCopyOfContextMap();
+        if (ctx == null) return;
 
-        MDC.clear();
+        ctx.keySet().stream()
+                .filter(key -> !REQUEST_SCOPED_KEYS.contains(key))
+                .forEach(MDC::remove);
+    }
 
-        if (traceId != null) {
-            MDC.put(MDC_KEY_TRACE_ID, traceId);
+    public static void initRequest(String traceId, String clientIp, String userAgent,
+                                   String method, String uri) {
+        MDC.put("trace_id", traceId);
+        MDC.put("client_ip", clientIp);
+        if (userAgent != null) {
+            MDC.put("user_agent", userAgent);
+        }
+        MDC.put("request_method", method);
+        MDC.put("request_uri", uri);
+    }
+
+    public static void setAuthContext(String username) {
+        if (username != null) {
+            MDC.put("username", username);
         }
     }
 
@@ -49,7 +72,7 @@ public class LogContext {
     }
 
     public static String generateTraceId() {
-        return java.util.UUID.randomUUID().toString().substring(0, 8);
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public LogContext with(String key, Object value) {
@@ -61,26 +84,34 @@ public class LogContext {
     }
 
     public void info() {
-        logWithLevel(LogLevel.INFO);
+        logWithLevel(LogLevel.INFO, null);
     }
 
     public void warn() {
-        logWithLevel(LogLevel.WARN);
+        logWithLevel(LogLevel.WARN, null);
+    }
+
+    public void warn(Throwable throwable) {
+        logWithLevel(LogLevel.WARN, throwable);
     }
 
     public void error() {
-        logWithLevel(LogLevel.ERROR);
+        logWithLevel(LogLevel.ERROR, null);
+    }
+
+    public void error(Throwable throwable) {
+        logWithLevel(LogLevel.ERROR, throwable);
     }
 
     public void debug() {
-        logWithLevel(LogLevel.DEBUG);
+        logWithLevel(LogLevel.DEBUG, null);
     }
 
-    private void logWithLevel(LogLevel level) {
+    private void logWithLevel(LogLevel level, Throwable throwable) {
         try {
             setupMdc();
             String message = buildMessage();
-            writeLog(level, message);
+            writeLog(level, message, throwable);
         } finally {
             clearEventFields();
         }
@@ -88,6 +119,7 @@ public class LogContext {
 
     private void setupMdc() {
         MDC.put(MDC_KEY_EVENT, event.name());
+        MDC.put(MDC_KEY_LOG_CATEGORY, event.getCategory().name());
 
         fields.forEach((key, value) -> MDC.put(key, String.valueOf(value)));
     }
@@ -113,17 +145,15 @@ public class LogContext {
                key.equals("job_name") ||
                key.equals("error_code") ||
                key.equals("token_id") ||
-               key.equals("method") ||
-               key.equals("uri") ||
                key.equals("status");
     }
 
-    private void writeLog(LogLevel level, String message) {
+    private void writeLog(LogLevel level, String message, Throwable throwable) {
         switch (level) {
-            case DEBUG -> log.debug(message);
-            case INFO -> log.info(message);
-            case WARN -> log.warn(message);
-            case ERROR -> log.error(message);
+            case DEBUG -> { if (throwable != null) log.debug(message, throwable); else log.debug(message); }
+            case INFO -> { if (throwable != null) log.info(message, throwable); else log.info(message); }
+            case WARN -> { if (throwable != null) log.warn(message, throwable); else log.warn(message); }
+            case ERROR -> { if (throwable != null) log.error(message, throwable); else log.error(message); }
         }
     }
 
