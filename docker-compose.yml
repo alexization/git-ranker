@@ -66,7 +66,7 @@ services:
       - git-ranker-net
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.2.1
     container_name: git-ranker-prometheus
     restart: unless-stopped
     volumes:
@@ -90,7 +90,7 @@ services:
       - git-ranker-net
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.6.5
     container_name: git-ranker-loki
     restart: unless-stopped
     ports:
@@ -109,7 +109,7 @@ services:
       - git-ranker-net
 
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:3.6.5
     container_name: git-ranker-promtail
     restart: unless-stopped
     volumes:
@@ -130,7 +130,7 @@ services:
       - git-ranker-net
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.3.2
     container_name: git-ranker-grafana
     restart: unless-stopped
     ports:
