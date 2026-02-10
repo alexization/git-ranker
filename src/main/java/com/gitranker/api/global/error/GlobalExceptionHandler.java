@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
                 .with("error_status", errorType.getStatus().value())
                 .with("error_type", e.getClass().getSimpleName())
                 .with("error_message", e.getMessage())
-                .error();
+                .error(e);
 
         return ResponseEntity
                 .status(errorType.getStatus())

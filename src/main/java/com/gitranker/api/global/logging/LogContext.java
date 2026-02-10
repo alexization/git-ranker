@@ -84,26 +84,34 @@ public class LogContext {
     }
 
     public void info() {
-        logWithLevel(LogLevel.INFO);
+        logWithLevel(LogLevel.INFO, null);
     }
 
     public void warn() {
-        logWithLevel(LogLevel.WARN);
+        logWithLevel(LogLevel.WARN, null);
+    }
+
+    public void warn(Throwable throwable) {
+        logWithLevel(LogLevel.WARN, throwable);
     }
 
     public void error() {
-        logWithLevel(LogLevel.ERROR);
+        logWithLevel(LogLevel.ERROR, null);
+    }
+
+    public void error(Throwable throwable) {
+        logWithLevel(LogLevel.ERROR, throwable);
     }
 
     public void debug() {
-        logWithLevel(LogLevel.DEBUG);
+        logWithLevel(LogLevel.DEBUG, null);
     }
 
-    private void logWithLevel(LogLevel level) {
+    private void logWithLevel(LogLevel level, Throwable throwable) {
         try {
             setupMdc();
             String message = buildMessage();
-            writeLog(level, message);
+            writeLog(level, message, throwable);
         } finally {
             clearEventFields();
         }
@@ -140,12 +148,12 @@ public class LogContext {
                key.equals("status");
     }
 
-    private void writeLog(LogLevel level, String message) {
+    private void writeLog(LogLevel level, String message, Throwable throwable) {
         switch (level) {
-            case DEBUG -> log.debug(message);
-            case INFO -> log.info(message);
-            case WARN -> log.warn(message);
-            case ERROR -> log.error(message);
+            case DEBUG -> { if (throwable != null) log.debug(message, throwable); else log.debug(message); }
+            case INFO -> { if (throwable != null) log.info(message, throwable); else log.info(message); }
+            case WARN -> { if (throwable != null) log.warn(message, throwable); else log.warn(message); }
+            case ERROR -> { if (throwable != null) log.error(message, throwable); else log.error(message); }
         }
     }
 

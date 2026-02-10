@@ -15,11 +15,13 @@ public enum Event {
 
     // 인증/보안
     TOKEN_REFRESHED("토큰 갱신", Category.AUTH),
+    AUTH_FAILED("인증 실패", Category.AUTH),
     LOGOUT("로그아웃", Category.AUTH),
 
     // 배치
     BATCH_STARTED("배치 시작", Category.BATCH),
     BATCH_COMPLETED("배치 완료", Category.BATCH),
+    BATCH_FAILED("배치 실패", Category.BATCH),
     BATCH_ITEM_FAILED("배치 항목 실패", Category.BATCH),
 
     // 외부 API

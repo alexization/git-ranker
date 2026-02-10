@@ -1,12 +1,13 @@
 package com.gitranker.api.global.auth.jwt;
 
 import com.gitranker.api.domain.user.Role;
+import com.gitranker.api.global.logging.Event;
+import com.gitranker.api.global.logging.LogContext;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 
-@Slf4j
 @Component
 public class JwtProvider {
 
@@ -75,13 +75,25 @@ public class JwtProvider {
                     .parseSignedClaims(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.debug("유효하지 않는 JWT 서명: {}", e.getMessage());
+            LogContext.event(Event.AUTH_FAILED)
+                    .with("error_type", "INVALID_SIGNATURE")
+                    .with("error_message", e.getMessage())
+                    .warn();
         } catch (ExpiredJwtException e) {
-            log.debug("만료된 JWT 토큰: {}", e.getMessage());
+            LogContext.event(Event.AUTH_FAILED)
+                    .with("error_type", "EXPIRED_TOKEN")
+                    .with("error_message", e.getMessage())
+                    .info();
         } catch (UnsupportedJwtException e) {
-            log.debug("지원되지 않는 JWT 토큰: {}", e.getMessage());
+            LogContext.event(Event.AUTH_FAILED)
+                    .with("error_type", "UNSUPPORTED_TOKEN")
+                    .with("error_message", e.getMessage())
+                    .warn();
         } catch (IllegalArgumentException e) {
-            log.debug("JWT 토큰이 잘못되었습니다: {}", e.getMessage());
+            LogContext.event(Event.AUTH_FAILED)
+                    .with("error_type", "MALFORMED_TOKEN")
+                    .with("error_message", e.getMessage())
+                    .warn();
         }
         return false;
     }

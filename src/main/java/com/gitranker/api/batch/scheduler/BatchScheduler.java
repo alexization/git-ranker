@@ -40,11 +40,15 @@ public class BatchScheduler {
 
             jobLauncher.run(dailyScoreRecalculationJob, jobParameters);
 
+            LogContext.event(Event.BATCH_COMPLETED)
+                    .with("job_name", jobName)
+                    .info();
+
         } catch (Exception e) {
-            LogContext.event(Event.BATCH_ITEM_FAILED)
+            LogContext.event(Event.BATCH_FAILED)
                     .with("job_name", jobName)
                     .with("error_message", e.getMessage())
-                    .error();
+                    .error(e);
 
             throw new BusinessException(ErrorType.BATCH_JOB_FAILED, e.getMessage());
         } finally {

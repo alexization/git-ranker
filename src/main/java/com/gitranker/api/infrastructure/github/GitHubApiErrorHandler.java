@@ -106,7 +106,7 @@ public class GitHubApiErrorHandler {
                 .with("error_message", e.getMessage())
                 .warn();
 
-        throw new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
+        return new GitHubApiRetryableException(ErrorType.GITHUB_API_ERROR, e);
     }
 
     private GitHubRateLimitException handleRateLimitExceeded(ClientResponse response, int statusValue) {
