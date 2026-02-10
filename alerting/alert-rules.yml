@@ -184,7 +184,7 @@ groups:
               to: 0
             datasourceUid: loki
             model:
-              expr: count_over_time({app="api", event=~"BATCH_COMPLETED|BATCH_ITEM_FAILED", level="ERROR"} [1h])
+              expr: count_over_time({app="api", event="BATCH_ITEM_FAILED", level="ERROR"} [1h])
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
