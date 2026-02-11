@@ -89,6 +89,107 @@ groups:
         labels:
           severity: critical
 
+      - uid: high-latency-p99
+        title: High P99 Latency
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application="git-ranker-api"}[5m])) by (le)) * 1000
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: $B > 5000
+              type: math
+        dashboardUid: git-ranker-ops
+        panelId: 3
+        noDataState: OK
+        execErrState: OK
+        for: 5m
+        annotations:
+          summary: P99 latency exceeds 5 seconds
+          description: "P99 response time: {{ $values.B.Value }}ms"
+        labels:
+          severity: warning
+
+      - uid: db-connection-pool-high
+        title: DB Connection Pool Usage High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: hikaricp_connections_active{application="git-ranker-api"} / hikaricp_connections_max{application="git-ranker-api"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: $B > 0.8
+              type: math
+        noDataState: OK
+        execErrState: OK
+        for: 3m
+        annotations:
+          summary: HikariCP connection pool usage exceeds 80%
+          description: "Connection pool usage: {{ $values.B.Value }}"
+        labels:
+          severity: warning
+
+      - uid: jvm-heap-high
+        title: JVM Heap Memory Usage High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(jvm_memory_used_bytes{application="git-ranker-api", area="heap"}) / sum(jvm_memory_max_bytes{application="git-ranker-api", area="heap"})
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: $B > 0.85
+              type: math
+        noDataState: OK
+        execErrState: OK
+        for: 5m
+        annotations:
+          summary: JVM heap memory usage exceeds 85%
+          description: "Heap usage ratio: {{ $values.B.Value }}"
+        labels:
+          severity: warning
+
   - orgId: 1
     name: GitHub API
     folder: Git Ranker Alerts
@@ -166,6 +267,41 @@ groups:
         annotations:
           summary: Error logs detected
           description: "Error logs count (last 1m): {{ $values.B.Value }}"
+        labels:
+          severity: warning
+
+      - uid: error-spike
+        title: Application Error Spike
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(increase(errors_total{application="git-ranker-api"}[5m]))
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: $B > 10
+              type: math
+        dashboardUid: git-ranker-ops
+        panelId: 50
+        noDataState: OK
+        execErrState: OK
+        for: 2m
+        annotations:
+          summary: Sudden increase in application errors
+          description: "Errors in last 5 minutes: {{ $values.B.Value }}"
         labels:
           severity: warning
 
