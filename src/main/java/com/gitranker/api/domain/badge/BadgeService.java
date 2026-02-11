@@ -11,6 +11,7 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class BadgeService {
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final SvgBadgeRenderer svgBadgeRenderer;
+    private final BusinessMetrics businessMetrics;
 
     @Transactional(readOnly = true)
     public String generateBadge(String nodeId) {
@@ -38,6 +40,8 @@ public class BadgeService {
         LogContext.event(Event.BADGE_VIEWED)
                 .with("target_username", user.getUsername())
                 .info();
+
+        businessMetrics.incrementBadgeViews();
 
         return svgBadgeRenderer.render(user, user.getTier(), activityLog);
     }

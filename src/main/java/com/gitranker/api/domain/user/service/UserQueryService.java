@@ -9,6 +9,7 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class UserQueryService {
 
     private final UserRepository  userRepository;
     private final ActivityLogService activityLogService;
+    private final BusinessMetrics businessMetrics;
 
     public RegisterUserResponse findByUsername(String username) {
         User user = userRepository.findByUsername(username)
@@ -30,6 +32,8 @@ public class UserQueryService {
         LogContext.event(Event.PROFILE_VIEWED)
                 .with("target_username", username)
                 .info();
+
+        businessMetrics.incrementProfileViews();
 
         return RegisterUserResponse.of(user, activityLog, false);
     }

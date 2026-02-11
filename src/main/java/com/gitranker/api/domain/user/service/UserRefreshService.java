@@ -10,6 +10,7 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
@@ -28,6 +29,7 @@ public class UserRefreshService {
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
     private final BaselineStatsCalculator baselineStatsCalculator;
+    private final BusinessMetrics businessMetrics;
 
     public RegisterUserResponse refresh(String username) {
         User user = userRepository.findByUsername(username)
@@ -56,6 +58,8 @@ public class UserRefreshService {
                 .with("new_score", updatedUser.getTotalScore())
                 .with("score_diff", scoreDiff >= 0 ? "+" + scoreDiff : String.valueOf(scoreDiff))
                 .info();
+
+        businessMetrics.incrementRefreshes();
 
         return createResponse(updatedUser);
     }

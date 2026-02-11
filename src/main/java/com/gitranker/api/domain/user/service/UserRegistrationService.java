@@ -9,6 +9,7 @@ import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.auth.OAuthAttributes;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
@@ -30,6 +31,7 @@ public class UserRegistrationService {
     private final GitHubActivityService gitHubActivityService;
     private final GitHubDataMapper gitHubDataMapper;
     private final BaselineStatsCalculator baselineStatsCalculator;
+    private final BusinessMetrics businessMetrics;
 
     public RegisterUserResponse register(OAuthAttributes attributes) {
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
@@ -55,6 +57,8 @@ public class UserRegistrationService {
                 .with("initial_score", savedUser.getTotalScore())
                 .with("initial_tier", savedUser.getTier().name())
                 .info();
+
+        businessMetrics.incrementRegistrations();
 
         return createResponse(savedUser, true);
     }

@@ -4,6 +4,7 @@ import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubRateLimitException;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.global.response.ApiResponse;
 import com.gitranker.api.global.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     private final TimeUtils timeUtils;
+    private final BusinessMetrics businessMetrics;
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
@@ -36,6 +38,8 @@ public class GlobalExceptionHandler {
             case WARN -> ctx.warn();
             default -> ctx.info();
         }
+
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())
@@ -58,6 +62,8 @@ public class GlobalExceptionHandler {
                 .with("error_message", message)
                 .warn();
 
+        businessMetrics.recordError(errorType);
+
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType, message));
@@ -74,6 +80,8 @@ public class GlobalExceptionHandler {
                 .with("error_message", e.getResourcePath())
                 .debug();
 
+        // 404는 크롤러/봇에 의한 노이즈가 대부분이므로 에러 메트릭에서 제외
+        
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType));
@@ -93,6 +101,8 @@ public class GlobalExceptionHandler {
                 .with("error_message", "ResetAt: " + resetTimeStr)
                 .warn();
 
+        businessMetrics.recordError(errorType);
+
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType, message));
@@ -108,6 +118,8 @@ public class GlobalExceptionHandler {
                 .with("error_type", e.getClass().getSimpleName())
                 .with("error_message", e.getMessage())
                 .error(e);
+
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())
