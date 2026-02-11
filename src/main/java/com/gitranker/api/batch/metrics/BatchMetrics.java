@@ -14,7 +14,8 @@ public class BatchMetrics {
     private final Counter jobsFailed;
     private final Counter itemsProcessed;
     private final Counter itemsSkipped;
-    private final Timer jobDuration;
+    private final Timer successDuration;
+    private final Timer failureDuration;
 
     public BatchMetrics(MeterRegistry registry) {
         jobsCompleted = Counter.builder("batch_jobs_completed_total")
@@ -33,7 +34,14 @@ public class BatchMetrics {
                 .description("Total batch items skipped")
                 .register(registry);
 
-        jobDuration = Timer.builder("batch_job_duration_seconds")
+        successDuration = Timer.builder("batch_job_duration")
+                .tag("status", "success")
+                .description("Batch job execution duration")
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(registry);
+
+        failureDuration = Timer.builder("batch_job_duration")
+                .tag("status", "failure")
                 .description("Batch job execution duration")
                 .publishPercentiles(0.5, 0.95, 0.99)
                 .register(registry);
@@ -41,12 +49,12 @@ public class BatchMetrics {
 
     public void recordJobCompleted(long durationMs) {
         jobsCompleted.increment();
-        jobDuration.record(Duration.ofMillis(durationMs));
+        successDuration.record(Duration.ofMillis(durationMs));
     }
 
     public void recordJobFailed(long durationMs) {
         jobsFailed.increment();
-        jobDuration.record(Duration.ofMillis(durationMs));
+        failureDuration.record(Duration.ofMillis(durationMs));
     }
 
     public void recordItemsProcessed(long count) {

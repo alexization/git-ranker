@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
             default -> ctx.info();
         }
 
-        businessMetrics.recordError(errorType.name());
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
                 .with("error_message", message)
                 .warn();
 
-        businessMetrics.recordError(errorType.name());
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())
@@ -80,6 +80,8 @@ public class GlobalExceptionHandler {
                 .with("error_message", e.getResourcePath())
                 .debug();
 
+        // 404는 크롤러/봇에 의한 노이즈가 대부분이므로 에러 메트릭에서 제외
+        
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType));
@@ -99,7 +101,7 @@ public class GlobalExceptionHandler {
                 .with("error_message", "ResetAt: " + resetTimeStr)
                 .warn();
 
-        businessMetrics.recordError(errorType.name());
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())
@@ -117,7 +119,7 @@ public class GlobalExceptionHandler {
                 .with("error_message", e.getMessage())
                 .error(e);
 
-        businessMetrics.recordError(errorType.name());
+        businessMetrics.recordError(errorType);
 
         return ResponseEntity
                 .status(errorType.getStatus())

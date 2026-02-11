@@ -1,13 +1,15 @@
 package com.gitranker.api.global.metrics;
 
+import com.gitranker.api.global.error.ErrorType;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 @Component
 public class BusinessMetrics {
-
-    private final MeterRegistry registry;
 
     private final Counter registrationCounter;
     private final Counter loginCounter;
@@ -15,10 +17,9 @@ public class BusinessMetrics {
     private final Counter badgeViewCounter;
     private final Counter refreshCounter;
     private final Counter deletionCounter;
+    private final Map<ErrorType, Counter> errorCounters;
 
     public BusinessMetrics(MeterRegistry registry) {
-        this.registry = registry;
-
         registrationCounter = Counter.builder("user_registrations_total")
                 .description("Total user registrations")
                 .register(registry);
@@ -42,6 +43,14 @@ public class BusinessMetrics {
         deletionCounter = Counter.builder("user_deletions_total")
                 .description("Total user deletions")
                 .register(registry);
+
+        errorCounters = new EnumMap<>(ErrorType.class);
+        for (ErrorType type : ErrorType.values()) {
+            errorCounters.put(type, Counter.builder("errors_total")
+                    .tag("error_code", type.name())
+                    .description("Total errors by error code")
+                    .register(registry));
+        }
     }
 
     public void incrementRegistrations() {
@@ -68,10 +77,7 @@ public class BusinessMetrics {
         deletionCounter.increment();
     }
 
-    public void recordError(String errorCode) {
-        Counter.builder("errors_total")
-                .tag("error_code", errorCode)
-                .register(registry)
-                .increment();
+    public void recordError(ErrorType errorType) {
+        errorCounters.get(errorType).increment();
     }
 }
