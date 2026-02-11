@@ -55,7 +55,7 @@
           "unit": "reqps"
         }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 0, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 0, "y": 1 },
       "id": 1,
       "options": {
         "colorMode": "value",
@@ -90,7 +90,7 @@
           "unit": "percent"
         }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 4, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 5, "y": 1 },
       "id": 2,
       "options": {
         "colorMode": "value",
@@ -125,7 +125,7 @@
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 8, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 10, "y": 1 },
       "id": 3,
       "options": {
         "colorMode": "value",
@@ -160,7 +160,7 @@
           "unit": "percent"
         }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 12, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 15, "y": 1 },
       "id": 5,
       "options": {
         "orientation": "auto",
@@ -178,39 +178,6 @@
       ],
       "title": "Availability (1h)",
       "type": "gauge"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "blue", "value": null }
-            ]
-          },
-          "unit": "short"
-        }
-      },
-      "gridPos": { "h": 6, "w": 4, "x": 16, "y": 1 },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
-          "expr": "increase(user_logins_total{application=\"git-ranker-api\"}[1h])",
-          "legendFormat": "Active Users",
-          "refId": "A"
-        }
-      ],
-      "title": "Active Users (1h)",
-      "type": "stat"
     },
     {
       "datasource": { "type": "loki", "uid": "${loki_ds}" },
@@ -621,7 +588,7 @@
           "gridPos": { "h": 10, "w": 24, "x": 0, "y": 64 },
           "id": 60,
           "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Ascending", "wrapLogMessage": true },
-          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | trace_id=\"$trace_id\"", "refId": "A" }],
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | trace_id=\"$trace_id\"", "refId": "A" }],
           "title": "Trace Search — 요청 추적",
           "type": "logs"
         },
@@ -631,7 +598,7 @@
           "gridPos": { "h": 10, "w": 24, "x": 0, "y": 74 },
           "id": 61,
           "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
-          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | username=\"$username_search\"", "refId": "A" }],
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | username=\"$username_search\"", "refId": "A" }],
           "title": "User Search — 사용자 활동 조회",
           "type": "logs"
         },
@@ -641,7 +608,7 @@
           "gridPos": { "h": 10, "w": 24, "x": 0, "y": 84 },
           "id": 62,
           "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
-          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | client_ip=\"$ip_search\"", "refId": "A" }],
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | client_ip=\"$ip_search\"", "refId": "A" }],
           "title": "IP Search — IP별 활동 조회",
           "type": "logs"
         }
