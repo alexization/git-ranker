@@ -40,11 +40,10 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -54,23 +53,19 @@
             ]
           },
           "unit": "reqps"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 0, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 0, "y": 1 },
       "id": 1,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1m]))",
           "legendFormat": "RPS",
           "refId": "A"
@@ -80,11 +75,10 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -94,23 +88,19 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 4, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 5, "y": 1 },
       "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[5m])) * 100 or vector(0)",
           "legendFormat": "Error %",
           "refId": "A"
@@ -120,11 +110,10 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -134,23 +123,19 @@
             ]
           },
           "unit": "ms"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 8, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 10, "y": 1 },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
           "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"git-ranker-api\"}[5m])) by (le)) * 1000",
           "legendFormat": "P99",
           "refId": "A"
@@ -160,51 +145,10 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 1 },
-              { "color": "red", "value": 10 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 4, "x": 12, "y": 1 },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"HTTP_RESPONSE\"} | json | latency_ms > 3000 [1h])",
-          "legendFormat": "Slow Requests",
-          "refId": "A"
-        }
-      ],
-      "title": "Slow Requests (1h)",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -214,10 +158,9 @@
             ]
           },
           "unit": "percent"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 6, "w": 4, "x": 16, "y": 1 },
+      "gridPos": { "h": 6, "w": 5, "x": 15, "y": 1 },
       "id": 5,
       "options": {
         "orientation": "auto",
@@ -225,10 +168,9 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
           "expr": "(1 - sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=~\"5..\"}[1h])) / sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\"}[1h]))) * 100 or vector(100)",
           "legendFormat": "Availability",
           "refId": "A"
@@ -238,11 +180,10 @@
       "type": "gauge"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
+      "datasource": { "type": "loki", "uid": "${loki_ds}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -251,23 +192,19 @@
             ]
           },
           "unit": "short"
-        },
-        "overrides": []
+        }
       },
       "gridPos": { "h": 6, "w": 4, "x": 20, "y": 1 },
       "id": 6,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
         "textMode": "auto"
       },
-      "pluginVersion": "10.0.0",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "loki" },
+          "datasource": { "type": "loki", "uid": "${loki_ds}" },
           "expr": "count_over_time({app=\"api\", level=\"ERROR\"} [1h])",
           "legendFormat": "Errors",
           "refId": "A"
@@ -276,6 +213,7 @@
       "title": "Error Logs (1h)",
       "type": "stat"
     },
+
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
@@ -285,686 +223,404 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 8 },
       "id": 10,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"USER_REGISTERED\"} [$__range])",
-          "legendFormat": "New Users",
-          "refId": "A"
-        }
-      ],
-      "title": "New Registrations",
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_registrations_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Registrations", "refId": "A" }],
+      "title": "Registrations",
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "blue", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 8 },
       "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"USER_LOGIN\"} [$__range])",
-          "legendFormat": "Logins",
-          "refId": "A"
-        }
-      ],
-      "title": "Login Count",
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_logins_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Logins", "refId": "A" }],
+      "title": "Logins",
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "purple", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 8 },
       "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"BADGE_VIEWED\"} [$__range])",
-          "legendFormat": "Badge Views",
-          "refId": "A"
-        }
-      ],
-      "title": "Badge Usage",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "orange", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 8 },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"PROFILE_VIEWED\"} [$__range])",
-          "legendFormat": "Profile Views",
-          "refId": "A"
-        }
-      ],
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(profile_views_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Profile Views", "refId": "A" }],
       "title": "Profile Views",
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "User activity trends over time",
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 8 },
+      "id": 13,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(badge_views_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Badge Views", "refId": "A" }],
+      "title": "Badge Views",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "semi-dark-yellow", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 8 },
+      "id": 16,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_refreshes_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Refreshes", "refId": "A" }],
+      "title": "Manual Refreshes",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "semi-dark-red", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 8 },
+      "id": 17,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_deletions_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Deletions", "refId": "A" }],
+      "title": "Account Deletions",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "User activity trends: registrations, logins, refreshes, deletions",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineInterpolation": "smooth", "lineWidth": 2, "showPoints": "never", "spanNulls": false, "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
           "unit": "short"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
       "id": 14,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
-      "pluginVersion": "10.0.0",
       "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"USER_REGISTERED\"} [$__interval]))",
-          "legendFormat": "Registrations",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"USER_LOGIN\"} [$__interval]))",
-          "legendFormat": "Logins",
-          "refId": "B"
-        },
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"USER_REFRESH_REQUESTED\"} [$__interval]))",
-          "legendFormat": "Refreshes",
-          "refId": "C"
-        }
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_registrations_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Registrations", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_logins_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Logins", "refId": "B" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_refreshes_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Refreshes", "refId": "C" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(user_deletions_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Deletions", "refId": "D" }
       ],
       "title": "User Activity Trend",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "description": "Profile and Badge view trends",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "normal" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "custom": { "drawStyle": "bars", "fillOpacity": 50, "lineWidth": 1, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
           "unit": "short"
-        },
-        "overrides": []
+        }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
       "id": 15,
       "options": {
         "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
-      "pluginVersion": "10.0.0",
       "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"PROFILE_VIEWED\"} [$__interval]))",
-          "legendFormat": "Profile Views",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"BADGE_VIEWED\"} [$__interval]))",
-          "legendFormat": "Badge Views",
-          "refId": "B"
-        }
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(profile_views_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Profile Views", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(badge_views_total{application=\"git-ranker-api\"}[$__interval])", "legendFormat": "Badge Views", "refId": "B" }
       ],
       "title": "Content Views",
       "type": "timeseries"
     },
+
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
       "id": 102,
       "panels": [],
-      "title": "System Resources (GitHub API)",
+      "title": "GitHub API",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
       "description": "GitHub API Rate Limit remaining calls",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 5000,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 100 },
-              { "color": "yellow", "value": 500 },
-              { "color": "green", "value": 1000 }
-            ]
-          },
+          "max": 5000, "min": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 100 }, { "color": "yellow", "value": 500 }, { "color": "green", "value": 1000 }] },
           "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 23 },
-      "id": 30,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "github_api_remaining{application=\"git-ranker-api\"}",
-          "legendFormat": "Remaining",
-          "refId": "A"
         }
-      ],
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 22 },
+      "id": 30,
+      "options": { "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showThresholdLabels": true, "showThresholdMarkers": true },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "github_api_remaining{application=\"git-ranker-api\"}", "legendFormat": "Remaining", "refId": "A" }],
       "title": "Token Pool Status",
       "type": "gauge"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "GitHub API call volume by success/failure",
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "GitHub API call volume by result",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 50,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "normal" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "custom": { "drawStyle": "bars", "fillOpacity": 50, "lineWidth": 1, "showPoints": "never", "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
           "unit": "short"
         },
         "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Success" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Failure" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          }
+          { "matcher": { "id": "byName", "options": "Success" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "Failure" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 23 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 22 },
       "id": 31,
-      "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
-      },
-      "pluginVersion": "10.0.0",
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
       "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"true\"} [$__interval]))",
-          "legendFormat": "Success",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum(count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"false\"} [$__interval]))",
-          "legendFormat": "Failure",
-          "refId": "B"
-        }
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(github_api_calls_total{application=\"git-ranker-api\", result=\"success\"}[$__interval])", "legendFormat": "Success", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(github_api_calls_total{application=\"git-ranker-api\", result=\"failure\"}[$__interval])", "legendFormat": "Failure", "refId": "B" }
       ],
       "title": "API Call Volume",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "GitHub API success/failure ratio",
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "GitHub API success/failure/rate_limited ratio",
       "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
-          "mappings": []
-        },
+        "defaults": { "color": { "mode": "palette-classic" } },
         "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Success" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Failure" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
-          }
+          { "matcher": { "id": "byName", "options": "success" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "failure" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "rate_limited" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 23 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 22 },
       "id": 32,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
-        "pieType": "donut",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"true\"} [$__range])",
-          "legendFormat": "Success",
-          "refId": "A"
-        },
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"GITHUB_API_CALLED\", success=\"false\"} [$__range])",
-          "legendFormat": "Failure",
-          "refId": "B"
-        }
-      ],
+      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] }, "pieType": "donut", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "tooltip": { "mode": "single" } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(github_api_calls_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "{{result}}", "refId": "A" }],
       "title": "API Success Rate",
       "type": "piechart"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 1 },
-              { "color": "red", "value": 5 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 23 },
-      "id": 33,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"RATE_LIMIT_WARNING\"} [$__range])",
-          "legendFormat": "Warnings",
-          "refId": "A"
-        }
-      ],
-      "title": "Rate Limit Warnings",
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "GitHub API call latency P95",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 3 }, { "color": "red", "value": 10 }] }, "unit": "s" } },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 22 },
+      "id": 34,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "github_api_latency_seconds{application=\"git-ranker-api\", quantile=\"0.95\"}", "legendFormat": "P95", "refId": "A" }],
+      "title": "API Latency P95",
       "type": "stat"
     },
     {
+      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 5 }] }, "unit": "short" } },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 26 },
+      "id": 33,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "count_over_time({app=\"api\", event=\"RATE_LIMIT_WARNING\"} [$__range])", "legendFormat": "Warnings", "refId": "A" }],
+      "title": "Rate Limit Warnings",
+      "type": "stat"
+    },
+
+    {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
       "id": 103,
       "panels": [],
       "title": "Batch Jobs",
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 32 },
+      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 31 },
       "id": 40,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{app=\"api\", event=~\"BATCH_COMPLETED|BATCH_ITEM_FAILED\"}",
-          "refId": "A"
-        }
-      ],
+      "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+      "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\", log_category=\"BATCH\"}", "refId": "A" }],
       "title": "Batch Job Logs",
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 3, "x": 12, "y": 31 },
       "id": 41,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"BATCH_COMPLETED\"} [$__range])",
-          "legendFormat": "Completed",
-          "refId": "A"
-        }
-      ],
-      "title": "Batch Jobs Completed",
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_jobs_completed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Completed", "refId": "A" }],
+      "title": "Jobs Completed",
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 32 },
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 3, "x": 15, "y": 31 },
       "id": 42,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "count_over_time({app=\"api\", event=\"BATCH_ITEM_FAILED\"} [$__range])",
-          "legendFormat": "Failures",
-          "refId": "A"
-        }
-      ],
-      "title": "Batch Item Failures",
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_jobs_failed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Failures", "refId": "A" }],
+      "title": "Jobs Failed",
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "description": "Batch failure details",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 37 },
-      "id": 43,
-      "options": {
-        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] },
-        "pieType": "pie",
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
-        "tooltip": { "mode": "single", "sort": "none" }
-      },
-      "pluginVersion": "10.0.0",
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "Batch job execution duration P99",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 300 }, { "color": "red", "value": 600 }] }, "unit": "s" } },
+      "gridPos": { "h": 5, "w": 3, "x": 18, "y": 31 },
+      "id": 44,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "batch_job_duration_seconds{application=\"git-ranker-api\", quantile=\"0.99\"}", "legendFormat": "P99", "refId": "A" }],
+      "title": "Duration P99",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "Total batch items processed and skipped",
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }, "unit": "short" } },
+      "gridPos": { "h": 5, "w": 3, "x": 21, "y": 31 },
+      "id": 45,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "value_and_name" },
       "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "sum by (error_type) (count_over_time({app=\"api\", event=\"BATCH_ITEM_FAILED\"} | json | __error__=\"\" [$__range]))",
-          "legendFormat": "{{error_type}}",
-          "refId": "A"
-        }
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_items_processed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Processed", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_items_skipped_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Skipped", "refId": "B" }
       ],
+      "title": "Items",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "description": "Batch failure breakdown by error type",
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 36 },
+      "id": 43,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] }, "pieType": "pie", "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }, "tooltip": { "mode": "single" } },
+      "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "sum by (error_type) (count_over_time({app=\"api\", event=\"BATCH_ITEM_FAILED\"} | json | __error__=\"\" [$__range]))", "legendFormat": "{{error_type}}", "refId": "A" }],
       "title": "Failure Types",
       "type": "piechart"
     },
+
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "id": 106,
+      "panels": [],
+      "title": "Error Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "Error frequency by ErrorType code",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1, "showPoints": "never", "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 42 },
+      "id": 70,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "sum by (error_code) (increase(errors_total{application=\"git-ranker-api\"}[$__interval]))", "legendFormat": "{{error_code}}", "refId": "A" }],
+      "title": "Error by Code",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "Error rate trend over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "showPoints": "never", "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 42 },
+      "id": 71,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "sum(rate(errors_total{application=\"git-ranker-api\"}[5m])) by (error_code)", "legendFormat": "{{error_code}}", "refId": "A" }],
+      "title": "Error Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" },
+      "description": "Authentication/authorization failure rate (401, 403 responses)",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineInterpolation": "smooth", "lineWidth": 2, "showPoints": "never", "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 42 },
+      "id": 72,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=\"401\"}[5m]))", "legendFormat": "401 Unauthorized", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "sum(rate(http_server_requests_seconds_count{application=\"git-ranker-api\", status=\"403\"}[5m]))", "legendFormat": "403 Forbidden", "refId": "B" }
+      ],
+      "title": "Auth Failures",
+      "type": "timeseries"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 },
       "id": 104,
       "panels": [],
       "title": "Troubleshooting",
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 43 },
+      "datasource": { "type": "loki", "uid": "${loki_ds}" },
+      "description": "Recent ERROR and WARN level logs for quick issue identification",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 51 },
       "id": 50,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "expr": "{app=\"api\", level=~\"ERROR|WARN\"} | json | __error__=\"\"",
-          "refId": "A"
-        }
-      ],
+      "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+      "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\", level=~\"ERROR|WARN\"} | json | __error__=\"\"", "refId": "A" }],
       "title": "Error & Warning Logs",
       "type": "logs"
     },
+
     {
       "collapsed": true,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 55 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 63 },
       "id": 105,
       "panels": [
         {
-          "datasource": { "type": "loki", "uid": "loki" },
-          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 56 },
+          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "description": "Trace ID로 단일 HTTP 요청의 전체 로그를 추적합니다. 에러 발생 시 해당 요청의 lifecycle(필터→인증→서비스→응답)을 한눈에 볼 수 있습니다.",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 64 },
           "id": 60,
-          "options": {
-            "dedupStrategy": "none",
-            "enableLogDetails": true,
-            "prettifyLogMessage": false,
-            "showCommonLabels": false,
-            "showLabels": true,
-            "showTime": true,
-            "sortOrder": "Descending",
-            "wrapLogMessage": true
-          },
-          "pluginVersion": "10.0.0",
-          "targets": [
-            {
-              "datasource": { "type": "loki", "uid": "loki" },
-              "expr": "{app=\"api\"} |= \"$search_term\" | json | __error__=\"\"",
-              "refId": "A"
-            }
-          ],
-          "title": "Search Results",
+          "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Ascending", "wrapLogMessage": true },
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | trace_id=\"$trace_id\"", "refId": "A" }],
+          "title": "Trace Search — 요청 추적",
+          "type": "logs"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "description": "특정 사용자의 전체 활동 이력을 조회합니다. 사용자가 문제를 신고했을 때 로그인, 프로필 조회, 에러 등 모든 활동을 확인할 수 있습니다.",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 74 },
+          "id": 61,
+          "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | username=\"$username_search\"", "refId": "A" }],
+          "title": "User Search — 사용자 활동 조회",
+          "type": "logs"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "${loki_ds}" },
+          "description": "특정 IP의 전체 요청 이력을 조회합니다. 봇/크롤러 의심 IP나 비정상적인 트래픽 패턴을 확인할 때 사용합니다.",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 84 },
+          "id": 62,
+          "options": { "dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": true, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true },
+          "targets": [{ "datasource": { "type": "loki", "uid": "${loki_ds}" }, "expr": "{app=\"api\"} | json | __error__=\"\" | client_ip=\"$ip_search\"", "refId": "A" }],
+          "title": "IP Search — IP별 활동 조회",
           "type": "logs"
         }
       ],
-      "title": "Log Search",
+      "title": "Log Search (Trace ID / Username / IP)",
       "type": "row"
     }
   ],
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["git-ranker", "loki"],
+  "tags": ["git-ranker", "loki", "prometheus"],
   "templating": {
     "list": [
       {
@@ -996,12 +652,32 @@
         "type": "datasource"
       },
       {
-        "current": { "selected": false, "text": "", "value": "" },
+        "current": { "selected": false, "text": "enter-trace-id", "value": "enter-trace-id" },
         "hide": 0,
-        "label": "Search Term",
-        "name": "search_term",
-        "options": [{ "selected": true, "text": "", "value": "" }],
-        "query": "",
+        "label": "Trace ID",
+        "name": "trace_id",
+        "options": [{ "selected": true, "text": "enter-trace-id", "value": "enter-trace-id" }],
+        "query": "enter-trace-id",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": { "selected": false, "text": "enter-username", "value": "enter-username" },
+        "hide": 0,
+        "label": "Username",
+        "name": "username_search",
+        "options": [{ "selected": true, "text": "enter-username", "value": "enter-username" }],
+        "query": "enter-username",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": { "selected": false, "text": "enter-ip-address", "value": "enter-ip-address" },
+        "hide": 0,
+        "label": "IP Address",
+        "name": "ip_search",
+        "options": [{ "selected": true, "text": "enter-ip-address", "value": "enter-ip-address" }],
+        "query": "enter-ip-address",
         "skipUrlSync": false,
         "type": "textbox"
       }
@@ -1012,6 +688,6 @@
   "timezone": "Asia/Seoul",
   "title": "Git Ranker - Operations Dashboard",
   "uid": "git-ranker-ops",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
