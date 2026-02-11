@@ -147,5 +147,14 @@ class ScoreTest {
 
             assertThat(a).isNotEqualTo(b);
         }
+
+        @Test
+        @DisplayName("동등한 객체는 같은 hashCode를 가진다")
+        void should_haveSameHashCode_when_equal() {
+            Score a = Score.of(500);
+            Score b = Score.of(500);
+
+            assertThat(a.hashCode()).isEqualTo(b.hashCode());
+        }
     }
 }

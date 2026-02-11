@@ -193,15 +193,17 @@ class UserTest {
     }
 
     @Nested
-    @DisplayName("null 안전성")
-    class NullSafety {
+    @DisplayName("기본값")
+    class Defaults {
 
         @Test
-        @DisplayName("score가 null이면 getTotalScore는 0을 반환한다")
-        void should_returnZero_when_scoreIsNull() {
-            // Builder로 생성하면 Score.zero()가 설정되므로 정상 케이스만 확인
+        @DisplayName("새 사용자의 getTotalScore는 0을 반환한다")
+        void should_returnZero_when_newUser() {
             User user = createDefaultUser();
+
             assertThat(user.getTotalScore()).isZero();
+            assertThat(user.getRanking()).isZero();
+            assertThat(user.getPercentile()).isEqualTo(100.0);
         }
     }
 }

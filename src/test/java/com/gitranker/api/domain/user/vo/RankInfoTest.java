@@ -113,12 +113,14 @@ class RankInfoTest {
         }
 
         @Test
-        @DisplayName("유일한 사용자는 1등이다")
-        void should_beFirstRank_when_onlyOneUser() {
+        @DisplayName("유일한 사용자는 1등이지만 백분위 100%라 상대 티어를 받지 못한다")
+        void should_beFirstRank_but_fallbackToAbsoluteTier_when_onlyOneUser() {
             RankInfo rankInfo = RankInfo.calculate(0, 1, 2500);
 
             assertThat(rankInfo.getRanking()).isEqualTo(1);
             assertThat(rankInfo.getPercentile()).isEqualTo(100.0);
+            // 2500점이지만 percentile 100% > 45%이므로 상대 티어(PLATINUM~CHALLENGER)가 아닌 GOLD
+            assertThat(rankInfo.getTier()).isEqualTo(Tier.GOLD);
         }
     }
 

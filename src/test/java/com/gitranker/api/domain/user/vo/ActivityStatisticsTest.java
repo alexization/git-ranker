@@ -146,5 +146,14 @@ class ActivityStatisticsTest {
 
             assertThat(a).isEqualTo(b);
         }
+
+        @Test
+        @DisplayName("동등한 객체는 같은 hashCode를 가진다")
+        void should_haveSameHashCode_when_equal() {
+            ActivityStatistics a = ActivityStatistics.of(10, 5, 3, 2, 4);
+            ActivityStatistics b = ActivityStatistics.of(10, 5, 3, 2, 4);
+
+            assertThat(a.hashCode()).isEqualTo(b.hashCode());
+        }
     }
 }
