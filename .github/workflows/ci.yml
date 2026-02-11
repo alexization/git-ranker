@@ -33,6 +33,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
 
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: build/reports/tests/test/
+          retention-days: 7
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         if: success()
