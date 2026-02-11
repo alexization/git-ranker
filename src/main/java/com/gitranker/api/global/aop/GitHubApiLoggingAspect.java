@@ -3,6 +3,9 @@ package com.gitranker.api.global.aop;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.GitHubApiMetrics;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubRateLimitInfo;
+import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,11 +34,19 @@ public class GitHubApiLoggingAspect {
 
             long latency = System.currentTimeMillis() - start;
 
-            LogContext.event(Event.GITHUB_API_CALLED)
+            GitHubRateLimitInfo rateLimit = extractRateLimit(result);
+
+            LogContext ctx = LogContext.event(Event.GITHUB_API_CALLED)
                     .with("method", methodName)
                     .with("latency_ms", latency)
-                    .with("success", true)
-                    .info();
+                    .with("success", true);
+
+            if (rateLimit != null) {
+                ctx.with("cost", rateLimit.cost())
+                   .with("remaining", rateLimit.remaining());
+            }
+
+            ctx.info();
 
             apiMetrics.recordSuccess(latency);
 
@@ -54,5 +65,17 @@ public class GitHubApiLoggingAspect {
 
             throw e;
         }
+    }
+
+    private GitHubRateLimitInfo extractRateLimit(Object result) {
+        if (result instanceof GitHubAllActivitiesResponse r
+                && r.data() != null && r.data().rateLimit() != null) {
+            return r.data().rateLimit();
+        }
+        if (result instanceof GitHubUserInfoResponse r
+                && r.data() != null && r.data().rateLimit() != null) {
+            return r.data().rateLimit();
+        }
+        return null;
     }
 }
