@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.dockerignore
+
+build/
+.gradle/
+
+dashboards/
+alerting/
+*.yml
+!build.gradle
+!settings.gradle
+
+README.md
+LICENSE
