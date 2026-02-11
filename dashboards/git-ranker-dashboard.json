@@ -444,7 +444,7 @@
       "gridPos": { "h": 5, "w": 3, "x": 12, "y": 31 },
       "id": 41,
       "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_jobs_completed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Completed", "refId": "A" }],
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "round(increase(batch_jobs_completed_total{application=\"git-ranker-api\"}[$__range]))", "legendFormat": "Completed", "refId": "A" }],
       "title": "Jobs Completed",
       "type": "stat"
     },
@@ -454,7 +454,7 @@
       "gridPos": { "h": 5, "w": 3, "x": 15, "y": 31 },
       "id": 42,
       "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_jobs_failed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Failures", "refId": "A" }],
+      "targets": [{ "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "round(increase(batch_jobs_failed_total{application=\"git-ranker-api\"}[$__range]))", "legendFormat": "Failures", "refId": "A" }],
       "title": "Jobs Failed",
       "type": "stat"
     },
@@ -477,8 +477,8 @@
       "id": 45,
       "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "value_and_name" },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_items_processed_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Processed", "refId": "A" },
-        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "increase(batch_items_skipped_total{application=\"git-ranker-api\"}[$__range])", "legendFormat": "Skipped", "refId": "B" }
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "round(increase(batch_items_processed_total{application=\"git-ranker-api\"}[$__range]))", "legendFormat": "Processed", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${prometheus_ds}" }, "expr": "round(increase(batch_items_skipped_total{application=\"git-ranker-api\"}[$__range]))", "legendFormat": "Skipped", "refId": "B" }
       ],
       "title": "Items",
       "type": "stat"
