@@ -53,17 +53,16 @@ scrape_configs:
           event:
           log_category:
 
-      - template:
-          source: success
-          template: '{{ if eq .success "true" }}true{{ else if eq .success "false" }}false{{ else }}{{ end }}'
-      - labels:
+      - structured_metadata:
+          trace_id:
+          username:
+          client_ip:
+          user_agent:
+          job_name:
+          status:
           success:
-
-      - template:
-          source: status_group
-          template: '{{ if .status }}{{ if regexMatch "^2" .status }}2xx{{ else if regexMatch "^4" .status }}4xx{{ else if regexMatch "^5" .status }}5xx{{ else }}other{{ end }}{{ end }}'
-      - labels:
-          status_group:
+          method:
+          latency_ms:
 
       - timestamp:
           source: "@timestamp"
