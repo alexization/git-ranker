@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://git-ranker-db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
@@ -49,7 +49,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       TZ: Asia/Seoul
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     deploy:
@@ -73,12 +73,13 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
-      - "9091:9090"
+      - "127.0.0.1:9091:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
     deploy:
       resources:
         limits:
@@ -94,7 +95,7 @@ services:
     container_name: git-ranker-loki
     restart: unless-stopped
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     volumes:
       - ./loki-config.yml:/etc/loki/local-config.yml
       - loki_data:/loki
