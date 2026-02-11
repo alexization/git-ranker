@@ -7,6 +7,7 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.global.util.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserDeletionService {
     private final ActivityLogRepository activityLogRepository;
     private final BatchFailureLogRepository batchFailureLogRepository;
     private final UserRepository userRepository;
+    private final BusinessMetrics businessMetrics;
 
     @Value("${app.cookie.domain}")
     private String cookieDomain;
@@ -46,6 +48,8 @@ public class UserDeletionService {
                 .with("username", username)
                 .with("node_id", nodeId)
                 .info();
+
+        businessMetrics.incrementDeletions();
     }
 
     private void clearRefreshTokenCookie(HttpServletResponse response) {

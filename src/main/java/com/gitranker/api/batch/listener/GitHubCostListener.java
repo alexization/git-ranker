@@ -1,5 +1,6 @@
 package com.gitranker.api.batch.listener;
 
+import com.gitranker.api.batch.metrics.BatchMetrics;
 import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
@@ -17,6 +18,7 @@ public class GitHubCostListener implements JobExecutionListener {
 
     private final UserRepository userRepository;
     private final BatchProgressListener progressListener;
+    private final BatchMetrics batchMetrics;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
@@ -44,6 +46,14 @@ public class GitHubCostListener implements JobExecutionListener {
                 .with("skip_count", stats.skipCount)
                 .with("duration_ms", durationMs)
                 .info();
+
+        if (jobExecution.getStatus().isUnsuccessful()) {
+            batchMetrics.recordJobFailed(durationMs);
+        } else {
+            batchMetrics.recordJobCompleted(durationMs);
+        }
+        batchMetrics.recordItemsProcessed(stats.successCount);
+        batchMetrics.recordItemsSkipped(stats.skipCount);
     }
 
     private long calculateDuration(JobExecution jobExecution) {

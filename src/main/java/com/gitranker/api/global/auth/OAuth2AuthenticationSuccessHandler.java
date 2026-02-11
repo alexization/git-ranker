@@ -10,6 +10,7 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.metrics.BusinessMetrics;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final AuthCookieManager authCookieManager;
+    private final BusinessMetrics businessMetrics;
 
     @Value("${app.oauth2.authorized-redirect-uri}")
     private String authorizedRedirectUri;
@@ -59,6 +61,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         LogContext.event(Event.USER_LOGIN)
                 .with("username", userResponse.username())
                 .info();
+
+        businessMetrics.incrementLogins();
 
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, authorizedRedirectUri);
