@@ -652,32 +652,32 @@
         "type": "datasource"
       },
       {
-        "current": { "selected": false, "text": "", "value": "" },
+        "current": { "selected": false, "text": "enter-trace-id", "value": "enter-trace-id" },
         "hide": 0,
         "label": "Trace ID",
         "name": "trace_id",
-        "options": [{ "selected": true, "text": "", "value": "" }],
-        "query": "",
+        "options": [{ "selected": true, "text": "enter-trace-id", "value": "enter-trace-id" }],
+        "query": "enter-trace-id",
         "skipUrlSync": false,
         "type": "textbox"
       },
       {
-        "current": { "selected": false, "text": "", "value": "" },
+        "current": { "selected": false, "text": "enter-username", "value": "enter-username" },
         "hide": 0,
         "label": "Username",
         "name": "username_search",
-        "options": [{ "selected": true, "text": "", "value": "" }],
-        "query": "",
+        "options": [{ "selected": true, "text": "enter-username", "value": "enter-username" }],
+        "query": "enter-username",
         "skipUrlSync": false,
         "type": "textbox"
       },
       {
-        "current": { "selected": false, "text": "", "value": "" },
+        "current": { "selected": false, "text": "enter-ip-address", "value": "enter-ip-address" },
         "hide": 0,
         "label": "IP Address",
         "name": "ip_search",
-        "options": [{ "selected": true, "text": "", "value": "" }],
-        "query": "",
+        "options": [{ "selected": true, "text": "enter-ip-address", "value": "enter-ip-address" }],
+        "query": "enter-ip-address",
         "skipUrlSync": false,
         "type": "textbox"
       }
