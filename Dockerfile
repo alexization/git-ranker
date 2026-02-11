@@ -21,9 +21,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-RUN chown appuser:appgroup app.jar
+COPY --chown=appuser:appgroup --from=builder /app/build/libs/*.jar app.jar
 
 USER appuser
 

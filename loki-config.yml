@@ -35,6 +35,7 @@ compactor:
   working_directory: /loki/compactor
   retention_enabled: true
   compaction_interval: 10m
+  delete_request_store: filesystem
 
 limits_config:
   allow_structured_metadata: true
