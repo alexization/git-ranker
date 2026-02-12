@@ -59,10 +59,14 @@ tasks.named('test') {
 	exclude '**/*IT.class'
 }
 
-// 통합 테스트: *IT.java만 실행 (Docker 필요)
+// 통합 테스트: *IT.java만 실행 (Docker/Testcontainers 필요)
+// check 라이프사이클에 포함하지 않음 — Docker 없는 환경에서 build가 실패하지 않도록 의도적 제외
+// CI에서는 별도 단계로 명시적 실행: ./gradlew integrationTest
 tasks.register('integrationTest', Test) {
 	useJUnitPlatform()
 	include '**/*IT.class'
+
+	mustRunAfter tasks.named('test')
 
 	testClassesDirs = sourceSets.test.output.classesDirs
 	classpath = sourceSets.test.runtimeClasspath
