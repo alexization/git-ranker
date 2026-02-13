@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -36,10 +36,10 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test
 
+      - name: Verify Docker is running
+        run: docker info
+
       - name: Run integration tests
-        env:
-          DOCKER_HOST: unix:///var/run/docker.sock
-          TESTCONTAINERS_RYUK_DISABLED: true
         run: ./gradlew integrationTest
 
       - name: Upload unit test results
