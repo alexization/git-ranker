@@ -37,6 +37,9 @@ jobs:
         run: ./gradlew test
 
       - name: Run integration tests
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: true
         run: ./gradlew integrationTest
 
       - name: Upload unit test results
