@@ -36,11 +36,16 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test
 
-      - name: Verify Docker is running
-        run: docker info
+      - name: Docker diagnostics
+        run: |
+          docker version
+          docker context ls
+          docker context inspect default
+          ls -la /var/run/docker.sock
+          id
 
       - name: Run integration tests
-        run: ./gradlew integrationTest
+        run: ./gradlew integrationTest --info 2>&1 | grep -E "Testcontainers|DockerClient|docker|Docker|Strategy|WARN|ERROR|Exception|socket|unix" || true && ./gradlew integrationTest --stacktrace
 
       - name: Upload unit test results
         uses: actions/upload-artifact@v4
