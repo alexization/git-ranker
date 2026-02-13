@@ -70,4 +70,7 @@ tasks.register('integrationTest', Test) {
 
 	testClassesDirs = sourceSets.test.output.classesDirs
 	classpath = sourceSets.test.runtimeClasspath
+
+	// Docker 29+는 최소 API 1.44를 요구하지만 docker-java 3.4.0은 기본값 1.32로 요청함
+	systemProperty 'api.version', '1.44'
 }
