@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build & Test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -36,16 +36,8 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test
 
-      - name: Docker diagnostics
-        run: |
-          docker version
-          docker context ls
-          docker context inspect default
-          ls -la /var/run/docker.sock
-          id
-
       - name: Run integration tests
-        run: ./gradlew integrationTest --info 2>&1 | grep -E "Testcontainers|DockerClient|docker|Docker|Strategy|WARN|ERROR|Exception|socket|unix" || true && ./gradlew integrationTest --stacktrace
+        run: ./gradlew integrationTest
 
       - name: Upload unit test results
         uses: actions/upload-artifact@v4
