@@ -39,3 +39,5 @@ out/
 .vscode/
 
 .env
+
+AGENTS.md
