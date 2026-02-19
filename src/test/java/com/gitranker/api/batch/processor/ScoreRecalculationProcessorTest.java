@@ -158,7 +158,7 @@ class ScoreRecalculationProcessorTest {
 
             GitHubNodeUserResponse nodeResponse = new GitHubNodeUserResponse(
                     new GitHubNodeUserResponse.Data(
-                            new GitHubNodeUserResponse.Node("node1", "newusername", "https://new-avatar.png"),
+                            new GitHubNodeUserResponse.Node("node1", "newusername", "new@email.com", "https://new-avatar.png"),
                             null
                     )
             );
@@ -187,7 +187,7 @@ class ScoreRecalculationProcessorTest {
 
             GitHubNodeUserResponse emptyResponse = new GitHubNodeUserResponse(
                     new GitHubNodeUserResponse.Data(
-                            new GitHubNodeUserResponse.Node(null, null, null),
+                            new GitHubNodeUserResponse.Node(null, null, null, null),
                             null
                     )
             );
@@ -212,7 +212,7 @@ class ScoreRecalculationProcessorTest {
 
             GitHubNodeUserResponse nodeResponse = new GitHubNodeUserResponse(
                     new GitHubNodeUserResponse.Data(
-                            new GitHubNodeUserResponse.Node("node1", "newusername", "https://new-avatar.png"),
+                            new GitHubNodeUserResponse.Node("node1", "newusername", "new@email.com", "https://new-avatar.png"),
                             null
                     )
             );

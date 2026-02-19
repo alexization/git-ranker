@@ -12,6 +12,10 @@ public record GitHubNodeUserResponse(
         return data.node().login();
     }
 
+    public String getEmail() {
+        return data.node().email();
+    }
+
     public String getAvatarUrl() {
         return data.node().avatarUrl();
     }
@@ -32,6 +36,9 @@ public record GitHubNodeUserResponse(
 
             @JsonProperty("login")
             String login,
+
+            @JsonProperty("email")
+            String email,
 
             @JsonProperty("avatarUrl")
             String avatarUrl

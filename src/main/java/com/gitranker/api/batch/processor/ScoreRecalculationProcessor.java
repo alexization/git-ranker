@@ -77,8 +77,8 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
             throw new GitHubApiNonRetryableException(ErrorType.GITHUB_USER_NOT_FOUND);
         }
 
-        user.updateProfile(response.getLogin(), response.getAvatarUrl(), null);
-        log.info("username 변경 감지 - 기존: {}, 신규: {}, nodeId: {}",
+        user.updateProfile(response.getLogin(), response.getAvatarUrl(), response.getEmail());
+        log.info("사용자 프로필 변경 감지 - 기존 username: {}, 신규 username: {}, nodeId: {}",
                 oldUsername, response.getLogin(), user.getNodeId());
 
         return recalculateScore(user);

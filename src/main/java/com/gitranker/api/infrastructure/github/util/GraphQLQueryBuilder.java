@@ -124,6 +124,7 @@ public class GraphQLQueryBuilder {
                     ... on User {
                       id
                       login
+                      email
                       avatarUrl
                     }
                   }
