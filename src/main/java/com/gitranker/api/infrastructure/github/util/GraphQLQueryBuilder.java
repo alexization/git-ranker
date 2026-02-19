@@ -111,6 +111,27 @@ public class GraphQLQueryBuilder {
         );
     }
 
+    public String buildUserLookupByNodeIdQuery(String nodeId) {
+        return String.format("""
+                {
+                  rateLimit {
+                    limit
+                    remaining
+                    resetAt
+                    cost
+                  }
+                  node(id: "%s") {
+                    ... on User {
+                      id
+                      login
+                      email
+                      avatarUrl
+                    }
+                  }
+                }
+                """, nodeId);
+    }
+
     private String buildFromDate(int year, int joinYear, LocalDateTime githubJoinDate) {
         if (year == joinYear && githubJoinDate != null) {
             return toISOString(githubJoinDate.atZone(appZoneId));

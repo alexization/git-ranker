@@ -11,6 +11,7 @@ import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubGraphQLRequest;
+import com.gitranker.api.infrastructure.github.dto.GitHubNodeUserResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubRateLimitInfo;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
@@ -79,6 +80,23 @@ public class GitHubGraphQLClient {
         GitHubUserInfoResponse response = executeQuery(accessToken, query, GitHubUserInfoResponse.class);
 
         if (response.data().rateLimit() != null) {
+            recordRateLimitInfo(accessToken, response.data().rateLimit());
+
+            checkRateLimitSafety(
+                    response.data().rateLimit().remaining(),
+                    response.data().rateLimit().resetAt()
+            );
+        }
+
+        return response;
+    }
+
+    public GitHubNodeUserResponse getUserInfoByNodeId(String accessToken, String nodeId) {
+        String query = queryBuilder.buildUserLookupByNodeIdQuery(nodeId);
+
+        GitHubNodeUserResponse response = executeQuery(accessToken, query, GitHubNodeUserResponse.class);
+
+        if (response.data() != null && response.data().rateLimit() != null) {
             recordRateLimitInfo(accessToken, response.data().rateLimit());
 
             checkRateLimitSafety(
