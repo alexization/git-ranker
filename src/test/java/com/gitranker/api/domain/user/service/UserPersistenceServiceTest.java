@@ -99,7 +99,7 @@ class UserPersistenceServiceTest {
         User user = createUser();
         when(userRepository.save(user)).thenReturn(user);
 
-        User result = userPersistenceService.updateProfile(user, "newname", "https://new.img");
+        User result = userPersistenceService.updateProfile(user, "newname", "https://new.img", "new@email.com");
 
         assertThat(result.getUsername()).isEqualTo("newname");
         verify(userRepository).save(user);

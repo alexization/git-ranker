@@ -72,7 +72,7 @@ public class UserRegistrationService {
 
         if (isInfoChanged) {
             log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
-            currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage());
+            currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage(), attributes.email());
         }
 
         return createResponse(currentUser, false);

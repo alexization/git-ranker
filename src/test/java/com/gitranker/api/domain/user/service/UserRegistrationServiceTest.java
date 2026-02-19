@@ -153,7 +153,7 @@ class UserRegistrationServiceTest {
                 .githubCreatedAt(LocalDateTime.of(2020, 1, 1, 0, 0))
                 .role(Role.USER)
                 .build();
-        when(userPersistenceService.updateProfile(existingUser, "newname", "https://img.com/new"))
+        when(userPersistenceService.updateProfile(existingUser, "newname", "https://img.com/new", "test@test.com"))
                 .thenReturn(updatedUser);
 
         ActivityLog activityLog = ActivityLog.empty(updatedUser, LocalDate.now());
@@ -162,6 +162,6 @@ class UserRegistrationServiceTest {
         RegisterUserResponse response = userRegistrationService.register(attributes);
 
         assertThat(response.username()).isEqualTo("newname");
-        verify(userPersistenceService).updateProfile(existingUser, "newname", "https://img.com/new");
+        verify(userPersistenceService).updateProfile(existingUser, "newname", "https://img.com/new", "test@test.com");
     }
 }
