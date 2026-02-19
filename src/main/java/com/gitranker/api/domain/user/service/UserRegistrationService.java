@@ -66,7 +66,7 @@ public class UserRegistrationService {
     private RegisterUserResponse handleExistingUser(User user, OAuthAttributes attributes) {
         boolean isInfoChanged = !user.getUsername().equals(attributes.username()) ||
                                 !user.getProfileImage().equals(attributes.profileImage()) ||
-                                (attributes.email()) != null && !attributes.email().equals(user.getEmail());
+                                (attributes.email() != null && !attributes.email().equals(user.getEmail()));
 
         User currentUser = user;
 

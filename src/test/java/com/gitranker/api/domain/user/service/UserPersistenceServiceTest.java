@@ -102,6 +102,7 @@ class UserPersistenceServiceTest {
         User result = userPersistenceService.updateProfile(user, "newname", "https://new.img", "new@email.com");
 
         assertThat(result.getUsername()).isEqualTo("newname");
+        assertThat(result.getEmail()).isEqualTo("new@email.com");
         verify(userRepository).save(user);
     }
 }

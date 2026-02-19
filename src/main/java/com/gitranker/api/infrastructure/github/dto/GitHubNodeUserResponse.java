@@ -9,14 +9,17 @@ public record GitHubNodeUserResponse(
         Data data
 ) {
     public String getLogin() {
+        if (!hasUser()) return null;
         return data.node().login();
     }
 
     public String getEmail() {
+        if (!hasUser()) return null;
         return data.node().email();
     }
 
     public String getAvatarUrl() {
+        if (!hasUser()) return null;
         return data.node().avatarUrl();
     }
 

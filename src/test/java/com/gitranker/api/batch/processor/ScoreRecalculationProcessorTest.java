@@ -168,6 +168,7 @@ class ScoreRecalculationProcessorTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getUsername()).isEqualTo("newusername");
+            assertThat(result.getEmail()).isEqualTo("new@email.com");
             assertThat(result.getProfileImage()).isEqualTo("https://new-avatar.png");
             assertThat(result.getTotalScore()).isGreaterThan(0);
             verify(fullStrategy, times(2)).update(eq(user), any());
@@ -186,10 +187,7 @@ class ScoreRecalculationProcessorTest {
                     .thenThrow(new GitHubApiNonRetryableException(ErrorType.GITHUB_USER_NOT_FOUND));
 
             GitHubNodeUserResponse emptyResponse = new GitHubNodeUserResponse(
-                    new GitHubNodeUserResponse.Data(
-                            new GitHubNodeUserResponse.Node(null, null, null, null),
-                            null
-                    )
+                    new GitHubNodeUserResponse.Data(null, null)
             );
             when(gitHubActivityService.fetchUserByNodeId("node1")).thenReturn(emptyResponse);
 
@@ -220,6 +218,9 @@ class ScoreRecalculationProcessorTest {
 
             assertThatThrownBy(() -> processor.process(user))
                     .isInstanceOf(GitHubApiNonRetryableException.class);
+
+            verify(gitHubActivityService).fetchUserByNodeId("node1");
+            verify(fullStrategy, times(2)).update(eq(user), any());
         }
     }
 }
