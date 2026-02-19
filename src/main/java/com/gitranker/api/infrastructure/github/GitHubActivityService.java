@@ -2,6 +2,7 @@ package com.gitranker.api.infrastructure.github;
 
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.infrastructure.github.dto.GitHubNodeUserResponse;
 import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,15 @@ public class GitHubActivityService {
         GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(token, username, githubJoinDate);
 
         log.debug("전체 데이터 조회 완료 - 사용자: {}", username);
+
+        return response;
+    }
+
+    public GitHubNodeUserResponse fetchUserByNodeId(String nodeId) {
+        String token = tokenPool.getToken();
+        GitHubNodeUserResponse response = graphQLClient.getUserInfoByNodeId(token, nodeId);
+
+        log.debug("nodeId 기반 사용자 조회 완료 - nodeId: {}, login: {}", nodeId, response.getLogin());
 
         return response;
     }

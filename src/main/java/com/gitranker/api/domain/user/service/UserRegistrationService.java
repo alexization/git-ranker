@@ -66,13 +66,13 @@ public class UserRegistrationService {
     private RegisterUserResponse handleExistingUser(User user, OAuthAttributes attributes) {
         boolean isInfoChanged = !user.getUsername().equals(attributes.username()) ||
                                 !user.getProfileImage().equals(attributes.profileImage()) ||
-                                (attributes.email()) != null && !attributes.email().equals(user.getEmail());
+                                (attributes.email() != null && !attributes.email().equals(user.getEmail()));
 
         User currentUser = user;
 
         if (isInfoChanged) {
             log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
-            currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage());
+            currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage(), attributes.email());
         }
 
         return createResponse(currentUser, false);

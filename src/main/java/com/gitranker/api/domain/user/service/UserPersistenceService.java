@@ -38,8 +38,8 @@ public class UserPersistenceService {
     }
 
     @Transactional
-    public User updateProfile(User user, String newUsername, String newProfileImage) {
-        user.updateProfile(newUsername, newProfileImage, null);
+    public User updateProfile(User user, String newUsername, String newProfileImage, String newEmail) {
+        user.updateProfile(newUsername, newProfileImage, newEmail);
 
         return userRepository.save(user);
     }
