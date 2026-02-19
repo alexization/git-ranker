@@ -96,7 +96,7 @@ public class GitHubGraphQLClient {
 
         GitHubNodeUserResponse response = executeQuery(accessToken, query, GitHubNodeUserResponse.class);
 
-        if (response.data().rateLimit() != null) {
+        if (response.data() != null && response.data().rateLimit() != null) {
             recordRateLimitInfo(accessToken, response.data().rateLimit());
 
             checkRateLimitSafety(
