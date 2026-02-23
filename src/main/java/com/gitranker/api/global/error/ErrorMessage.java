@@ -1,5 +1,6 @@
 package com.gitranker.api.global.error;
 
+import com.gitranker.api.global.i18n.MessageUtils;
 import lombok.Getter;
 
 @Getter
@@ -19,6 +20,10 @@ public class ErrorMessage {
     }
 
     public ErrorMessage(ErrorType errorType, Object data) {
-        this(errorType.toString(), errorType.getMessage(), data);
+        this(errorType.toString(), MessageUtils.getMessage(errorType.getMessageKey()), data);
+    }
+
+    public ErrorMessage(ErrorType errorType, String message, Object data) {
+        this(errorType.toString(), message, data);
     }
 }
