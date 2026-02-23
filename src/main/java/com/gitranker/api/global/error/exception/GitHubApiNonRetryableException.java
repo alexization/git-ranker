@@ -8,12 +8,12 @@ public class GitHubApiNonRetryableException extends RuntimeException {
     private final ErrorType errorType;
 
     public GitHubApiNonRetryableException(ErrorType errorType) {
-        super(errorType.getMessage());
+        super(errorType.getMessageKey());
         this.errorType = errorType;
     }
 
     public GitHubApiNonRetryableException(ErrorType errorType, String message) {
-        super(errorType.getMessage() + ": " + message);
+        super(errorType.getMessageKey() + ": " + message);
         this.errorType = errorType;
     }
 }

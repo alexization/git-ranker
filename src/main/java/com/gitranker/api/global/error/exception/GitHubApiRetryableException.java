@@ -8,17 +8,17 @@ public class GitHubApiRetryableException extends RuntimeException {
     private final ErrorType errorType;
 
     public GitHubApiRetryableException(ErrorType errorType) {
-        super(errorType.getMessage());
+        super(errorType.getMessageKey());
         this.errorType = errorType;
     }
 
     public GitHubApiRetryableException(ErrorType errorType, String message) {
-        super(errorType.getMessage() + ": " + message);
+        super(errorType.getMessageKey() + ": " + message);
         this.errorType = errorType;
     }
 
     public GitHubApiRetryableException(ErrorType errorType, Throwable cause) {
-        super(errorType.getMessage(), cause);
+        super(errorType.getMessageKey(), cause);
         this.errorType = errorType;
     }
 }

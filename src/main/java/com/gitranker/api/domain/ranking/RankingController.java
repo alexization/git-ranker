@@ -21,7 +21,7 @@ public class RankingController {
 
     @GetMapping
     public ApiResponse<RankingList> getRankings(
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다") int page,
+            @RequestParam(defaultValue = "0") @Min(value = 0, message = "{validation.ranking.page.min}") int page,
             @RequestParam(required = false) Tier tier
     ) {
         RankingList response = rankingService.getRankingList(page, tier);
