@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private static final String USERNAME_PATTERN = "^(?=.{1,39}$)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$";
-    private static final String USERNAME_MESSAGE = "GitHub 사용자명은 1-39자의 영문, 숫자, 하이픈만 허용됩니다";
+    private static final String USERNAME_MESSAGE = "{validation.user.username.pattern}";
     private final UserQueryService userQueryService;
     private final UserRefreshService userRefreshService;
     private final UserDeletionService userDeletionService;
@@ -68,5 +68,4 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 }
-
 
