@@ -43,3 +43,12 @@ app:
   cookie:
     domain: git-ranker.com
     secure: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: never

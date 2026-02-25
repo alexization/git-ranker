@@ -89,15 +89,24 @@ jobs:
           echo "Waiting for application to start..."
           sleep 45
 
+          HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL }}"
+          if [ -z "$HEALTH_URL" ]; then
+            HEALTH_URL="${{ secrets.BACKEND_URL }}/actuator/health"
+          fi
+          echo "Health URL: $HEALTH_URL"
+
           for i in {1..5}; do
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.BACKEND_URL }}" || echo "000")
-            if [ "$HTTP_STATUS" != "000" ]; then
-              echo "Health check passed! (HTTP $HTTP_STATUS)"
+            RESPONSE_BODY=$(curl -s "$HEALTH_URL" || true)
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+
+            if [ "$HTTP_STATUS" = "200" ] && echo "$RESPONSE_BODY" | grep -q '"status":"UP"'; then
+              echo "Health check passed! (HTTP 200, status=UP)"
               exit 0
             fi
-            echo "Attempt $i/5 failed, retrying in 15s..."
+            echo "Attempt $i/5 failed. HTTP=$HTTP_STATUS, body=$RESPONSE_BODY"
+            echo "Retrying in 15s..."
             sleep 15
           done
 
-          echo "Health check failed! Server not responding."
+          echo "Health check failed! Expected HTTP 200 with status=UP."
           exit 1
