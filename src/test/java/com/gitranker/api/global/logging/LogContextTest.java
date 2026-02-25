@@ -112,7 +112,11 @@ class LogContextTest {
 
             assertThat(appender.list).hasSize(1);
             Map<String, String> mdc = appender.list.getFirst().getMDCPropertyMap();
-            assertThat(mdc).containsEntry("username", "oc*****");
+            assertThat(mdc)
+                    .containsEntry("trace_id", "trace-auth")
+                    .containsEntry("event", "USER_LOGIN")
+                    .containsEntry("log_category", "USER")
+                    .containsEntry("username", "oc*****");
         } finally {
             detachAppender(appender);
         }

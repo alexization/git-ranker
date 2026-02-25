@@ -29,7 +29,7 @@
 
 ## 5) Decision Log
 - 2026-02-25: M5 focuses on automated quality confidence, not process expansion.
- - 2026-02-25: set initial line coverage gate at 45% to enforce a meaningful floor while staying below current baseline.
+- 2026-02-25: set initial line coverage gate at 45% to enforce a meaningful floor while staying below current baseline.
 
 ## 6) Validation Plan
 - Required commands:

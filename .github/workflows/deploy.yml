@@ -91,15 +91,17 @@ jobs:
 
           HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL }}"
           if [ -z "$HEALTH_URL" ]; then
-            HEALTH_URL="${{ secrets.BACKEND_URL }}/actuator/health"
+            echo "BACKEND_HEALTH_URL secret is required."
+            exit 1
           fi
           echo "Health URL: $HEALTH_URL"
 
           for i in {1..5}; do
-            RESPONSE_BODY=$(curl -s "$HEALTH_URL" || true)
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+            RESPONSE=$(curl -sS --connect-timeout 5 --max-time 10 -w $'\n%{http_code}' "$HEALTH_URL" || true)
+            HTTP_STATUS=$(printf '%s' "$RESPONSE" | tail -n1)
+            RESPONSE_BODY=$(printf '%s' "$RESPONSE" | sed '$d')
 
-            if [ "$HTTP_STATUS" = "200" ] && echo "$RESPONSE_BODY" | grep -q '"status":"UP"'; then
+            if [ "$HTTP_STATUS" = "200" ] && echo "$RESPONSE_BODY" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"'; then
               echo "Health check passed! (HTTP 200, status=UP)"
               exit 0
             fi

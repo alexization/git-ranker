@@ -40,4 +40,11 @@ class LogSanitizerTest {
         assertThat(hash).matches("[0-9a-f]{12}");
         assertThat(hash).isEqualTo(LogSanitizer.hashUsername("tester"));
     }
+
+    @Test
+    @DisplayName("길이가 짧은 username도 원문 없이 마스킹한다")
+    void should_maskShortUsername_withoutExposingRawValue() {
+        assertThat(LogSanitizer.maskUsername("a")).isEqualTo("**");
+        assertThat(LogSanitizer.maskUsername("ab")).isEqualTo("**");
+    }
 }

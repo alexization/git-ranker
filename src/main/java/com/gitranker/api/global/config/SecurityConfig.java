@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/api/v1/badges/**",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/actuator/**",
+                                "/actuator/health",
                                 "/api/live/ws"
                         ).permitAll()
                         .requestMatchers(

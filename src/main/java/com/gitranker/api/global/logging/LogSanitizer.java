@@ -25,8 +25,12 @@ public final class LogSanitizer {
             return username;
         }
 
-        int visibleLength = Math.min(2, username.length());
+        int visibleLength = username.length() <= 2 ? 0 : Math.min(2, username.length());
         int maskedLength = Math.max(2, username.length() - visibleLength);
+
+        if (visibleLength == 0) {
+            return "*".repeat(maskedLength);
+        }
 
         return username.substring(0, visibleLength) + "*".repeat(maskedLength);
     }

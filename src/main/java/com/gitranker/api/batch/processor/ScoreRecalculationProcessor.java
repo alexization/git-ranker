@@ -47,7 +47,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         } catch (GitHubApiRetryableException e) {
             throw e;
         } catch (Exception e) {
-            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + LogSanitizer.maskUsername(user.getUsername()));
+            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자 해시: " + LogSanitizer.hashUsername(user.getUsername()));
         }
     }
 
