@@ -45,7 +45,8 @@ public class LoggingFilter implements Filter {
 
             LogContext logContext = LogContext.event(Event.HTTP_RESPONSE)
                     .with("status", status)
-                    .with("latency_ms", latency);
+                    .with("latency_ms", latency)
+                    .with("outcome", status >= 500 ? "failure" : "success");
 
             if (latency > SLOW_REQUEST_THRESHOLD_MS) {
                 logContext.warn();

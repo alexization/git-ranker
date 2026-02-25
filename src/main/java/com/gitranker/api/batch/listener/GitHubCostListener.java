@@ -5,13 +5,11 @@ import com.gitranker.api.domain.user.UserRepository;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GitHubCostListener implements JobExecutionListener {
@@ -26,8 +24,10 @@ public class GitHubCostListener implements JobExecutionListener {
 
         int totalUserCount = (int) userRepository.count();
 
-        log.debug("배치 작업 시작 - Job: {}, 총 사용자 수: {}",
-                jobExecution.getJobInstance().getJobName(), totalUserCount);
+        LogContext.event(Event.BATCH_STARTED)
+                .with("job_name", jobExecution.getJobInstance().getJobName())
+                .with("total_user_count", totalUserCount)
+                .info();
     }
 
     @Override

@@ -10,6 +10,7 @@ If code and docs disagree, update docs in the same PR.
 - Testing runbook: [runbooks/testing.md](runbooks/testing.md)
 - Observability runbook: [runbooks/observability-local.md](runbooks/observability-local.md)
 - Metrics catalog: [observability/metrics-catalog.md](observability/metrics-catalog.md)
+- Logging contract: [observability/logging-contract.md](observability/logging-contract.md)
 
 ## Execution Documents
 - Plan template: [plans/TEMPLATE.md](plans/TEMPLATE.md)
@@ -23,3 +24,4 @@ If code and docs disagree, update docs in the same PR.
 2. Architecture-impacting changes require ADR update.
 3. PR must include document links and validation evidence.
 4. After merge, move plan doc to `docs/plans/completed/`.
+5. Machine-read docs in `docs/*` must be written in English.

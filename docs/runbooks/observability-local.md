@@ -42,3 +42,4 @@ Give humans and AI agents a repeatable path for debugging with logs and metrics.
 - Never log tokens, secrets, or raw credentials.
 - Use identifiers like username/nodeId/request path for traceability.
 - Keep metric definitions in sync with [../observability/metrics-catalog.md](../observability/metrics-catalog.md).
+- Keep structured log fields in sync with [../observability/logging-contract.md](../observability/logging-contract.md).

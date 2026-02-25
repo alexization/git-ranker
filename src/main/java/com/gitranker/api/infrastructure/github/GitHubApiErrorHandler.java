@@ -55,7 +55,8 @@ public class GitHubApiErrorHandler {
 
         if (errorString.contains("Could not resolve to a User")) {
             LogContext.event(Event.GITHUB_API_CALLED)
-                    .with("success", false)
+                    .with("target", "github_api")
+                    .with("outcome", "failure")
                     .with("error_type", "USER_NOT_FOUND")
                     .warn();
 
@@ -63,7 +64,8 @@ public class GitHubApiErrorHandler {
         }
 
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "GRAPHQL_PARTIAL_ERROR")
                 .warn();
 
@@ -72,7 +74,8 @@ public class GitHubApiErrorHandler {
 
     public GitHubApiRetryableException handleTimeout(TimeoutException e, Duration timeout) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "TIMEOUT")
                 .with("timeout_seconds", timeout.getSeconds())
                 .warn();
@@ -82,7 +85,8 @@ public class GitHubApiErrorHandler {
 
     public GitHubApiRetryableException handleReadTimeout(ReadTimeoutException e) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "READ_TIMEOUT")
                 .warn();
 
@@ -91,7 +95,8 @@ public class GitHubApiErrorHandler {
 
     public GitHubApiRetryableException handleIOException(IOException e) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "IO_ERROR")
                 .with("error_message", e.getMessage())
                 .warn();
@@ -101,7 +106,8 @@ public class GitHubApiErrorHandler {
 
     public GitHubApiRetryableException handleNetworkError(WebClientRequestException e) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "NETWORK_ERROR")
                 .with("error_message", e.getMessage())
                 .warn();
@@ -113,7 +119,8 @@ public class GitHubApiErrorHandler {
         LocalDateTime resetAt = parseResetTime(response.headers());
 
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "RATE_LIMIT_EXCEEDED")
                 .with("status", statusValue)
                 .with("reset_at", resetAt.toString())
@@ -126,7 +133,8 @@ public class GitHubApiErrorHandler {
 
     private GitHubApiRetryableException handleClientError(int statusValue) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "CLIENT_ERROR")
                 .with("status", statusValue)
                 .error();
@@ -138,7 +146,8 @@ public class GitHubApiErrorHandler {
 
     private GitHubApiRetryableException handleServerError(int statusValue) {
         LogContext.event(Event.GITHUB_API_CALLED)
-                .with("success", false)
+                .with("target", "github_api")
+                .with("outcome", "failure")
                 .with("error_type", "SERVER_ERROR")
                 .with("status", statusValue)
                 .error();

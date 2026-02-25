@@ -79,8 +79,8 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Risks and rollback path documented in PR.
 
 ## 8.1) Language Convention
-- Commit message titles should be written in Korean.
-- PR descriptions should be written in Korean.
+- Machine-read policy docs (`AGENTS.md`, `docs/*`) must be written in English.
+- Human-authored collaboration artifacts (commit messages, PR descriptions, issue comments) may be written in Korean.
 - Keep code identifiers and commands in original syntax.
 
 ## 9) System of Record
@@ -91,3 +91,4 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Testing runbook: [docs/runbooks/testing.md](docs/runbooks/testing.md)
 - Observability runbook: [docs/runbooks/observability-local.md](docs/runbooks/observability-local.md)
 - Metrics catalog: [docs/observability/metrics-catalog.md](docs/observability/metrics-catalog.md)
+- Logging contract: [docs/observability/logging-contract.md](docs/observability/logging-contract.md)
