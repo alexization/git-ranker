@@ -35,18 +35,18 @@ public class LoggingFilter implements Filter {
                 requestUri
         );
 
-        long start = System.currentTimeMillis();
+        long start = currentTimeMillis();
 
         try {
             chain.doFilter(request, response);
         } finally {
-            long latency = System.currentTimeMillis() - start;
+            long latency = currentTimeMillis() - start;
             int status = httpResponse.getStatus();
 
             LogContext logContext = LogContext.event(Event.HTTP_RESPONSE)
                     .with("status", status)
                     .with("latency_ms", latency)
-                    .with("outcome", status >= 500 ? "failure" : "success");
+                    .with("outcome", resolveOutcome(status, latency));
 
             if (latency > SLOW_REQUEST_THRESHOLD_MS) {
                 logContext.warn();
@@ -76,5 +76,19 @@ public class LoggingFilter implements Filter {
             }
         }
         return false;
+    }
+
+    private String resolveOutcome(int status, long latency) {
+        if (status >= 400) {
+            return "failure";
+        }
+        if (latency > SLOW_REQUEST_THRESHOLD_MS) {
+            return "warning";
+        }
+        return "success";
+    }
+
+    protected long currentTimeMillis() {
+        return System.currentTimeMillis();
     }
 }

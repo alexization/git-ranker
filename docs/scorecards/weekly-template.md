@@ -5,6 +5,7 @@
 - Related issue:
 
 ## 1) Delivery Throughput
+
 | Metric | Target | Actual | Notes |
 | --- | --- | --- | --- |
 | PRs merged |  |  |  |
@@ -12,6 +13,7 @@
 | Reopened PR count |  |  |  |
 
 ## 2) Reliability
+
 | Metric | Target | Actual | Notes |
 | --- | --- | --- | --- |
 | Availability (1h) | >= 99.0% |  |  |
@@ -20,6 +22,7 @@
 | Batch success rate (1d) | >= 95.0% |  |  |
 
 ## 3) Architecture Guardrails
+
 | Check | Status | Notes |
 | --- | --- | --- |
 | ArchUnit tests passing |  |  |
@@ -27,6 +30,7 @@
 | Controller placement violations |  |  |
 
 ## 4) Observability and Logging
+
 | Check | Status | Notes |
 | --- | --- | --- |
 | Metrics catalog up to date |  |  |
@@ -34,6 +38,7 @@
 | Dashboard query drift detected |  |  |
 
 ## 5) Documentation Drift
+
 | Check | Status | Notes |
 | --- | --- | --- |
 | Active plans updated during execution |  |  |
@@ -52,6 +57,7 @@
 3.
 
 ## 8) Action Items
+
 | Item | Owner | Due | Related issue/plan |
 | --- | --- | --- | --- |
 |  |  |  |  |

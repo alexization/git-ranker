@@ -9,6 +9,7 @@
 - Plain `log.debug(...)` calls should be migrated to `LogContext` incrementally.
 
 ## 3) Required Fields
+
 | Field | Description | Source |
 | --- | --- | --- |
 | `trace_id` | Correlation identifier for request/job flow | Set in request filter, auto-generated if missing |
@@ -18,13 +19,22 @@
 | `outcome` | Result status | Default: INFO/DEBUG=`success`, WARN=`warning`, ERROR=`failure` |
 
 ## 4) Request Context Fields
+
 | Field | Description |
 | --- | --- |
 | `client_ip` | Client IP |
 | `user_agent` | User agent |
 | `request_method` | HTTP method |
 | `request_uri` | Request URI |
-| `username` | Authenticated username (when available) |
+| `username` | PII. Masking or anonymization is required (see Section 6.3). Prefer `maskUsername` or `hashUsername` before logging. |
+
+Example (recommended):
+- `log_username_masked = maskUsername(username)` -> `te****r`
+- `log_username_hash = hashUsername(username)` -> `7f0c...`
+
+Verification checklist:
+1. If `username` appears in a log field, confirm `maskUsername` or `hashUsername` is applied.
+2. If raw username logging is unavoidable, include explicit privacy/compliance approval reference in the PR.
 
 ## 5) Recommended Fields by Domain
 1. HTTP response

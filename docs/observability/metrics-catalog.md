@@ -26,6 +26,7 @@
 `sum(increase(batch_jobs_completed_total{application="git-ranker-api"}[1d])) / (sum(increase(batch_jobs_completed_total{application="git-ranker-api"}[1d])) + sum(increase(batch_jobs_failed_total{application="git-ranker-api"}[1d]))) * 100`
 
 ## 3) Domain Metrics
+
 | Metric | Tags | Meaning | Source |
 | --- | --- | --- | --- |
 | `user_registrations_total` | `application` | Total user registrations | `BusinessMetrics` |
@@ -37,6 +38,7 @@
 | `errors_total` | `application`, `error_code` | Total errors by error code | `BusinessMetrics` |
 
 ## 4) Batch Metrics
+
 | Metric | Tags | Meaning | Source |
 | --- | --- | --- | --- |
 | `batch_jobs_completed_total` | `application` | Total successful batch jobs | `BatchMetrics` |
@@ -46,6 +48,7 @@
 | `batch_job_duration_seconds` | `application`, `status` | Batch execution duration (`success/failure`) | `BatchMetrics` |
 
 ## 5) External Integration (GitHub) Metrics
+
 | Metric | Tags | Meaning | Source |
 | --- | --- | --- | --- |
 | `github_api_remaining` | `application` | Remaining GitHub API calls | `GitHubApiMetrics` |
@@ -55,6 +58,7 @@
 | `github_api_latency_seconds` | `application` | GitHub API latency | `GitHubApiMetrics` |
 
 ## 6) Platform Metrics (Actuator Defaults)
+
 | Metric | Tags | Meaning |
 | --- | --- | --- |
 | `http_server_requests_seconds_*` | `application`, `uri`, `status`, `method` | API throughput, latency, and errors |
