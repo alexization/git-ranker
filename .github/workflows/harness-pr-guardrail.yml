@@ -1,0 +1,41 @@
+name: Harness PR Guardrail
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+    branches:
+      - main
+      - develop
+
+jobs:
+  pr-contract:
+    name: Validate PR Contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check plan link and validation evidence
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -eu
+
+          if [ -z "${PR_BODY:-}" ]; then
+            echo "PR body is empty."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Eiq 'docs/plans/(active|completed)/'; then
+            echo "Missing plan doc path (docs/plans/active|completed)."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Eiq '\./gradlew|Not run \(reason\)|미실행\(사유\)|미실행'; then
+            echo "Missing validation evidence. Include ./gradlew command results or explicit not-run reason."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Eiq 'Risk and Rollback|Rollback|리스크 및 롤백|롤백'; then
+            echo "Missing risk/rollback section."
+            exit 1
+          fi
+
+          echo "PR contract passed."

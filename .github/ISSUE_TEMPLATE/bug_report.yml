@@ -39,6 +39,25 @@ body:
       required: false
 
   - type: textarea
+    id: intent_spec
+    attributes:
+      label: 의도 명세 (Intent Spec)
+      description: 버그 수정에서 반드시 보장해야 할 동작과 비목표를 작성해 주세요.
+      placeholder: |
+        반드시 보장할 동작:
+        비목표:
+    validations:
+      required: false
+
+  - type: input
+    id: related_plan
+    attributes:
+      label: 관련 계획 문서 경로 (선택)
+      placeholder: "docs/plans/active/2026-02-25-bugfix-name.md"
+    validations:
+      required: false
+
+  - type: textarea
     id: environment
     attributes:
       label: 실행 환경 (Environment)

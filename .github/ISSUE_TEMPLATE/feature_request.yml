@@ -27,6 +27,27 @@ body:
       required: true
 
   - type: textarea
+    id: intent_spec
+    attributes:
+      label: 의도 명세 (Intent Spec)
+      description: 문제, 목표 동작, 비목표를 작성해 주세요.
+      placeholder: |
+        문제:
+        목표 동작:
+        비목표:
+    validations:
+      required: true
+
+  - type: input
+    id: plan_path
+    attributes:
+      label: 계획 문서 경로 (선택)
+      description: 큰 변경이면 docs/plans/active 경로를 연결해 주세요.
+      placeholder: "docs/plans/active/2026-02-25-feature-name.md"
+    validations:
+      required: false
+
+  - type: textarea
     id: alternatives
     attributes:
       label: 고려해 본 대안 (Alternatives considered)

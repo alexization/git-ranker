@@ -1,0 +1,63 @@
+name: ✅ Harness Task
+description: Epic 하위 실행 단위 이슈 (하나의 목표, 하나의 PR)
+title: "[Harness Task]: "
+labels: ["harness", "task"]
+body:
+  - type: input
+    id: epic_link
+    attributes:
+      label: 상위 Epic 이슈 링크
+      placeholder: "예: #123"
+    validations:
+      required: true
+
+  - type: input
+    id: plan_doc
+    attributes:
+      label: Plan 문서 경로
+      description: docs/plans/active/ 경로를 입력하세요.
+      placeholder: "docs/plans/active/2026-02-25-<slug>.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: intent
+    attributes:
+      label: 의도 명세 (Intent Spec)
+      description: 문제, 목표 동작, 비목표를 작성하세요.
+      placeholder: |
+        문제:
+        목표 동작:
+        비목표:
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 구현 범위
+      description: 이번 Task에서 실제로 바꿀 파일/구성요소를 작성하세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: 검증 방법
+      description: 실행할 명령과 확인할 관측 포인트를 작성하세요.
+      placeholder: |
+        명령:
+        - ./gradlew test --tests "..."
+        관측:
+        - actuator/metrics 확인
+        - 로그 필드 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      description: 이 Task가 끝났다고 판단할 기준을 작성하세요.
+    validations:
+      required: true
