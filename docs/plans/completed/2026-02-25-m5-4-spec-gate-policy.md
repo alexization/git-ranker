@@ -62,4 +62,4 @@
 - Validation summary:
   - documentation cross-links and plan locations verified
 - Follow-up tasks:
-  - move this plan to `docs/plans/completed/` in the same PR before final merge
+  - none
