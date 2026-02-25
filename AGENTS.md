@@ -39,6 +39,7 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Build: `./gradlew build -x test`
 - Unit test: `./gradlew test`
 - Integration test: `./gradlew integrationTest`
+- Coverage verify: `./gradlew test jacocoTestCoverageVerification`
 - Single unit class: `./gradlew test --tests "com.gitranker.api.domain.user.service.UserRegistrationServiceTest"`
 - Single integration class: `./gradlew integrationTest --tests "com.gitranker.api.domain.user.UserRepositoryIT"`
 - Local run: `./gradlew bootRun`

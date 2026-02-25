@@ -13,7 +13,7 @@ body:
     id: phase
     attributes:
       label: Phase
-      description: 예) M1 Legibility / M2 Observability / M3 System of Record / M4 Feedback Loop
+      description: 예) M1 Legibility / M2 Observability / M3 System of Record / M4 Feedback Loop / M5 Quality Automation
       placeholder: "M1 Legibility"
     validations:
       required: true

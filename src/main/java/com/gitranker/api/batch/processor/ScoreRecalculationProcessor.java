@@ -14,6 +14,7 @@ import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
+import com.gitranker.api.global.logging.LogSanitizer;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.dto.GitHubNodeUserResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         } catch (GitHubApiRetryableException e) {
             throw e;
         } catch (Exception e) {
-            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자: " + user.getUsername());
+            throw new BusinessException(ErrorType.BATCH_STEP_FAILED, "사용자 해시: " + LogSanitizer.hashUsername(user.getUsername()));
         }
     }
 
@@ -64,7 +65,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         activityLogService.saveActivityLog(user, updateStats, diffStats, LocalDate.now());
 
         log.debug("점수 갱신 완료 - 사용자: {}, 변동: {}",
-                user.getUsername(), newScore.differenceFrom(Score.of(oldScore)));
+                LogSanitizer.maskUsername(user.getUsername()), newScore.differenceFrom(Score.of(oldScore)));
 
         return user;
     }
@@ -79,7 +80,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
 
         user.updateProfile(response.getLogin(), response.getAvatarUrl(), response.getEmail());
         log.info("사용자 프로필 변경 감지 - 기존 username: {}, 신규 username: {}, nodeId: {}",
-                oldUsername, response.getLogin(), user.getNodeId());
+                LogSanitizer.maskUsername(oldUsername), LogSanitizer.maskUsername(response.getLogin()), user.getNodeId());
 
         return recalculateScore(user);
     }

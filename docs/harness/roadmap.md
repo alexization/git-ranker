@@ -97,6 +97,31 @@ Execution unit is always small, reviewable PRs with explicit intent and evidence
 - Suggested commits:
   - `docs(scorecard): add measurement template`
 
+## Phase 5: Quality Automation and Runtime Safety
+
+### Epic Issue
+- Title: `Harness M5 - Raise Verification Confidence`
+- Goal: turn quality assumptions into automated checks for coverage, runtime safety, and PII-safe logging.
+
+### Child Issues and PR Plan
+1. Issue: `M5-1 Add coverage quality gate`
+- PR: `ci(quality): enforce baseline unit-test coverage with report artifacts`
+- Suggested commits:
+  - `build(quality): add jacoco coverage verification tasks`
+  - `ci(quality): add pull-request quality gate workflow`
+
+2. Issue: `M5-2 Harden deployment health checks`
+- PR: `ci(deploy): require strict health status after deployment`
+- Suggested commits:
+  - `ci(deploy): require HTTP 200 and UP status for health checks`
+  - `config(prod): reduce actuator endpoint exposure`
+
+3. Issue: `M5-3 Enforce PII-safe logging defaults`
+- PR: `refactor(logging): mask username fields by default in log context`
+- Suggested commits:
+  - `refactor(logging): add username masking sanitizer`
+  - `test(logging): add masking behavior tests`
+
 ## Operating Rules
 1. Every child issue must map to one primary PR.
 2. PRs should target one outcome and avoid mixed concerns.

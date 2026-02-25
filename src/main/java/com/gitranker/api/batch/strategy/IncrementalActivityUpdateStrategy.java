@@ -3,6 +3,7 @@ package com.gitranker.api.batch.strategy;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
+import com.gitranker.api.global.logging.LogSanitizer;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class IncrementalActivityUpdateStrategy implements ActivityUpdateStrategy
 
         ActivityStatistics mergedStats = mergeWithBaseline(context.baselineLog(), currentYearSummary);
 
-        log.debug("증분 업데이트 완료 - 사용자: {}", user.getUsername());
+        log.debug("증분 업데이트 완료 - 사용자: {}", LogSanitizer.maskUsername(user.getUsername()));
 
         return mergedStats;
     }

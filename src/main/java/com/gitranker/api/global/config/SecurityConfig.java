@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 "/api/v1/badges/**",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/actuator/**",
+                                "/actuator/health",
+                                "/actuator/prometheus",
                                 "/api/live/ws"
                         ).permitAll()
                         .requestMatchers(

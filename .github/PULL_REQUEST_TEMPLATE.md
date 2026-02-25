@@ -26,6 +26,7 @@
 | Build | `./gradlew build -x test` | |
 | Unit | `./gradlew test` | |
 | Integration | `./gradlew integrationTest` 또는 `미실행(사유)` | |
+| Quality (Coverage) | `./gradlew test jacocoTestCoverageVerification` 또는 `미실행(사유)` | |
 
 ## 7) 관측성 확인
 - 확인한 로그:

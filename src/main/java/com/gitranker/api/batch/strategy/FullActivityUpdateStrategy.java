@@ -2,6 +2,7 @@ package com.gitranker.api.batch.strategy;
 
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
+import com.gitranker.api.global.logging.LogSanitizer;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class FullActivityUpdateStrategy implements ActivityUpdateStrategy {
 
         ActivityStatistics stats = activityService.toSummary(fullResponse).toActivityStatistics();
 
-        log.debug("전체 업데이트 완료 - 사용자: {}", user.getUsername());
+        log.debug("전체 업데이트 완료 - 사용자: {}", LogSanitizer.maskUsername(user.getUsername()));
 
         return stats;
     }

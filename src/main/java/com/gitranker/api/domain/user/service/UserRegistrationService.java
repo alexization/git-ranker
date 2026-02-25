@@ -9,6 +9,7 @@ import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.auth.OAuthAttributes;
 import com.gitranker.api.global.logging.Event;
 import com.gitranker.api.global.logging.LogContext;
+import com.gitranker.api.global.logging.LogSanitizer;
 import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
@@ -71,7 +72,8 @@ public class UserRegistrationService {
         User currentUser = user;
 
         if (isInfoChanged) {
-            log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}", user.getUsername());
+            log.debug("사용자 프로필 정보 변경 감지 - 업데이트 수행: 사용자: {}",
+                    LogSanitizer.maskUsername(user.getUsername()));
             currentUser = userPersistenceService.updateProfile(user, attributes.username(), attributes.profileImage(), attributes.email());
         }
 
