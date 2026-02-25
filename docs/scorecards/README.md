@@ -23,3 +23,6 @@ This directory stores weekly quality and drift reviews for the harness workflow.
 - PRs merged in the week
 - Incidents/postmortems (if any)
 - Updated plans/ADRs
+
+## Current Records
+- `2026-W09-scorecard.md`
