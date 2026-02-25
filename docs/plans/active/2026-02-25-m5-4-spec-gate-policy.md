@@ -20,7 +20,7 @@
 - [x] add `spec-gate.md` policy
 - [x] add `request-spec-template.md`
 - [x] update `AGENTS.md`, docs index, and harness playbook/roadmap
-- [ ] create issue, commit, and PR linked to this plan
+- [x] create issue, commit, and PR linked to this plan (`#69`, `#70`)
 
 ## 4) Design Notes
 - Constraints: keep machine-read policy docs in English.
@@ -46,5 +46,10 @@
 
 ## 8) Result Summary
 - What changed:
+  - added spec gate policy and request template
+  - linked policy in AGENTS/docs index/playbook/roadmap
+  - moved completed M5-1 plan from active to completed
 - Validation summary:
+  - documentation cross-links and plan locations verified
 - Follow-up tasks:
+  - move this plan to `docs/plans/completed/` after PR merge
