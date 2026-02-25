@@ -10,11 +10,17 @@ Operating guide for humans and AI agents in `git-ranker`.
 ## 2) First 5 Minutes Checklist
 1. Read [docs/index.md](docs/index.md).
 2. Confirm task scope and linked issue.
-3. For non-trivial changes, create a plan from [docs/plans/TEMPLATE.md](docs/plans/TEMPLATE.md).
-4. Pick the smallest safe implementation slice.
-5. Decide verification commands before coding.
+3. Run spec gate from [docs/harness/spec-gate.md](docs/harness/spec-gate.md).
+4. For non-trivial changes, create a plan from [docs/plans/TEMPLATE.md](docs/plans/TEMPLATE.md).
+5. Pick the smallest safe implementation slice.
+6. Decide verification commands before coding.
 
-## 3) Mandatory Delivery Flow (Issue -> Plan -> PR)
+## 3) Mandatory Delivery Flow (Spec -> Issue -> Plan -> PR)
+0. Spec Gate (required)
+- Do not start implementation until spec status is `Approved`.
+- Required fields and approval process are defined in [docs/harness/spec-gate.md](docs/harness/spec-gate.md).
+- Clarification questions to the user must be written in Korean.
+
 1. Issue
 - Use `.github/ISSUE_TEMPLATE` forms.
 - Define intent, scope, and success criteria.
@@ -33,7 +39,12 @@ Operating guide for humans and AI agents in `git-ranker`.
 
 5. Documentation
 - Update runbook/architecture/ADR when behavior or design changes.
-- Move finished plans to `docs/plans/completed/`.
+- Use practical mode only: move plan from `active` to `completed` in the same PR, right before final merge.
+
+6. AI Review Loop (required before merge)
+- Follow [docs/harness/ai-review-loop.md](docs/harness/ai-review-loop.md).
+- Run both reviewers (`@codex review`, `@coderabbitai review`), apply fixes, then run final re-reviews.
+- Merge only after review evidence is recorded and merge gate is checked.
 
 ## 4) Canonical Commands
 - Build: `./gradlew build -x test`
@@ -73,8 +84,10 @@ Operating guide for humans and AI agents in `git-ranker`.
   - metrics changes (counters/timers) if behavior changed
 
 ## 8) Definition of Done
+- Spec gate passed and approved before code changes.
 - Linked issue exists.
 - Plan file exists for non-trivial changes.
+- Plan was moved to `docs/plans/completed/` in the same PR before merge.
 - Validation commands and outcomes recorded.
 - Docs updated or explicitly marked not needed.
 - Risks and rollback path documented in PR.
@@ -88,6 +101,9 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Index: [docs/index.md](docs/index.md)
 - Harness roadmap: [docs/harness/roadmap.md](docs/harness/roadmap.md)
 - Issue/PR playbook: [docs/harness/issue-pr-playbook.md](docs/harness/issue-pr-playbook.md)
+- Spec gate policy: [docs/harness/spec-gate.md](docs/harness/spec-gate.md)
+- AI review loop: [docs/harness/ai-review-loop.md](docs/harness/ai-review-loop.md)
+- Request spec template: [docs/harness/request-spec-template.md](docs/harness/request-spec-template.md)
 - Architecture: [docs/architecture/layering.md](docs/architecture/layering.md)
 - Testing runbook: [docs/runbooks/testing.md](docs/runbooks/testing.md)
 - Observability runbook: [docs/runbooks/observability-local.md](docs/runbooks/observability-local.md)

@@ -122,6 +122,13 @@ Execution unit is always small, reviewable PRs with explicit intent and evidence
   - `refactor(logging): add username masking sanitizer`
   - `test(logging): add masking behavior tests`
 
+4. Issue: `M5-4 Enforce spec approval gate and Korean clarification loop`
+- PR: `docs(harness): enforce pre-implementation spec gate with Korean clarification loop`
+- Suggested commits:
+  - `docs(harness): add spec gate policy and request template`
+  - `docs(agents): require approved spec before implementation`
+  - `ci(guardrail): require AI review loop evidence before merge`
+
 ## Operating Rules
 1. Every child issue must map to one primary PR.
 2. PRs should target one outcome and avoid mixed concerns.

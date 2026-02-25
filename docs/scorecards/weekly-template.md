@@ -42,7 +42,7 @@
 | Check | Status | Notes |
 | --- | --- | --- |
 | Active plans updated during execution |  |  |
-| Completed plans moved after merge |  |  |
+| Completed plans moved before final merge (same PR) |  |  |
 | ADR needed but missing |  |  |
 | Docs/code mismatch found |  |  |
 

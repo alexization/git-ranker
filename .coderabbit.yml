@@ -3,6 +3,7 @@ language: "ko-KR"
 reviews:
   auto_review:
     enabled: true
+    auto_incremental_review: false
     drafts: false
     base_branches:
       - "main"
