@@ -4,6 +4,7 @@ import com.gitranker.api.infrastructure.github.dto.GitHubActivitySummary;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubNodeUserResponse;
 import com.gitranker.api.infrastructure.github.token.GitHubTokenPool;
+import com.gitranker.api.global.logging.LogSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class GitHubActivityService {
         String token = tokenPool.getToken();
         GitHubAllActivitiesResponse response = graphQLClient.getActivitiesForYear(token, username, year);
 
-        log.debug("증분 데이터 조회 완료 - 사용자: {}, 연도: {}", username, year);
+        log.debug("증분 데이터 조회 완료 - 사용자: {}, 연도: {}", LogSanitizer.maskUsername(username), year);
 
         return toSummary(response);
     }
@@ -31,7 +32,7 @@ public class GitHubActivityService {
         String token = tokenPool.getToken();
         GitHubAllActivitiesResponse response = graphQLClient.getAllActivities(token, username, githubJoinDate);
 
-        log.debug("전체 데이터 조회 완료 - 사용자: {}", username);
+        log.debug("전체 데이터 조회 완료 - 사용자: {}", LogSanitizer.maskUsername(username));
 
         return response;
     }
@@ -40,7 +41,8 @@ public class GitHubActivityService {
         String token = tokenPool.getToken();
         GitHubNodeUserResponse response = graphQLClient.getUserInfoByNodeId(token, nodeId);
 
-        log.debug("nodeId 기반 사용자 조회 완료 - nodeId: {}, login: {}", nodeId, response.getLogin());
+        log.debug("nodeId 기반 사용자 조회 완료 - nodeId: {}, login: {}",
+                nodeId, LogSanitizer.maskUsername(response.getLogin()));
 
         return response;
     }

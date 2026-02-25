@@ -4,6 +4,7 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
+import com.gitranker.api.global.logging.LogSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class ActivityLogService {
 
         activityLogRepository.save(activityLog);
 
-        log.debug("활동 로그 저장 완료 - 사용자: {}, 일자: {}", user.getUsername(), logDate);
+        log.debug("활동 로그 저장 완료 - 사용자: {}, 일자: {}", LogSanitizer.maskUsername(user.getUsername()), logDate);
     }
 
     @Transactional
@@ -35,7 +36,8 @@ public class ActivityLogService {
 
         activityLogRepository.save(baselineLog);
 
-        log.debug("베이스라인 로그 저장 - 사용자: {}, 기준일: {}", user.getUsername(), baselineDate);
+        log.debug("베이스라인 로그 저장 - 사용자: {}, 기준일: {}",
+                LogSanitizer.maskUsername(user.getUsername()), baselineDate);
     }
 
     @Transactional(readOnly = true)

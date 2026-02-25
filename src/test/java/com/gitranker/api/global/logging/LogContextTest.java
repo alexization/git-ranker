@@ -46,6 +46,7 @@ class LogContextTest {
                     .containsEntry("log_category", "USER")
                     .containsEntry("phase", "user")
                     .containsEntry("outcome", "success")
+                    .containsEntry("username", "te****")
                     .containsEntry("request_method", "GET")
                     .containsEntry("request_uri", "/api/v1/users/tester");
         } finally {
@@ -94,6 +95,24 @@ class LogContextTest {
             assertThat(mdc)
                     .containsEntry("phase", "PROCESS")
                     .containsEntry("outcome", "failure");
+        } finally {
+            detachAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("인증 컨텍스트 username은 마스킹되어 기록한다")
+    void should_maskUsername_when_setAuthContextIsUsed() {
+        ListAppender<ILoggingEvent> appender = attachAppender();
+        try {
+            LogContext.initRequest("trace-auth", "127.0.0.1", "JUnit", "GET", "/api/v1/auth/me");
+            LogContext.setAuthContext("octocat");
+
+            LogContext.event(Event.USER_LOGIN).info();
+
+            assertThat(appender.list).hasSize(1);
+            Map<String, String> mdc = appender.list.getFirst().getMDCPropertyMap();
+            assertThat(mdc).containsEntry("username", "oc*****");
         } finally {
             detachAppender(appender);
         }

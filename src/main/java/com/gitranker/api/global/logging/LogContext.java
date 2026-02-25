@@ -61,7 +61,7 @@ public class LogContext {
 
     public static void setAuthContext(String username) {
         if (username != null) {
-            MDC.put("username", username);
+            MDC.put("username", LogSanitizer.maskUsername(username));
         }
     }
 
@@ -84,8 +84,9 @@ public class LogContext {
     }
 
     public LogContext with(String key, Object value) {
-        if (value != null) {
-            fields.put(key, value);
+        Object sanitizedValue = LogSanitizer.sanitizeStructuredField(key, value);
+        if (sanitizedValue != null) {
+            fields.put(key, sanitizedValue);
         }
 
         return this;

@@ -7,6 +7,7 @@
 ## 2) Scope
 - Applies to structured logs emitted through `LogContext.event(...)`.
 - Plain `log.debug(...)` calls should be migrated to `LogContext` incrementally.
+- `username` and `target_username` fields are masked by default through `LogSanitizer`.
 
 ## 3) Required Fields
 
@@ -29,8 +30,8 @@
 | `username` | PII. Masking or anonymization is required (see Section 6.3). Prefer `maskUsername` or `hashUsername` before logging. |
 
 Example (recommended):
-- `log_username_masked = maskUsername(username)` -> `te****r`
-- `log_username_hash = hashUsername(username)` -> `7f0c...`
+- `log_username_masked = maskUsername(username)` -> `te****`
+- `log_username_hash = hashUsername(username)` -> `9bba5c53a054`
 
 Verification checklist:
 1. If `username` appears in a log field, confirm `maskUsername` or `hashUsername` is applied.
