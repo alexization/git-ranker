@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/oauth2/**",
                                 "/actuator/health",
+                                "/actuator/prometheus",
                                 "/api/live/ws"
                         ).permitAll()
                         .requestMatchers(
