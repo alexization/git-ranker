@@ -71,44 +71,45 @@ jobs:
 
             cd ${{ secrets.DEPLOY_PATH }}
 
-            echo "[1/3] Pulling latest image..."
+            echo "[1/5] Pulling latest image..."
             docker compose pull git-ranker-api
 
-            echo "[2/3] Restarting container..."
+            echo "[2/5] Restarting container..."
             docker compose up -d --no-deps --force-recreate git-ranker-api
 
-            echo "[3/3] Cleaning up old images..."
+            echo "[3/5] Waiting for Docker health status..."
+            for i in {1..12}; do
+              HEALTH_STATUS=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}unknown{{end}}' git-ranker-api 2>/dev/null || echo "missing")
+              echo "Attempt $i/12 - container health: $HEALTH_STATUS"
+
+              if [ "$HEALTH_STATUS" = "healthy" ]; then
+                break
+              fi
+
+              if [ "$HEALTH_STATUS" = "unhealthy" ] || [ "$i" -eq 12 ]; then
+                echo "Container health check failed."
+                docker logs --tail 200 git-ranker-api || true
+                exit 1
+              fi
+
+              sleep 10
+            done
+
+            echo "[4/5] Verifying actuator health endpoint..."
+            HEALTH_URL="http://127.0.0.1:9090/actuator/health"
+            RESPONSE=$(curl -sS --connect-timeout 5 --max-time 10 -w '\n%{http_code}' "$HEALTH_URL" || true)
+            HTTP_STATUS=$(printf '%s' "$RESPONSE" | tail -n1)
+            RESPONSE_BODY=$(printf '%s' "$RESPONSE" | sed '$d')
+
+            if [ "$HTTP_STATUS" != "200" ] || ! echo "$RESPONSE_BODY" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"'; then
+              echo "Actuator health check failed. HTTP=$HTTP_STATUS, body=$RESPONSE_BODY"
+              docker logs --tail 200 git-ranker-api || true
+              exit 1
+            fi
+
+            echo "[5/5] Cleaning up old images..."
             docker image prune -f
 
             echo "=========================================="
             echo "Backend Deployment Completed!"
             echo "=========================================="
-
-      - name: Health Check
-        run: |
-          echo "Waiting for application to start..."
-          sleep 45
-
-          HEALTH_URL="${{ secrets.BACKEND_HEALTH_URL }}"
-          if [ -z "$HEALTH_URL" ]; then
-            echo "BACKEND_HEALTH_URL secret is required."
-            exit 1
-          fi
-          echo "Health URL: $HEALTH_URL"
-
-          for i in {1..5}; do
-            RESPONSE=$(curl -sS --connect-timeout 5 --max-time 10 -w $'\n%{http_code}' "$HEALTH_URL" || true)
-            HTTP_STATUS=$(printf '%s' "$RESPONSE" | tail -n1)
-            RESPONSE_BODY=$(printf '%s' "$RESPONSE" | sed '$d')
-
-            if [ "$HTTP_STATUS" = "200" ] && echo "$RESPONSE_BODY" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"'; then
-              echo "Health check passed! (HTTP 200, status=UP)"
-              exit 0
-            fi
-            echo "Attempt $i/5 failed. HTTP=$HTTP_STATUS, body=$RESPONSE_BODY"
-            echo "Retrying in 15s..."
-            sleep 15
-          done
-
-          echo "Health check failed! Expected HTTP 200 with status=UP."
-          exit 1
