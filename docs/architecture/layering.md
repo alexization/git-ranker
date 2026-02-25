@@ -27,4 +27,15 @@ Define dependency boundaries so humans and AI agents can modify code safely.
 4. Add tests that fail if behavior regresses.
 
 ## Guardrail Roadmap
-- Phase 4 target: add ArchUnit tests to enforce boundaries in CI.
+- Phase 4 active: ArchUnit tests now enforce baseline rules in CI.
+
+## Enforced Rules (Current)
+1. Classes in `..domain..` must not depend on `..batch..`.
+2. Classes in `..infrastructure..` must not depend on `..batch..`.
+3. Classes in `..global..` must not depend on `..batch..`.
+4. `@RestController` classes must reside in `..domain..`.
+5. `@RestControllerAdvice` classes must reside in `..global..`.
+
+## Next Tightening Candidates
+1. Add stricter domain-to-infrastructure dependency constraints.
+2. Split broad packages into smaller bounded contexts before stronger rules.

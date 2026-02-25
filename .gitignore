@@ -1,11 +1,10 @@
-docs/
-.claude
 .DS_Store
 .gradle
 build/**
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.env
 
 ### STS ###
 .apt_generated
@@ -37,7 +36,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-.env
-
-AGENTS.md
