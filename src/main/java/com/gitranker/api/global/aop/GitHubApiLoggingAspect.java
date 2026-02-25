@@ -7,13 +7,11 @@ import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import com.gitranker.api.infrastructure.github.dto.GitHubRateLimitInfo;
 import com.gitranker.api.infrastructure.github.dto.GitHubUserInfoResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -25,8 +23,6 @@ public class GitHubApiLoggingAspect {
     public Object logGithubApiCall(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();
 
-        log.debug("GitHub API 호출 시작 - Method: {}", methodName);
-
         long start = System.currentTimeMillis();
 
         try {
@@ -37,9 +33,10 @@ public class GitHubApiLoggingAspect {
             GitHubRateLimitInfo rateLimit = extractRateLimit(result);
 
             LogContext ctx = LogContext.event(Event.GITHUB_API_CALLED)
-                    .with("method", methodName)
+                    .with("operation", methodName)
+                    .with("target", "github_api")
                     .with("latency_ms", latency)
-                    .with("success", true);
+                    .with("outcome", "success");
 
             if (rateLimit != null) {
                 ctx.with("cost", rateLimit.cost())
@@ -56,9 +53,10 @@ public class GitHubApiLoggingAspect {
             long latency = System.currentTimeMillis() - start;
 
             LogContext.event(Event.GITHUB_API_CALLED)
-                    .with("method", methodName)
+                    .with("operation", methodName)
+                    .with("target", "github_api")
                     .with("latency_ms", latency)
-                    .with("success", false)
+                    .with("outcome", "failure")
                     .with("error_type", e.getClass().getSimpleName())
                     .with("error_message", e.getMessage())
                     .error();

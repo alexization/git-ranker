@@ -15,6 +15,12 @@ public class LogContext {
     private static final String MDC_KEY_EVENT = "event";
     private static final String MDC_KEY_LOG_CATEGORY = "log_category";
     private static final String MDC_KEY_TRACE_ID = "trace_id";
+    private static final String MDC_KEY_PHASE = "phase";
+    private static final String MDC_KEY_OUTCOME = "outcome";
+
+    private static final String OUTCOME_SUCCESS = "success";
+    private static final String OUTCOME_WARNING = "warning";
+    private static final String OUTCOME_FAILURE = "failure";
 
     private static final Set<String> REQUEST_SCOPED_KEYS = Set.of(
             "trace_id", "username", "client_ip", "user_agent", "request_method", "request_uri"
@@ -64,7 +70,9 @@ public class LogContext {
     }
 
     public static void setTraceId(String traceId) {
-        MDC.put(MDC_KEY_TRACE_ID, traceId);
+        if (traceId != null && !traceId.isBlank()) {
+            MDC.put(MDC_KEY_TRACE_ID, traceId);
+        }
     }
 
     public static void clear() {
@@ -109,12 +117,30 @@ public class LogContext {
 
     private void logWithLevel(LogLevel level, Throwable throwable) {
         try {
+            applyStructuredFieldContract(level);
             setupMdc();
             String message = buildMessage();
             writeLog(level, message, throwable);
         } finally {
             clearEventFields();
         }
+    }
+
+    private void applyStructuredFieldContract(LogLevel level) {
+        if (getTraceId() == null || getTraceId().isBlank()) {
+            setTraceId(generateTraceId());
+        }
+
+        fields.putIfAbsent(MDC_KEY_PHASE, event.getCategory().name().toLowerCase());
+        fields.putIfAbsent(MDC_KEY_OUTCOME, defaultOutcome(level));
+    }
+
+    private String defaultOutcome(LogLevel level) {
+        return switch (level) {
+            case DEBUG, INFO -> OUTCOME_SUCCESS;
+            case WARN -> OUTCOME_WARNING;
+            case ERROR -> OUTCOME_FAILURE;
+        };
     }
 
     private void setupMdc() {
@@ -145,7 +171,9 @@ public class LogContext {
                key.equals("job_name") ||
                key.equals("error_code") ||
                key.equals("token_id") ||
-               key.equals("status");
+               key.equals("status") ||
+               key.equals(MDC_KEY_PHASE) ||
+               key.equals(MDC_KEY_OUTCOME);
     }
 
     private void writeLog(LogLevel level, String message, Throwable throwable) {

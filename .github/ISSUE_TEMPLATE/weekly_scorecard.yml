@@ -1,0 +1,58 @@
+name: 📊 주간 Scorecard
+description: 한 주간의 품질/드리프트 점검을 기록하는 이슈
+title: "[Weekly Scorecard]: "
+labels: ["harness", "scorecard"]
+body:
+  - type: input
+    id: week
+    attributes:
+      label: Review Week
+      placeholder: "2026-W09"
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      placeholder: "@username"
+    validations:
+      required: true
+
+  - type: input
+    id: scorecard_doc
+    attributes:
+      label: Scorecard Document Path
+      placeholder: "docs/scorecards/2026-W09-scorecard.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Week Summary
+      description: 핵심 변화와 품질 상태를 3~5줄로 요약해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Top Risks Next Week
+      placeholder: |
+        1) ...
+        2) ...
+        3) ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: action_items
+    attributes:
+      label: Action Items
+      description: 다음 주 실행 항목과 담당자를 작성해 주세요.
+      placeholder: |
+        - [ ] #123 ... (@owner)
+        - [ ] #124 ... (@owner)
+    validations:
+      required: true

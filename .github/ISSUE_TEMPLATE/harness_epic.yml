@@ -1,0 +1,67 @@
+name: 🧭 Harness Epic
+description: 에이전트 운영체계(legibility, observability, system of record, feedback loop)용 상위 이슈
+title: "[Harness Epic]: "
+labels: ["harness", "epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        이 이슈는 하나의 단계(Phase)를 관리하는 상위 Epic입니다.
+        하위 Task 이슈로 분해해서 진행해 주세요.
+
+  - type: input
+    id: phase
+    attributes:
+      label: Phase
+      description: 예) M1 Legibility / M2 Observability / M3 System of Record / M4 Feedback Loop
+      placeholder: "M1 Legibility"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 목표 (Objective)
+      description: 이번 Epic이 해결해야 하는 운영 문제를 명확히 작성하세요.
+      placeholder: "예: 신규 기여자와 AI agent가 저장소 구조를 10분 내 이해할 수 있어야 함"
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: 완료 기준 (Success Criteria)
+      description: 측정 가능한 완료 기준을 작성하세요.
+      placeholder: |
+        - AGENTS.md 정착
+        - docs index 구축
+        - PR 템플릿 강제 항목 운영
+    validations:
+      required: true
+
+  - type: textarea
+    id: planned_tasks
+    attributes:
+      label: 예정된 하위 Task 이슈
+      description: 체크리스트로 분해하세요.
+      placeholder: |
+        - [ ] M1-1 ...
+        - [ ] M1-2 ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: 리스크 및 대응
+      description: 실패 가능성과 완화 전략을 작성하세요.
+    validations:
+      required: false
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 범위 제외 (Out of Scope)
+      description: 이번 Epic에서 하지 않을 항목을 명확히 작성하세요.
+    validations:
+      required: false
