@@ -92,3 +92,5 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Observability runbook: [docs/runbooks/observability-local.md](docs/runbooks/observability-local.md)
 - Metrics catalog: [docs/observability/metrics-catalog.md](docs/observability/metrics-catalog.md)
 - Logging contract: [docs/observability/logging-contract.md](docs/observability/logging-contract.md)
+- Scorecards guide: [docs/scorecards/README.md](docs/scorecards/README.md)
+- Weekly scorecard template: [docs/scorecards/weekly-template.md](docs/scorecards/weekly-template.md)

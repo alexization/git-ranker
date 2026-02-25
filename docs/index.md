@@ -11,6 +11,8 @@ If code and docs disagree, update docs in the same PR.
 - Observability runbook: [runbooks/observability-local.md](runbooks/observability-local.md)
 - Metrics catalog: [observability/metrics-catalog.md](observability/metrics-catalog.md)
 - Logging contract: [observability/logging-contract.md](observability/logging-contract.md)
+- Scorecards guide: [scorecards/README.md](scorecards/README.md)
+- Weekly scorecard template: [scorecards/weekly-template.md](scorecards/weekly-template.md)
 
 ## Execution Documents
 - Plan template: [plans/TEMPLATE.md](plans/TEMPLATE.md)
