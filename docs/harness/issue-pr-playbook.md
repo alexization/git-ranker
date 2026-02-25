@@ -48,7 +48,7 @@ Use this playbook to execute harness phases with consistent granularity.
 - merge-ready checklist checked
 
 ## Spec Gate Rule (Required Before Execution)
-1. Apply spec gate for feature, bugfix, refactor, and infra changes.
+1. Apply spec gate for feature, bugfix, refactor, infra, workflow, and significant docs changes.
 2. Use [spec-gate.md](spec-gate.md) and [request-spec-template.md](request-spec-template.md).
 3. Required fields must be fully filled before implementation.
 4. Clarification questions to the user must be written in Korean.

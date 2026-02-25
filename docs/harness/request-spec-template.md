@@ -1,9 +1,9 @@
 # Request Spec Template
 
-Use this template for feature, bugfix, refactor, and infra requests.
+Use this template for feature, bugfix, refactor, infra, workflow, and docs requests.
 
 ## 0) Metadata
-- Type: `feature | bugfix | refactor | infra`
+- Type: `feature | bugfix | refactor | infra | workflow | docs`
 - Title:
 - Owner:
 - Priority: `P0 | P1 | P2 | P3`
@@ -33,12 +33,15 @@ Use this template for feature, bugfix, refactor, and infra requests.
 
 ## 5) Validation Plan
 - Commands:
-  - `./gradlew test`
-  - `./gradlew integrationTest` (if needed)
+  - `<unit-test-command>`
+  - `<integration-test-command>` (if needed)
 - Runtime checks:
   - logs:
   - metrics:
   - health:
+- Example mapping:
+  - Spring Boot: `<unit-test-command>` -> `./gradlew test`
+  - Spring Boot: `<integration-test-command>` -> `./gradlew integrationTest`
 
 ## 6) Risks and Rollback
 - Risks:
@@ -81,3 +84,13 @@ Use this template for feature, bugfix, refactor, and infra requests.
 - Environment/secrets impact:
 - Deployment/rollback sequence:
 - Monitoring/alert impact:
+
+### Workflow
+- Affected workflow or automation:
+- Trigger and guardrail impact:
+- Rollback sequence:
+
+### Docs
+- Source of truth sections updated:
+- Any behavior/policy impact:
+- Cross-link updates:

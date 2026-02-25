@@ -31,4 +31,4 @@ If code and docs disagree, update docs in the same PR.
 4. PR must include document links and validation evidence.
 5. Practical mode only: move plan doc to `docs/plans/completed/` in the same PR before final merge.
 6. Codex and CodeRabbitAI review loop must be completed before merge.
-7. Machine-read docs in `docs/*` must be written in English.
+7. Machine-read policy docs (`AGENTS.md`, `docs/*`) must be written in English.

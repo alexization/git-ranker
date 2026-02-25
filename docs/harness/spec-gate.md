@@ -3,7 +3,7 @@
 This policy defines when implementation can start and how request specs are finalized.
 
 ## 1) Scope
-- Applies to all feature, bugfix, refactor, and infra/workflow requests.
+- Applies to all feature, bugfix, refactor, infra, workflow, and significant docs requests.
 - Applies to both human and AI-agent driven tasks.
 
 ## 2) Execution Gate
@@ -13,7 +13,7 @@ This policy defines when implementation can start and how request specs are fina
 - Plan lifecycle mode is fixed to practical mode: update `active -> completed` in the same PR before final merge.
 
 ## 3) Required Fields (Definition of Ready)
-- `Type`: feature | bugfix | refactor | infra
+- `Type`: feature | bugfix | refactor | infra | workflow | docs
 - `Goal`: problem and intended outcome
 - `Scope`: in-scope and out-of-scope
 - `Constraints`: architecture, security/PII, performance/SLO, compatibility, docs updates
@@ -29,7 +29,7 @@ This policy defines when implementation can start and how request specs are fina
 - End with explicit approval request in Korean.
 
 Approval prompt format:
-`명세가 확정되었습니다. 이 명세 기준으로 구현을 시작해도 될까요? (예/아니오)`
+`Spec has been finalized. Can we start implementation based on this spec? (yes/no)`
 
 ## 5) Mid-Implementation Changes
 - If a new unknown or requirement change appears, pause implementation.
