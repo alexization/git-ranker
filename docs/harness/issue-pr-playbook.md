@@ -18,6 +18,7 @@ Use this playbook to execute harness phases with consistent granularity.
 - `harness/m5-1-coverage-quality-gate`
 - `harness/m5-2-deploy-health-hardening`
 - `harness/m5-3-pii-safe-logging-defaults`
+- `harness/m5-4-spec-gate-policy`
 
 ## Commit Rule
 1. One commit = one intent.
@@ -39,12 +40,21 @@ Use this playbook to execute harness phases with consistent granularity.
 - validation evidence
 - risk and rollback
 
+## Spec Gate Rule (Required Before Execution)
+1. Apply spec gate for feature, bugfix, refactor, and infra changes.
+2. Use [spec-gate.md](spec-gate.md) and [request-spec-template.md](request-spec-template.md).
+3. Required fields must be fully filled before implementation.
+4. Clarification questions to the user must be written in Korean.
+5. Start implementation only after explicit spec approval.
+6. If new unknowns appear mid-implementation, pause and request spec change approval first.
+
 ## Execution Order
-1. M1-1 -> M1-2 -> M1-3
-2. M2-1 -> M2-2 -> M2-3
-3. M3-1 -> M3-2 -> M3-3
-4. M4-1 -> M4-2 -> M4-3
-5. M5-1 -> M5-2 -> M5-3
+1. Spec gate approval
+2. M1-1 -> M1-2 -> M1-3
+3. M2-1 -> M2-2 -> M2-3
+4. M3-1 -> M3-2 -> M3-3
+5. M4-1 -> M4-2 -> M4-3
+6. M5-1 -> M5-2 -> M5-3 -> M5-4
 
 ## Ready-to-Create Issue Titles
 1. `[Harness Epic]: M1 Increase Application Legibility`
@@ -67,3 +77,4 @@ Use this playbook to execute harness phases with consistent granularity.
 18. `[Harness Task]: M5-1 Add coverage quality gate`
 19. `[Harness Task]: M5-2 Harden deployment health checks`
 20. `[Harness Task]: M5-3 Enforce PII-safe logging defaults`
+21. `[Harness Task]: M5-4 Enforce spec approval gate and Korean clarification loop`

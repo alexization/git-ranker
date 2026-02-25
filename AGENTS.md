@@ -10,11 +10,17 @@ Operating guide for humans and AI agents in `git-ranker`.
 ## 2) First 5 Minutes Checklist
 1. Read [docs/index.md](docs/index.md).
 2. Confirm task scope and linked issue.
-3. For non-trivial changes, create a plan from [docs/plans/TEMPLATE.md](docs/plans/TEMPLATE.md).
-4. Pick the smallest safe implementation slice.
-5. Decide verification commands before coding.
+3. Run spec gate from [docs/harness/spec-gate.md](docs/harness/spec-gate.md).
+4. For non-trivial changes, create a plan from [docs/plans/TEMPLATE.md](docs/plans/TEMPLATE.md).
+5. Pick the smallest safe implementation slice.
+6. Decide verification commands before coding.
 
-## 3) Mandatory Delivery Flow (Issue -> Plan -> PR)
+## 3) Mandatory Delivery Flow (Spec -> Issue -> Plan -> PR)
+0. Spec Gate (required)
+- Do not start implementation until spec status is `Approved`.
+- Required fields and approval process are defined in [docs/harness/spec-gate.md](docs/harness/spec-gate.md).
+- Clarification questions to the user must be written in Korean.
+
 1. Issue
 - Use `.github/ISSUE_TEMPLATE` forms.
 - Define intent, scope, and success criteria.
@@ -73,6 +79,7 @@ Operating guide for humans and AI agents in `git-ranker`.
   - metrics changes (counters/timers) if behavior changed
 
 ## 8) Definition of Done
+- Spec gate passed and approved before code changes.
 - Linked issue exists.
 - Plan file exists for non-trivial changes.
 - Validation commands and outcomes recorded.
@@ -88,6 +95,8 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Index: [docs/index.md](docs/index.md)
 - Harness roadmap: [docs/harness/roadmap.md](docs/harness/roadmap.md)
 - Issue/PR playbook: [docs/harness/issue-pr-playbook.md](docs/harness/issue-pr-playbook.md)
+- Spec gate policy: [docs/harness/spec-gate.md](docs/harness/spec-gate.md)
+- Request spec template: [docs/harness/request-spec-template.md](docs/harness/request-spec-template.md)
 - Architecture: [docs/architecture/layering.md](docs/architecture/layering.md)
 - Testing runbook: [docs/runbooks/testing.md](docs/runbooks/testing.md)
 - Observability runbook: [docs/runbooks/observability-local.md](docs/runbooks/observability-local.md)
