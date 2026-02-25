@@ -15,6 +15,9 @@ Use this playbook to execute harness phases with consistent granularity.
 - `harness/m4-1-pr-guardrail`
 - `harness/m4-2-archunit-guardrail`
 - `harness/m4-3-weekly-scorecard`
+- `harness/m5-1-coverage-quality-gate`
+- `harness/m5-2-deploy-health-hardening`
+- `harness/m5-3-pii-safe-logging-defaults`
 
 ## Commit Rule
 1. One commit = one intent.
@@ -41,6 +44,7 @@ Use this playbook to execute harness phases with consistent granularity.
 2. M2-1 -> M2-2 -> M2-3
 3. M3-1 -> M3-2 -> M3-3
 4. M4-1 -> M4-2 -> M4-3
+5. M5-1 -> M5-2 -> M5-3
 
 ## Ready-to-Create Issue Titles
 1. `[Harness Epic]: M1 Increase Application Legibility`
@@ -59,3 +63,7 @@ Use this playbook to execute harness phases with consistent granularity.
 14. `[Harness Task]: M4-1 Enforce PR contract in CI`
 15. `[Harness Task]: M4-2 Add architecture guardrail tests`
 16. `[Harness Task]: M4-3 Add weekly scorecard and drift review`
+17. `[Harness Epic]: M5 Raise Verification Confidence`
+18. `[Harness Task]: M5-1 Add coverage quality gate`
+19. `[Harness Task]: M5-2 Harden deployment health checks`
+20. `[Harness Task]: M5-3 Enforce PII-safe logging defaults`

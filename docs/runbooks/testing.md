@@ -7,6 +7,8 @@ Run the right test scope quickly and record evidence in PR.
 1. Build only: `./gradlew build -x test`
 2. Unit tests: `./gradlew test`
 3. Integration tests: `./gradlew integrationTest`
+4. Coverage verification: `./gradlew test jacocoTestCoverageVerification`
+   - Current minimum line coverage gate: `45%` (bundle-level)
 
 ## Targeted Test Commands
 1. Single unit class:
@@ -27,6 +29,7 @@ Run the right test scope quickly and record evidence in PR.
 - Command:
 - Result: pass/fail
 - Notes: skipped reason if not run
+- For coverage checks, record the threshold result and report artifact path.
 
 ## Common Failures
 - Docker unavailable: `integrationTest` may fail while `test` passes.
