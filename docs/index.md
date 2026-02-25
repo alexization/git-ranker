@@ -9,6 +9,7 @@ If code and docs disagree, update docs in the same PR.
 - Layering rules: [architecture/layering.md](architecture/layering.md)
 - Testing runbook: [runbooks/testing.md](runbooks/testing.md)
 - Observability runbook: [runbooks/observability-local.md](runbooks/observability-local.md)
+- Metrics catalog: [observability/metrics-catalog.md](observability/metrics-catalog.md)
 
 ## Execution Documents
 - Plan template: [plans/TEMPLATE.md](plans/TEMPLATE.md)

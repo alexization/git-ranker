@@ -90,3 +90,4 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Architecture: [docs/architecture/layering.md](docs/architecture/layering.md)
 - Testing runbook: [docs/runbooks/testing.md](docs/runbooks/testing.md)
 - Observability runbook: [docs/runbooks/observability-local.md](docs/runbooks/observability-local.md)
+- Metrics catalog: [docs/observability/metrics-catalog.md](docs/observability/metrics-catalog.md)
