@@ -12,9 +12,10 @@ jobs:
     name: Validate PR Contract
     runs-on: ubuntu-latest
     steps:
-      - name: Check plan link and validation evidence
+      - name: Check plan link, validation evidence, and AI review loop
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
+          PR_IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           set -eu
 
@@ -23,8 +24,13 @@ jobs:
             exit 1
           fi
 
-          if ! echo "$PR_BODY" | grep -Eiq 'docs/plans/(active|completed)/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9._-]+\.md'; then
-            echo "Missing concrete plan doc path (docs/plans/(active|completed)/YYYY-MM-DD-<slug>.md)."
+          if [ "${PR_IS_DRAFT:-false}" = "true" ]; then
+            echo "Draft PR detected; skipping strict merge-ready checks."
+            exit 0
+          fi
+
+          if ! echo "$PR_BODY" | grep -Eiq 'docs/plans/completed/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9._-]+\.md'; then
+            echo "Missing completed plan doc path (docs/plans/completed/YYYY-MM-DD-<slug>.md)."
             exit 1
           fi
 
@@ -75,6 +81,91 @@ jobs:
             echo "$validation_errors"
             echo "Validation evidence must include non-empty results for Build/Unit/Integration."
             echo "If not run, use: Not run(<reason>) or 미실행(<사유>)."
+            exit 1
+          fi
+
+          if ! ai_review_errors="$(printf '%s\n' "$PR_BODY" | awk -F'|' '
+            function trim(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+            {
+              reviewer = trim($2)
+              round = trim($3)
+              result = trim($4)
+              evidence = trim($5)
+
+              if (reviewer == "Codex" || reviewer == "CodeRabbitAI") {
+                found[reviewer] = 1
+
+                if (round == "") {
+                  empty_round[reviewer] = 1
+                }
+
+                if (result == "") {
+                  empty_result[reviewer] = 1
+                }
+
+                if (evidence == "" || evidence == "-") {
+                  empty_evidence[reviewer] = 1
+                }
+
+                if (result ~ /^Not run/ || result ~ /^미실행/) {
+                  if (result !~ /^Not run[[:space:]]*\([^()[:space:]].+\)$/ &&
+                      result !~ /^미실행[[:space:]]*\([^()[:space:]].+\)$/) {
+                    invalid_not_run[reviewer] = result
+                  }
+                }
+              }
+            }
+            END {
+              bad = 0
+              required[1] = "Codex"
+              required[2] = "CodeRabbitAI"
+
+              for (i = 1; i <= 2; i++) {
+                r = required[i]
+                if (!(r in found)) {
+                  print "Missing AI review row for: " r
+                  bad = 1
+                } else if (r in empty_round) {
+                  print "Missing AI review round for: " r
+                  bad = 1
+                } else if (r in empty_result) {
+                  print "Missing AI review result for: " r
+                  bad = 1
+                } else if (r in empty_evidence) {
+                  print "Missing AI review evidence link for: " r
+                  bad = 1
+                } else if (r in invalid_not_run) {
+                  print "Invalid AI not-run format for " r ": " invalid_not_run[r]
+                  bad = 1
+                }
+              }
+
+              exit bad
+            }
+          ')"; then
+            echo "$ai_review_errors"
+            echo "AI review loop evidence must include round/result/evidence for Codex and CodeRabbitAI."
+            echo "If not run, use: Not run(<reason>) or 미실행(<사유>)."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Fq -- "- [x] Codex/CodeRabbit final re-reviews completed"; then
+            echo "Merge Ready Gate missing checked item: Codex/CodeRabbit final re-reviews completed."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Fq -- "- [x] All review findings triaged (fixed or justified)"; then
+            echo "Merge Ready Gate missing checked item: All review findings triaged (fixed or justified)."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Fq -- "- [x] Plan moved to \`docs/plans/completed/...\` in this PR"; then
+            echo "Merge Ready Gate missing checked item: Plan moved to docs/plans/completed in this PR."
+            exit 1
+          fi
+
+          if ! echo "$PR_BODY" | grep -Fq -- "- [x] Risk and rollback section updated"; then
+            echo "Merge Ready Gate missing checked item: Risk and rollback section updated."
             exit 1
           fi
 
