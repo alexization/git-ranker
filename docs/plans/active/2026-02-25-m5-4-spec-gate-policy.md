@@ -11,6 +11,8 @@
   - add request spec template optimized for feature/bugfix/refactor/infra tasks
   - update `AGENTS.md` and `docs/index.md` references
   - require Korean clarification questions during spec completion
+  - enforce practical-mode plan lifecycle (`active -> completed` in same PR before merge)
+  - reduce CodeRabbit re-runs on every push
 - Out of scope:
   - changing GitHub issue form schemas
   - adding new CI jobs for spec linting
@@ -20,6 +22,8 @@
 - [x] add `spec-gate.md` policy
 - [x] add `request-spec-template.md`
 - [x] update `AGENTS.md`, docs index, and harness playbook/roadmap
+- [x] standardize practical-mode-only plan lifecycle wording
+- [x] configure CodeRabbit incremental auto-review off
 - [x] create issue, commit, and PR linked to this plan (`#69`, `#70`)
 
 ## 4) Design Notes
@@ -49,7 +53,9 @@
   - added spec gate policy and request template
   - linked policy in AGENTS/docs index/playbook/roadmap
   - moved completed M5-1 plan from active to completed
+  - changed plan lifecycle policy to practical mode only
+  - updated CodeRabbit config to avoid auto re-review on each push
 - Validation summary:
   - documentation cross-links and plan locations verified
 - Follow-up tasks:
-  - move this plan to `docs/plans/completed/` after PR merge
+  - move this plan to `docs/plans/completed/` in the same PR before final merge

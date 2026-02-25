@@ -39,7 +39,7 @@ Operating guide for humans and AI agents in `git-ranker`.
 
 5. Documentation
 - Update runbook/architecture/ADR when behavior or design changes.
-- Move finished plans to `docs/plans/completed/`.
+- Use practical mode only: move plan from `active` to `completed` in the same PR, right before final merge.
 
 ## 4) Canonical Commands
 - Build: `./gradlew build -x test`
@@ -82,6 +82,7 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Spec gate passed and approved before code changes.
 - Linked issue exists.
 - Plan file exists for non-trivial changes.
+- Plan was moved to `docs/plans/completed/` in the same PR before merge.
 - Validation commands and outcomes recorded.
 - Docs updated or explicitly marked not needed.
 - Risks and rollback path documented in PR.

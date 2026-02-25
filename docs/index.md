@@ -28,5 +28,5 @@ If code and docs disagree, update docs in the same PR.
 2. Non-trivial changes require a plan doc under `docs/plans/active/`.
 3. Architecture-impacting changes require ADR update.
 4. PR must include document links and validation evidence.
-5. After merge, move plan doc to `docs/plans/completed/`.
+5. Practical mode only: move plan doc to `docs/plans/completed/` in the same PR before final merge.
 6. Machine-read docs in `docs/*` must be written in English.

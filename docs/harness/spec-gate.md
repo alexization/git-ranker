@@ -10,6 +10,7 @@ This policy defines when implementation can start and how request specs are fina
 - Implementation is blocked until spec status is `Approved`.
 - Before approval, only read-only investigation is allowed.
 - Code edits, commits, and PR implementation updates are allowed only after approval.
+- Plan lifecycle mode is fixed to practical mode: update `active -> completed` in the same PR before final merge.
 
 ## 3) Required Fields (Definition of Ready)
 - `Type`: feature | bugfix | refactor | infra
