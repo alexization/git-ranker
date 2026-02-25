@@ -3,7 +3,7 @@
 - Status: Accepted
 - Date: 2026-02-25
 - Related issue: Harness M1/M3/M4 bootstrap
-- Related plan: docs/plans/active/2026-02-25-harness-bootstrap.md
+- Related plan: docs/plans/completed/2026-02-25-harness-bootstrap.md
 
 ## Context
 - AI agent collaboration requires explicit constraints, documentation routes, and review contracts.
