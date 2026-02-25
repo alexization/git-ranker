@@ -41,3 +41,7 @@ Approval prompt format:
 
 ## 6) Source Template
 - Use [request-spec-template.md](request-spec-template.md) to draft and track request specs.
+
+## 7) Review Loop Hand-off
+- After implementation starts and PR is open, follow [ai-review-loop.md](ai-review-loop.md).
+- Merge is allowed only after both Codex and CodeRabbitAI final re-reviews are completed.

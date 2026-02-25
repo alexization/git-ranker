@@ -7,6 +7,7 @@ If code and docs disagree, update docs in the same PR.
 - Harness roadmap: [harness/roadmap.md](harness/roadmap.md)
 - Issue/PR playbook: [harness/issue-pr-playbook.md](harness/issue-pr-playbook.md)
 - Spec gate policy: [harness/spec-gate.md](harness/spec-gate.md)
+- AI review loop: [harness/ai-review-loop.md](harness/ai-review-loop.md)
 - Request spec template: [harness/request-spec-template.md](harness/request-spec-template.md)
 - Layering rules: [architecture/layering.md](architecture/layering.md)
 - Testing runbook: [runbooks/testing.md](runbooks/testing.md)
@@ -29,4 +30,5 @@ If code and docs disagree, update docs in the same PR.
 3. Architecture-impacting changes require ADR update.
 4. PR must include document links and validation evidence.
 5. Practical mode only: move plan doc to `docs/plans/completed/` in the same PR before final merge.
-6. Machine-read docs in `docs/*` must be written in English.
+6. Codex and CodeRabbitAI review loop must be completed before merge.
+7. Machine-read docs in `docs/*` must be written in English.

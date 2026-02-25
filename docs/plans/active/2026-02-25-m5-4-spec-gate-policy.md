@@ -13,6 +13,7 @@
   - require Korean clarification questions during spec completion
   - enforce practical-mode plan lifecycle (`active -> completed` in same PR before merge)
   - reduce CodeRabbit re-runs on every push
+  - require Codex and CodeRabbitAI review-loop evidence before merge
 - Out of scope:
   - changing GitHub issue form schemas
   - adding new CI jobs for spec linting
@@ -24,6 +25,8 @@
 - [x] update `AGENTS.md`, docs index, and harness playbook/roadmap
 - [x] standardize practical-mode-only plan lifecycle wording
 - [x] configure CodeRabbit incremental auto-review off
+- [x] add AI review loop doc and wire it into policy docs
+- [x] enforce AI review loop and merge-ready checks in PR guardrail/template
 - [x] create issue, commit, and PR linked to this plan (`#69`, `#70`)
 
 ## 4) Design Notes
@@ -55,6 +58,7 @@
   - moved completed M5-1 plan from active to completed
   - changed plan lifecycle policy to practical mode only
   - updated CodeRabbit config to avoid auto re-review on each push
+  - added AI review loop guide and merge-ready gate requirements
 - Validation summary:
   - documentation cross-links and plan locations verified
 - Follow-up tasks:

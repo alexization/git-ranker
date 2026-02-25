@@ -40,6 +40,12 @@ Use this playbook to execute harness phases with consistent granularity.
 - validation evidence
 - risk and rollback
 4. Practical mode only: move related plan from `docs/plans/active` to `docs/plans/completed` in the same PR before final merge.
+5. Complete AI review loop before merge:
+- Codex review
+- CodeRabbitAI review
+- fix/justify findings
+- final re-reviews for both reviewers
+- merge-ready checklist checked
 
 ## Spec Gate Rule (Required Before Execution)
 1. Apply spec gate for feature, bugfix, refactor, and infra changes.

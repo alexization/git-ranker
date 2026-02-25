@@ -127,6 +127,7 @@ Execution unit is always small, reviewable PRs with explicit intent and evidence
 - Suggested commits:
   - `docs(harness): add spec gate policy and request template`
   - `docs(agents): require approved spec before implementation`
+  - `ci(guardrail): require AI review loop evidence before merge`
 
 ## Operating Rules
 1. Every child issue must map to one primary PR.

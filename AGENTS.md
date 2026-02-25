@@ -41,6 +41,11 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Update runbook/architecture/ADR when behavior or design changes.
 - Use practical mode only: move plan from `active` to `completed` in the same PR, right before final merge.
 
+6. AI Review Loop (required before merge)
+- Follow [docs/harness/ai-review-loop.md](docs/harness/ai-review-loop.md).
+- Run both reviewers (`@codex review`, `@coderabbitai review`), apply fixes, then run final re-reviews.
+- Merge only after review evidence is recorded and merge gate is checked.
+
 ## 4) Canonical Commands
 - Build: `./gradlew build -x test`
 - Unit test: `./gradlew test`
@@ -97,6 +102,7 @@ Operating guide for humans and AI agents in `git-ranker`.
 - Harness roadmap: [docs/harness/roadmap.md](docs/harness/roadmap.md)
 - Issue/PR playbook: [docs/harness/issue-pr-playbook.md](docs/harness/issue-pr-playbook.md)
 - Spec gate policy: [docs/harness/spec-gate.md](docs/harness/spec-gate.md)
+- AI review loop: [docs/harness/ai-review-loop.md](docs/harness/ai-review-loop.md)
 - Request spec template: [docs/harness/request-spec-template.md](docs/harness/request-spec-template.md)
 - Architecture: [docs/architecture/layering.md](docs/architecture/layering.md)
 - Testing runbook: [docs/runbooks/testing.md](docs/runbooks/testing.md)
