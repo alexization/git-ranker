@@ -159,7 +159,7 @@ jobs:
             exit 1
           fi
 
-          if ! echo "$PR_BODY" | grep -Fq -- "- [x] Plan moved to `docs/plans/completed/...` in this PR"; then
+          if ! echo "$PR_BODY" | grep -Fq -- '- [x] Plan moved to `docs/plans/completed/...` in this PR'; then
             echo "Merge Ready Gate missing checked item: Plan moved to docs/plans/completed in this PR."
             exit 1
           fi
