@@ -4,54 +4,46 @@
 
 ## 2) 연관 이슈
 - Closes #
+- 관련 frontend 이슈/PR:
 
-## 3) 의도 명세
+## 3) 문제와 목표
 - 문제:
-- 목표 동작:
+- 사용자/운영자 관점의 결과:
 - 비목표:
 
-## 4) System of Record 링크
-- Plan (머지 전 최종 상태): `docs/plans/completed/YYYY-MM-DD-<slug>.md`
-- ADR (필요 시): `docs/adr/...`
-- 관련 runbook/docs 업데이트:
+## 4) 영향 범위
+- 변경된 패키지/모듈:
+- API/DTO/Schema 영향:
+- DB/Cache/Batch/Scheduler 영향:
+- 보안/권한 영향:
 
-## 5) 변경 범위
-- 변경된 파일/패키지:
-- API/스키마/동작 영향:
+## 5) 검증 증거
 
-## 6) 검증 증거
-
-| 유형 | 명령어 | 결과 |
+| 유형 | 명령어 / 증거 | 결과 |
 | --- | --- | --- |
 | Build | `./gradlew build -x test` | |
 | Unit | `./gradlew test` | |
-| Integration | `./gradlew integrationTest` 또는 `미실행(사유)` | |
-| Quality (Coverage) | `./gradlew test jacocoTestCoverageVerification` 또는 `미실행(사유)` | |
+| Integration | `./gradlew integrationTest` 또는 `미실행(<사유>)` | |
+| Coverage | `./gradlew test jacocoTestCoverageVerification` 또는 `미실행(<사유>)` | |
+| API/Manual Smoke | `curl ...` / Postman / 배치 실행 기록 또는 `미실행(<사유>)` | |
 
-## 7) AI 리뷰 루프 증거
-
-| 리뷰어 | 라운드 | 최종 결과 | 증거 링크 |
-| --- | --- | --- | --- |
-| Codex |  |  |  |
-| CodeRabbitAI |  |  |  |
-
-## 8) 관측성 확인
+## 6) 관측성 확인
 - 확인한 로그:
 - 확인한 메트릭:
-- 확인한 대시보드/쿼리:
+- 확인한 trace/dashboard/query:
 
-## 9) 리스크 및 롤백
+## 7) AI 리뷰 메모 (선택)
+- Codex:
+- CodeRabbitAI:
+
+## 8) 리스크 및 롤백
 - 리스크:
 - 롤백 계획:
 
-## 10) Merge Ready Gate
-- [ ] Codex/CodeRabbit final re-reviews completed
-- [ ] All review findings triaged (fixed or justified)
-- [ ] Plan moved to `docs/plans/completed/...` in this PR
-- [ ] Risk and rollback section updated
+## 9) 체크리스트
+- [ ] 연관 이슈가 연결되어 있음
+- [ ] Build / Unit / Integration 결과가 기입되어 있음
+- [ ] API/스키마/배치 영향이 반영되었거나 없음을 명시함
+- [ ] 로그/메트릭/trace 확인 내용을 적었거나 불필요 사유를 적음
+- [ ] 문서 또는 후속 이슈가 업데이트되었거나 불필요 사유를 적음
 
-## 11) 체크리스트
-- [ ] 이슈가 연결되어 있음
-- [ ] Plan 문서가 연결되어 있음
-- [ ] 검증 증거가 포함되어 있음
-- [ ] 문서가 업데이트되었거나 불필요 사유가 명시되어 있음
