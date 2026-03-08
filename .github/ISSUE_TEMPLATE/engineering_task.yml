@@ -1,0 +1,72 @@
+name: "🛠️ Backend Engineering Task"
+description: 리팩터링, 성능, 테스트, 보안, 관측성, 운영 개선 작업을 기록합니다.
+title: "[Task] "
+labels: ["task", "triage"]
+body:
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: 작업 유형
+      options:
+        - refactor
+        - performance
+        - testing
+        - security
+        - observability
+        - infra/config
+        - documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 왜 필요한가요?
+      description: 지금 이 작업이 필요한 이유와 방치 비용을 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 작업 범위
+      description: 변경할 패키지, 설정, 테스트 범위를 적어 주세요.
+      placeholder: |
+        - `domain/ranking`
+        - `global/logging`
+        - `src/test/...`
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: 검증 방법
+      placeholder: |
+        - `./gradlew test`
+        - `./gradlew integrationTest`
+        - 로그/메트릭 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: 리스크 및 의존성
+      placeholder: |
+        - 리스크:
+        - 의존성:
+        - 후속 작업:
+    validations:
+      required: false
+
