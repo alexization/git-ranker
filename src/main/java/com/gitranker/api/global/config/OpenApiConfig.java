@@ -5,8 +5,11 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
@@ -25,6 +28,14 @@ public class OpenApiConfig {
                                 - `/api/v1/auth/refresh` uses the `refreshToken` cookie.
                                 - Initial sign-in starts with the GitHub OAuth2 redirect flow exposed by Spring Security outside `/api/v1/**`.
                                 """.stripIndent()))
+                .servers(List.of(
+                        new Server()
+                                .url("https://www.git-ranker.com")
+                                .description("Production"),
+                        new Server()
+                                .url("http://localhost:8080")
+                                .description("Local development")
+                ))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)

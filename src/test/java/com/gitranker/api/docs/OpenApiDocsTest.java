@@ -46,9 +46,12 @@ class OpenApiDocsTest {
                 .andExpect(jsonPath("$.paths['/api/v1/auth/logout/all'].post").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/badges/{nodeId}'].get").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/badges/{tier}/badge'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/v1/users/me'].delete.responses['204']").exists())
                 .andExpect(jsonPath("$.components.securitySchemes.bearerAuth").exists())
                 .andExpect(jsonPath("$.components.securitySchemes.accessTokenCookie").exists())
                 .andExpect(jsonPath("$.components.securitySchemes.refreshTokenCookie").exists())
+                .andExpect(jsonPath("$.servers[0].url").value("https://www.git-ranker.com"))
+                .andExpect(jsonPath("$.servers[1].url").value("http://localhost:8080"))
                 .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
@@ -73,7 +76,10 @@ class OpenApiDocsTest {
         }
 
         Path outputFile = Path.of(outputPath);
-        Files.createDirectories(outputFile.getParent());
+        Path parent = outputFile.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
         Files.writeString(outputFile, responseBody);
     }
 }

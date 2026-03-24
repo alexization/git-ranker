@@ -76,6 +76,7 @@ public class UserController {
                     @SecurityRequirement(name = "accessTokenCookie")
             }
     )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "No Content")
     public ResponseEntity<Void> deleteMyAccount(
             @AuthenticationPrincipal User user,
             HttpServletResponse response
