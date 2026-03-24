@@ -22,6 +22,12 @@ spring:
 batch:
   chunk-size: 100
 
+springdoc:
+  paths-to-match: /api/v1/**
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+
 management:
   server:
     port: 9090
