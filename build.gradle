@@ -27,6 +27,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.16'
+	implementation 'org.webjars:swagger-ui:5.29.4'
 	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -52,6 +54,7 @@ dependencies {
 	testImplementation 'org.testcontainers:mysql'
 	testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 
+	testRuntimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -102,4 +105,19 @@ tasks.named('jacocoTestCoverageVerification') {
 			}
 		}
 	}
+}
+
+def trackedOpenApiSpec = layout.projectDirectory.file('docs/openapi/openapi.json')
+
+tasks.register('generateOpenApiSpec', Test) {
+	group = 'documentation'
+	description = 'Generates the tracked OpenAPI specification snapshot.'
+	useJUnitPlatform()
+	include '**/OpenApiDocsTest.class'
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	systemProperty 'openapi.output', trackedOpenApiSpec.asFile.absolutePath
+	outputs.file(trackedOpenApiSpec)
+
+	dependsOn tasks.named('testClasses')
 }

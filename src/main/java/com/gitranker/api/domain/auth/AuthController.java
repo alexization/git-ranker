@@ -6,6 +6,9 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.response.ApiResponse;
 import com.gitranker.api.global.util.CookieUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@Tag(name = "Auth")
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -27,6 +31,14 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/me")
+    @Operation(
+            summary = "Get the current authenticated user",
+            description = "Returns the current session user resolved from the access token.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth"),
+                    @SecurityRequirement(name = "accessTokenCookie")
+            }
+    )
     public ResponseEntity<ApiResponse<AuthMeResponse>> me(@AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(ErrorType.UNAUTHORIZED_ACCESS));
@@ -36,6 +48,11 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh access and refresh tokens",
+            description = "Requires the refreshToken cookie and rotates the active session tokens.",
+            security = @SecurityRequirement(name = "refreshTokenCookie")
+    )
     public ResponseEntity<ApiResponse<Void>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtils.extractRefreshToken(request);
         authService.refreshAccessToken(refreshToken, response);
@@ -44,6 +61,14 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(
+            summary = "Log out the current session",
+            description = "Requires an authenticated session and the refreshToken cookie to invalidate the current login.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth"),
+                    @SecurityRequirement(name = "accessTokenCookie")
+            }
+    )
     public ResponseEntity<ApiResponse<Void>> logout(
             @AuthenticationPrincipal User user,
             HttpServletRequest request,
@@ -60,6 +85,14 @@ public class AuthController {
     }
 
     @PostMapping("/logout/all")
+    @Operation(
+            summary = "Log out every session for the current user",
+            description = "Revokes all refresh tokens for the authenticated user.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth"),
+                    @SecurityRequirement(name = "accessTokenCookie")
+            }
+    )
     public ResponseEntity<ApiResponse<Void>> logoutAll(
             @AuthenticationPrincipal User user,
             HttpServletRequest request,

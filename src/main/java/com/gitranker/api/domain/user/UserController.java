@@ -7,6 +7,9 @@ import com.gitranker.api.domain.user.service.UserRefreshService;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RequiredArgsConstructor
 @RestController
+@Tag(name = "Users")
 @RequestMapping("/api/v1/users")
 public class UserController {
 
@@ -28,6 +32,7 @@ public class UserController {
     private final UserDeletionService userDeletionService;
 
     @GetMapping("/{username}")
+    @Operation(summary = "Get a user's profile", description = "Returns the public Git Ranker profile for a GitHub username.")
     public ApiResponse<RegisterUserResponse> getUser(
             @PathVariable @Pattern(regexp = USERNAME_PATTERN, message = USERNAME_MESSAGE) String username
     ) {
@@ -37,6 +42,14 @@ public class UserController {
     }
 
     @PostMapping("/{username}/refresh")
+    @Operation(
+            summary = "Refresh the authenticated user's score",
+            description = "Recalculates the caller's own profile. The authenticated user must match the path username.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth"),
+                    @SecurityRequirement(name = "accessTokenCookie")
+            }
+    )
     public ApiResponse<RegisterUserResponse> refreshUser(
             @PathVariable @Pattern(regexp = USERNAME_PATTERN, message = USERNAME_MESSAGE) String username,
             @AuthenticationPrincipal User user
@@ -55,6 +68,14 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
+    @Operation(
+            summary = "Delete the authenticated user's account",
+            description = "Deletes the current account and clears authentication cookies.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth"),
+                    @SecurityRequirement(name = "accessTokenCookie")
+            }
+    )
     public ResponseEntity<Void> deleteMyAccount(
             @AuthenticationPrincipal User user,
             HttpServletResponse response
@@ -68,4 +89,3 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 }
-
