@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DockerPreflightCheckTest {
 
@@ -75,5 +76,13 @@ class DockerPreflightCheckTest {
         assertThat(result.message()).contains("Cause: Docker CLI is not installed or not available on PATH.");
         assertThat(result.message()).contains("Context: unavailable");
         assertThat(result.message()).contains("Install Docker Desktop, OrbStack, or another compatible Docker runtime.");
+    }
+
+    @Test
+    @DisplayName("failure result는 zero exit code를 허용하지 않는다")
+    void should_rejectZeroExitCode_when_creatingFailureResult() {
+        assertThatThrownBy(() -> CommandResult.failure(0, "", "unexpected"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Failure result must have non-zero exit code");
     }
 }

@@ -1,7 +1,10 @@
 package com.gitranker.api.testsupport;
 
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 import java.util.List;
 import java.util.Objects;
 
@@ -93,6 +96,9 @@ record CommandResult(int exitCode, String stdout, String stderr) {
     }
 
     static CommandResult failure(int exitCode, String stdout, String stderr) {
+        if (exitCode == 0) {
+            throw new IllegalArgumentException("Failure result must have non-zero exit code");
+        }
         return new CommandResult(exitCode, stdout, stderr);
     }
 
@@ -131,18 +137,31 @@ final class ProcessCommandRunner implements CommandRunner {
     @Override
     public CommandResult run(List<String> command) {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectErrorStream(false);
 
         try {
             Process process = processBuilder.start();
-            String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+            CompletableFuture<String> stdoutFuture =
+                    CompletableFuture.supplyAsync(() -> readStream(process.getInputStream()));
+            CompletableFuture<String> stderrFuture =
+                    CompletableFuture.supplyAsync(() -> readStream(process.getErrorStream()));
             int exitCode = process.waitFor();
+            String stdout = stdoutFuture.join();
+            String stderr = stderrFuture.join();
             return new CommandResult(exitCode, stdout, stderr);
         } catch (IOException exception) {
             return CommandResult.failure(127, "", exception.getMessage());
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             return CommandResult.failure(130, "", "Interrupted while running command: " + String.join(" ", command));
+        }
+    }
+
+    private String readStream(InputStream inputStream) {
+        try {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
         }
     }
 }
