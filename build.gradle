@@ -74,6 +74,15 @@ tasks.named('processResources') {
 	}
 }
 
+tasks.register('verifyDockerAvailable', JavaExec) {
+	group = 'verification'
+	description = 'Fails fast when Docker is unavailable for Testcontainers-based integration tests.'
+	mainClass = 'com.gitranker.api.testsupport.DockerPreflightMain'
+	classpath = sourceSets.test.runtimeClasspath
+
+	dependsOn tasks.named('testClasses')
+}
+
 // 통합 테스트: *IT.java만 실행 (Docker/Testcontainers 필요)
 // check 라이프사이클에 포함하지 않음 — Docker 없는 환경에서 build가 실패하지 않도록 의도적 제외
 // CI에서는 별도 단계로 명시적 실행: ./gradlew integrationTest
@@ -85,6 +94,8 @@ tasks.register('integrationTest', Test) {
 
 	testClassesDirs = sourceSets.test.output.classesDirs
 	classpath = sourceSets.test.runtimeClasspath
+
+	dependsOn tasks.named('verifyDockerAvailable')
 
 	// Docker 29+는 최소 API 1.44를 요구하지만 docker-java 3.4.0은 기본값 1.32로 요청함
 	systemProperty 'api.version', '1.44'
