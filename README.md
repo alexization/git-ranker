@@ -27,7 +27,6 @@
   <a href="#badge">Badge</a> •
   <a href="#data-refresh">Data Refresh</a> •
   <a href="#faq">FAQ</a> •
-  <a href="#development-verification">Development Verification</a> •
   <a href="#contributing">Contributing</a> •
   <a href="#roadmap">Roadmap</a> •
   <a href="#license">License</a> •
@@ -280,20 +279,6 @@ GitHub 프로필(`README.md`)에 동적 배지를 삽입해, 현재 티어와 �
 ### Q7. 수동 갱신은 얼마나 자주 가능한가요?
 
 **A.** 수동 갱신은 5분 쿨다운이 적용됩니다.
-
----
-
-<a id="development-verification"></a>
-## 🧪 Development Verification
-
-로컬 변경 후 backend 검증은 아래 순서로 실행합니다.
-
-- `./gradlew test jacocoTestCoverageVerification`: 단위 테스트와 커버리지 검증을 실행합니다. Docker가 없어도 동작합니다.
-- `./gradlew verifyDockerAvailable`: Testcontainers 기반 통합 테스트 전에 Docker CLI와 daemon 연결 가능 여부를 fail-fast로 확인합니다.
-- `./gradlew integrationTest`: `verifyDockerAvailable`를 먼저 실행한 뒤 `*IT` 통합 테스트를 수행합니다. Docker가 준비되지 않았으면 환경 문제로 즉시 실패합니다.
-
-> [!TIP]
-> `verifyDockerAvailable`가 실패하면 먼저 `docker version`이 성공하는지 확인한 뒤 `./gradlew integrationTest`를 다시 실행하세요.
 
 ---
 
