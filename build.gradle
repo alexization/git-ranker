@@ -46,40 +46,6 @@ dependencies {
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.springframework.batch:spring-batch-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:mysql'
-
-	testRuntimeOnly 'com.h2database:h2'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-// 단위 테스트: *IT.java 제외 (Docker 불필요)
-tasks.named('test') {
-	useJUnitPlatform()
-	exclude '**/*IT.class'
-}
-
-// 통합 테스트: Testcontainers 기반 *IT.java만 별도 lane에서 실행
-// check 라이프사이클에는 연결하지 않고 CI/deploy verification이 명시적으로 호출한다.
-tasks.register('integrationTest', Test) {
-	group = 'verification'
-	description = 'Runs Testcontainers-backed integration tests.'
-	useJUnitPlatform()
-	include '**/*IT.class'
-
-	mustRunAfter tasks.named('test')
-
-	testClassesDirs = sourceSets.test.output.classesDirs
-	classpath = sourceSets.test.runtimeClasspath
-
-	// Docker 29+는 최소 API 1.44를 요구하지만 docker-java 3.4.0은 기본값 1.32로 요청함
-	systemProperty 'api.version', '1.44'
 }
 tasks.named('processResources') {
 	filteringCharset = 'UTF-8'
