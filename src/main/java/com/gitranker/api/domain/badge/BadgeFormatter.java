@@ -2,6 +2,8 @@ package com.gitranker.api.domain.badge;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 /**
  * 배지에 표시되는 숫자 및 텍스트 포맷팅을 담당하는 컴포넌트.
  */
@@ -9,25 +11,25 @@ import org.springframework.stereotype.Component;
 public class BadgeFormatter {
 
     public String formatNumber(long number) {
-        return String.format("%,d", number);
+        return String.format(Locale.US, "%,d", number);
     }
 
     public String formatCount(int count) {
-        return String.format("%,d", count);
+        return String.format(Locale.US, "%,d", count);
     }
 
     public String formatDiff(int diff) {
         if (diff > 0) {
-            return String.format("<tspan class='diff-plus' dy='-1'>+%d</tspan>", diff);
+            return String.format(Locale.US, "<tspan class='diff-plus' dy='-1'>+%d</tspan>", diff);
         }
         if (diff < 0) {
-            return String.format("<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
+            return String.format(Locale.US, "<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
         }
         return "";
     }
 
     public String formatTierName(String tierName) {
-        return tierName.charAt(0) + tierName.substring(1).toLowerCase();
+        return tierName.charAt(0) + tierName.substring(1).toLowerCase(Locale.ROOT);
     }
 
     public int calculateTierFontSize(String displayTierName) {

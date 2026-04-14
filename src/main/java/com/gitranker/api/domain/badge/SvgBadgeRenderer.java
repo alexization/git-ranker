@@ -6,6 +6,8 @@ import com.gitranker.api.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 /**
  * SVG 배지 렌더링을 담당하는 컴포넌트.
  */
@@ -24,7 +26,7 @@ public class SvgBadgeRenderer {
         String displayTierName = formatter.formatTierName(tier.name());
         int tierFontSize = formatter.calculateTierFontSize(displayTierName);
 
-        return String.format(SVG_TEMPLATE,
+        return String.format(Locale.US, SVG_TEMPLATE,
                 gradientDefs,
                 FONT_IMPORT_CSS,
                 tierFontSize,

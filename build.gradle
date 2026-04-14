@@ -46,7 +46,14 @@ dependencies {
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
 tasks.named('processResources') {
 	filteringCharset = 'UTF-8'
 	filesMatching('static/swagger-ui/index.html') {
