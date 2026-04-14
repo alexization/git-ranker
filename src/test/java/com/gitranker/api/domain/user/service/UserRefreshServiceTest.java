@@ -11,6 +11,7 @@ import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.metrics.BusinessMetrics;
 import com.gitranker.api.infrastructure.github.GitHubActivityService;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
+import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,6 +83,7 @@ class UserRefreshServiceTest {
     void refreshesUserWhenCooldownHasExpired() {
         User user = savedUser(1L, "alice");
         ReflectionTestUtils.setField(user, "lastFullScanAt", LocalDateTime.of(2020, 1, 1, 0, 0));
+        GitHubAllActivitiesResponse rawResponse = GitHubAllActivitiesResponse.empty();
         ActivityStatistics totalStats = stats(30, 4, 5, 2, 7);
         ActivityStatistics baselineStats = stats(12, 1, 2, 1, 3);
         User updatedUser = savedUser(1L, "alice");
@@ -89,9 +91,9 @@ class UserRefreshServiceTest {
         ActivityLog latestLog = emptyActivityLog(updatedUser);
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(gitHubActivityService.fetchRawAllActivities("alice", user.getGithubCreatedAt())).thenReturn(null);
-        when(gitHubDataMapper.toActivityStatistics(null)).thenReturn(totalStats);
-        when(baselineStatsCalculator.calculate(user, null)).thenReturn(baselineStats);
+        when(gitHubActivityService.fetchRawAllActivities("alice", user.getGithubCreatedAt())).thenReturn(rawResponse);
+        when(gitHubDataMapper.toActivityStatistics(rawResponse)).thenReturn(totalStats);
+        when(baselineStatsCalculator.calculate(user, rawResponse)).thenReturn(baselineStats);
         when(userPersistenceService.updateUserStatisticsWithLog(1L, totalStats, baselineStats)).thenReturn(updatedUser);
         when(activityLogService.getLatestLog(updatedUser)).thenReturn(latestLog);
 

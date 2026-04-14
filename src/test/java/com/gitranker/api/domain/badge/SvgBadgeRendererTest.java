@@ -38,6 +38,8 @@ class SvgBadgeRendererTest {
                 .contains("15")
                 .contains("23")
                 .contains("diff-plus")
-                .contains("+5");
+                .contains("+5")
+                .contains("diff-minus")
+                .contains("-2");
     }
 }

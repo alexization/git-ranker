@@ -33,9 +33,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    private static final LocalDateTime VALID_EXPIRY = LocalDateTime.of(2030, 1, 1, 0, 0);
-    private static final LocalDateTime EXPIRED_AT = LocalDateTime.of(2020, 1, 1, 0, 0);
-
     @InjectMocks
     private AuthService authService;
 
@@ -52,7 +49,7 @@ class AuthServiceTest {
     @DisplayName("유효한 refresh token이면 새 access/refresh token 쿠키를 발급한다")
     void refreshesAccessTokenForValidRefreshToken() {
         User user = savedUser(1L, "alice");
-        RefreshToken refreshToken = refreshToken(user, "valid-token", VALID_EXPIRY);
+        RefreshToken refreshToken = refreshToken(user, "valid-token", validExpiry());
         HttpServletResponse response = mock(HttpServletResponse.class);
 
         when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(refreshToken));
@@ -80,7 +77,7 @@ class AuthServiceTest {
     @DisplayName("만료된 refresh token이면 삭제 후 EXPIRED_REFRESH_TOKEN 예외가 발생한다")
     void deletesExpiredRefreshTokenBeforeThrowing() {
         User user = savedUser(1L, "alice");
-        RefreshToken expiredToken = refreshToken(user, "expired-token", EXPIRED_AT);
+        RefreshToken expiredToken = refreshToken(user, "expired-token", expiredAt());
 
         when(refreshTokenRepository.findByToken("expired-token")).thenReturn(Optional.of(expiredToken));
 
@@ -97,7 +94,7 @@ class AuthServiceTest {
     @DisplayName("본인 token으로 logout하면 token을 삭제하고 쿠키와 세션을 정리한다")
     void logsOutAndClearsSessionForMatchingUser() {
         User user = savedUser(1L, "alice");
-        RefreshToken refreshToken = refreshToken(user, "valid-token", VALID_EXPIRY);
+        RefreshToken refreshToken = refreshToken(user, "valid-token", validExpiry());
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         HttpSession session = mock(HttpSession.class);
@@ -118,7 +115,7 @@ class AuthServiceTest {
     void throwsForbiddenForOtherUsersToken() {
         User currentUser = savedUser(1L, "alice");
         User otherUser = savedUser(2L, "bob");
-        RefreshToken refreshToken = refreshToken(otherUser, "foreign-token", VALID_EXPIRY);
+        RefreshToken refreshToken = refreshToken(otherUser, "foreign-token", validExpiry());
 
         when(refreshTokenRepository.findByToken("foreign-token")).thenReturn(Optional.of(refreshToken));
 
@@ -144,5 +141,13 @@ class AuthServiceTest {
         verify(authCookieManager).clearAccessTokenCookie(response);
         verify(authCookieManager).clearRefreshTokenCookie(response);
         verify(session).invalidate();
+    }
+
+    private LocalDateTime validExpiry() {
+        return LocalDateTime.now().plusDays(1);
+    }
+
+    private LocalDateTime expiredAt() {
+        return LocalDateTime.now().minusDays(1);
     }
 }

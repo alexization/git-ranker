@@ -20,10 +20,10 @@ public class BadgeFormatter {
 
     public String formatDiff(int diff) {
         if (diff > 0) {
-            return String.format("<tspan class='diff-plus' dy='-1'>+%d</tspan>", diff);
+            return String.format(Locale.US, "<tspan class='diff-plus' dy='-1'>+%d</tspan>", diff);
         }
         if (diff < 0) {
-            return String.format("<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
+            return String.format(Locale.US, "<tspan class='diff-minus' dy='-1'>-%d</tspan>", Math.abs(diff));
         }
         return "";
     }

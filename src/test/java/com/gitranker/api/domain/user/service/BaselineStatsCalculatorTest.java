@@ -4,6 +4,7 @@ import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
+import com.gitranker.api.domain.user.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,14 +31,13 @@ class BaselineStatsCalculatorTest {
     @Test
     @DisplayName("가입 연도가 현재보다 이전이면 작년까지의 baseline 통계를 계산한다")
     void calculatesBaselineForExistingUsers() {
-        BaselineStatsCalculator calculator = Mockito.spy(new BaselineStatsCalculator(gitHubDataMapper));
-        User user = user("existing-user");
-        GitHubAllActivitiesResponse rawResponse = null;
-        ActivityStatistics expected = stats(10, 2, 3, 1, 4);
         LocalDate fixedDate = LocalDate.of(2026, 1, 1);
+        BaselineStatsCalculator calculator = createCalculatorWithFixedDate(fixedDate);
+        User user = user("existing-user");
+        GitHubAllActivitiesResponse rawResponse = GitHubAllActivitiesResponse.empty();
+        ActivityStatistics expected = stats(10, 2, 3, 1, 4);
         int expectedLastYear = fixedDate.getYear() - 1;
 
-        Mockito.doReturn(fixedDate).when(calculator).currentDate();
         when(gitHubDataMapper.calculateStatisticsUntilYear(rawResponse, expectedLastYear)).thenReturn(expected);
 
         ActivityStatistics actual = calculator.calculate(user, rawResponse);
@@ -49,21 +49,27 @@ class BaselineStatsCalculatorTest {
     @Test
     @DisplayName("가입 연도가 현재 연도면 baseline 통계를 계산하지 않는다")
     void returnsNullForUsersCreatedThisYear() {
-        BaselineStatsCalculator calculator = Mockito.spy(new BaselineStatsCalculator(gitHubDataMapper));
         LocalDate fixedDate = LocalDate.of(2026, 1, 1);
-        User user = User.builder()
-                .githubId(2L)
-                .nodeId("node-current")
-                .username("current-user")
-                .email("current@example.com")
-                .profileImage("https://images.example.com/current-user.png")
-                .githubCreatedAt(LocalDateTime.of(fixedDate.getYear(), 1, 1, 0, 0))
-                .build();
+        BaselineStatsCalculator calculator = createCalculatorWithFixedDate(fixedDate);
+        User user = new User(
+                2L,
+                "node-current",
+                "current-user",
+                "current@example.com",
+                "https://images.example.com/current-user.png",
+                LocalDateTime.of(fixedDate.getYear(), 1, 1, 0, 0),
+                Role.USER
+        );
 
-        Mockito.doReturn(fixedDate).when(calculator).currentDate();
-        ActivityStatistics actual = calculator.calculate(user, null);
+        ActivityStatistics actual = calculator.calculate(user, GitHubAllActivitiesResponse.empty());
 
         assertThat(actual).isNull();
         verifyNoInteractions(gitHubDataMapper);
+    }
+
+    private BaselineStatsCalculator createCalculatorWithFixedDate(LocalDate fixedDate) {
+        BaselineStatsCalculator calculator = Mockito.spy(new BaselineStatsCalculator(gitHubDataMapper));
+        Mockito.doReturn(fixedDate).when(calculator).currentDate();
+        return calculator;
     }
 }

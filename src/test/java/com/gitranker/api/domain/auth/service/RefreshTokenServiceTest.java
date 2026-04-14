@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import static com.gitranker.api.support.TestFixtures.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,8 +43,9 @@ class RefreshTokenServiceTest {
         String token = refreshTokenService.issueRefreshToken(user);
 
         assertThat(token).isEqualTo("new-token");
-        verify(refreshTokenRepository).deleteAllByUser(user);
-        verify(refreshTokenRepository).save(any(RefreshToken.class));
+        InOrder inOrder = inOrder(refreshTokenRepository);
+        inOrder.verify(refreshTokenRepository).deleteAllByUser(user);
+        inOrder.verify(refreshTokenRepository).save(any(RefreshToken.class));
     }
 
     @Test
