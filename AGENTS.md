@@ -23,7 +23,8 @@
 
 - backend 구현 세부사항은 workflow repo 문서가 아니라 이 저장소의 문서, 설정, 코드, 테스트가 canonical source다.
 - root `README.md`는 개요만 유지한다. concrete bootstrap, verification, entrypoint 설명은 `AGENTS.md`와 named entry docs가 맡는다.
-- 현재 verification 기본 surface는 `./gradlew test`, `./gradlew integrationTest`, `./gradlew build`다.
+- 현재 verification baseline command set은 `./gradlew test`, `./gradlew integrationTest`, packaging check `./gradlew build`다.
+- `./gradlew build`만으로는 `integrationTest`가 실행되지 않는다. CI/deploy gate는 이 순서를 명시적으로 호출하고, workflow에서는 마지막 packaging check를 `./gradlew build -x test`로 실행해 중복 unit test를 피한다.
 - `integrationTest`는 Docker/Testcontainers 전제를 가진다. 로컬 환경에서 Docker가 없으면 CI evidence와 함께 해석한다.
 - verification lane이나 deploy gate를 바꾸면 `build.gradle`, workflow YAML, `AGENTS.md`를 함께 맞춘다.
 - 현재 repo-local `.codex/skills/`는 없다. 별도 skill이 없을 때는 이 문서와 nearest code/test를 먼저 읽고 진행한다.

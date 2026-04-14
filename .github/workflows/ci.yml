@@ -34,3 +34,6 @@ jobs:
 
       - name: Run integration tests
         run: ./gradlew integrationTest
+
+      - name: Run packaging build
+        run: ./gradlew build -x test
