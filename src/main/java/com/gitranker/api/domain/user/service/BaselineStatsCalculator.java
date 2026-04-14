@@ -20,7 +20,7 @@ public class BaselineStatsCalculator {
     private final GitHubDataMapper gitHubDataMapper;
 
     public ActivityStatistics calculate(User user, GitHubAllActivitiesResponse rawResponse) {
-        int currentYear = LocalDate.now().getYear();
+        int currentYear = currentDate().getYear();
         int userJoinYear = user.getGithubCreatedAt().getYear();
 
         if (userJoinYear < currentYear) {
@@ -29,5 +29,9 @@ public class BaselineStatsCalculator {
         }
 
         return null;
+    }
+
+    LocalDate currentDate() {
+        return LocalDate.now();
     }
 }

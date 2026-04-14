@@ -35,7 +35,7 @@ public class BadgeService {
 
         ActivityLog activityLog = Optional.ofNullable(
                 activityLogRepository.getTopByUserOrderByActivityDateDesc(user)
-        ).orElseGet(() -> ActivityLog.empty(user, LocalDate.now()));
+        ).orElseGet(() -> ActivityLog.empty(user, currentDate()));
 
         LogContext.event(Event.BADGE_VIEWED)
                 .with("target_username", user.getUsername())
@@ -70,5 +70,9 @@ public class BadgeService {
                 .build();
 
         return svgBadgeRenderer.render(user, tier, activityLog);
+    }
+
+    LocalDate currentDate() {
+        return LocalDate.now();
     }
 }
