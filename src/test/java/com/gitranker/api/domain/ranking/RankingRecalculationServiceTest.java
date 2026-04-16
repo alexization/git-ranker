@@ -45,6 +45,7 @@ class RankingRecalculationServiceTest {
 
         assertThat(recalculated).isFalse();
         verify(userRepository, times(1)).bulkUpdateRanking();
+        verify(rankingService, times(1)).evictRankingCache();
     }
 
     @Test

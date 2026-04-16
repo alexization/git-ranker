@@ -106,6 +106,23 @@ class UserRegistrationServiceTest {
     }
 
     @Test
+    @DisplayName("기존 사용자의 email이 null이고 다른 정보가 같으면 profile update 없이 기존 응답을 반환한다")
+    void doesNotUpdateProfileWhenOnlyEmailIsNull() {
+        OAuthAttributes attributes = oauthAttributes("alice", null, "https://images.example.com/alice.png");
+        User existingUser = savedUser(1L, "alice");
+        ActivityLog latestLog = emptyActivityLog(existingUser);
+
+        when(userRepository.findByNodeId("MDQ6VXNlcjEyMzQ1")).thenReturn(Optional.of(existingUser));
+        when(activityLogService.findLatestLog(existingUser)).thenReturn(Optional.of(latestLog));
+
+        RegisterUserResponse response = userRegistrationService.register(attributes);
+
+        assertThat(response.username()).isEqualTo("alice");
+        verify(userPersistenceService, never()).updateProfile(any(User.class), any(String.class), any(String.class), any());
+        verify(gitHubActivityService, never()).fetchRawAllActivities(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     @DisplayName("기존 사용자 프로필이 바뀌었으면 업데이트 후 최신 정보로 응답한다")
     void updatesExistingUserProfileWhenChanged() {
         OAuthAttributes attributes = oauthAttributes("alice-renamed", "alice@example.com", "https://images.example.com/alice-renamed.png");
@@ -136,5 +153,25 @@ class UserRegistrationServiceTest {
                 "https://images.example.com/alice-renamed.png",
                 "alice@example.com"
         );
+    }
+
+    @Test
+    @DisplayName("기존 사용자의 최신 로그가 없으면 empty log로 응답을 만든다")
+    void fallsBackToEmptyLogWhenExistingUserHasNoLatestLog() {
+        OAuthAttributes attributes = oauthAttributes("alice", "alice@example.com", "https://images.example.com/alice.png");
+        User existingUser = savedUser(1L, "alice");
+
+        when(userRepository.findByNodeId("MDQ6VXNlcjEyMzQ1")).thenReturn(Optional.of(existingUser));
+        when(activityLogService.findLatestLog(existingUser)).thenReturn(Optional.empty());
+
+        RegisterUserResponse response = userRegistrationService.register(attributes);
+
+        assertThat(response.username()).isEqualTo("alice");
+        assertThat(response.commitCount()).isZero();
+        assertThat(response.issueCount()).isZero();
+        assertThat(response.prCount()).isZero();
+        assertThat(response.mergedPrCount()).isZero();
+        assertThat(response.reviewCount()).isZero();
+        verify(userPersistenceService, never()).updateProfile(any(User.class), any(String.class), any(String.class), any());
     }
 }

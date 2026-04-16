@@ -20,6 +20,7 @@ import java.util.List;
 import static com.gitranker.api.support.TestFixtures.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,8 +48,12 @@ class RankingServiceTest {
         assertThat(rankingList.rankings()).hasSize(1);
         assertThat(rankingList.rankings().getFirst().username()).isEqualTo("alice");
         assertThat(rankingList.pageInfo().currentPage()).isZero();
+        assertThat(rankingList.pageInfo().pageSize()).isEqualTo(20);
         assertThat(rankingList.pageInfo().totalElements()).isEqualTo(1);
+        assertThat(rankingList.pageInfo().isFirst()).isTrue();
+        assertThat(rankingList.pageInfo().isLast()).isTrue();
         verify(userRepository).findAllByOrderByScoreValueDesc(pageRequest);
+        verifyNoMoreInteractions(userRepository);
     }
 
     @Test
@@ -67,7 +72,27 @@ class RankingServiceTest {
         assertThat(rankingList.rankings()).hasSize(1);
         assertThat(rankingList.rankings().getFirst().tier()).isEqualTo(Tier.DIAMOND);
         assertThat(rankingList.pageInfo().currentPage()).isEqualTo(1);
+        assertThat(rankingList.pageInfo().totalPages()).isEqualTo(2);
         assertThat(rankingList.pageInfo().totalElements()).isEqualTo(21);
         verify(userRepository).findAllByRankInfoTierOrderByScoreValueDesc(Tier.DIAMOND, pageRequest);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    @DisplayName("조회 결과가 비어 있어도 페이지 정보는 유지된다")
+    void keepsPagingMetadataWhenRankingIsEmpty() {
+        PageRequest pageRequest = PageRequest.of(2, 20);
+        when(userRepository.findAllByOrderByScoreValueDesc(pageRequest))
+                .thenReturn(new PageImpl<>(List.of(), pageRequest, 41));
+
+        RankingList rankingList = rankingService.getRankingList(2, null);
+
+        assertThat(rankingList.rankings()).isEmpty();
+        assertThat(rankingList.pageInfo().currentPage()).isEqualTo(2);
+        assertThat(rankingList.pageInfo().totalElements()).isEqualTo(41);
+        assertThat(rankingList.pageInfo().totalPages()).isEqualTo(3);
+        assertThat(rankingList.pageInfo().isLast()).isTrue();
+        verify(userRepository).findAllByOrderByScoreValueDesc(pageRequest);
+        verifyNoMoreInteractions(userRepository);
     }
 }

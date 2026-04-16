@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,6 +89,8 @@ class AuthServiceTest {
 
         verify(refreshTokenRepository).delete(expiredToken);
         verify(authCookieManager, never()).addAccessTokenCookie(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString());
+        verify(authCookieManager, never()).addRefreshTokenCookie(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString());
+        verifyNoInteractions(refreshTokenService);
     }
 
     @Test
@@ -123,6 +126,41 @@ class AuthServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(exception -> ((BusinessException) exception).getErrorType())
                 .isEqualTo(ErrorType.FORBIDDEN);
+    }
+
+    @Test
+    @DisplayName("logout 대상 refresh token이 없으면 INVALID_REFRESH_TOKEN 예외가 발생한다")
+    void throwsWhenLogoutTokenDoesNotExist() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(refreshTokenRepository.findByToken("missing")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.logout(savedUser(1L, "alice"), "missing", request, response))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).getErrorType())
+                .isEqualTo(ErrorType.INVALID_REFRESH_TOKEN);
+
+        verify(refreshTokenRepository, never()).deleteByToken("missing");
+        verify(refreshTokenRepository, never()).delete(org.mockito.ArgumentMatchers.any(RefreshToken.class));
+        verifyNoInteractions(authCookieManager, refreshTokenService, jwtProvider, request, response);
+    }
+
+    @Test
+    @DisplayName("logout 시 세션이 없어도 쿠키와 token 정리는 수행한다")
+    void logsOutWithoutSessionWhenNoHttpSessionExists() {
+        User user = savedUser(1L, "alice");
+        RefreshToken refreshToken = refreshToken(user, "valid-token", validExpiry());
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(refreshToken));
+        when(request.getSession(false)).thenReturn(null);
+
+        authService.logout(user, "valid-token", request, response);
+
+        verify(refreshTokenRepository).deleteByToken("valid-token");
+        verify(authCookieManager).clearAccessTokenCookie(response);
+        verify(authCookieManager).clearRefreshTokenCookie(response);
     }
 
     @Test

@@ -35,4 +35,11 @@ class TimeUtilsTest {
         assertThat(timeUtils.formatForDisplay(LocalDateTime.of(2025, 1, 1, 0, 30))).isEqualTo("09:30");
         assertThat(timeUtils.formatForDisplay(null)).isEmpty();
     }
+
+    @Test
+    @DisplayName("UTCtoAppZone과 로그 포맷은 null 입력을 그대로 비운다")
+    void handlesNullInZoneConversionAndLogFormatting() {
+        assertThat(timeUtils.UTCtoAppZone(null)).isNull();
+        assertThat(timeUtils.formatForLog(null)).isNull();
+    }
 }
