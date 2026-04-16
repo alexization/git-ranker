@@ -73,4 +73,19 @@ class UserQueryServiceTest {
 
         verifyNoInteractions(activityLogService, businessMetrics);
     }
+
+    @Test
+    @DisplayName("최신 로그 조회가 실패하면 예외를 그대로 전파하고 조회 metric은 증가하지 않는다")
+    void propagatesActivityLogLookupFailureWithoutIncrementingMetrics() {
+        User user = savedUser(1L, "alice");
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(activityLogService.getLatestLog(user)).thenThrow(new BusinessException(ErrorType.ACTIVITY_LOG_NOT_FOUND));
+
+        assertThatThrownBy(() -> userQueryService.findByUsername("alice"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).getErrorType())
+                .isEqualTo(ErrorType.ACTIVITY_LOG_NOT_FOUND);
+
+        verifyNoInteractions(businessMetrics);
+    }
 }

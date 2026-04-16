@@ -80,6 +80,7 @@ class BadgeServiceTest {
         String badge = badgeService.generateBadge("node-alice");
 
         assertThat(badge).isEqualTo("<svg>badge</svg>");
+        verify(svgBadgeRenderer).render(user, user.getTier(), latestLog);
         verify(businessMetrics).incrementBadgeViews();
     }
 
@@ -119,6 +120,9 @@ class BadgeServiceTest {
 
         assertThat(userCaptor.getValue().getUsername()).isEqualTo("DIAMOND");
         assertThat(userCaptor.getValue().getTotalScore()).isEqualTo(12345);
+        assertThat(userCaptor.getValue().getRanking()).isEqualTo(1);
         assertThat(logCaptor.getValue().getMergedPrCount()).isEqualTo(25);
+        assertThat(logCaptor.getValue().getDiffCommitCount()).isEqualTo(12);
+        verifyNoInteractions(businessMetrics);
     }
 }

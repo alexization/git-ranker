@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -105,6 +106,30 @@ class UserRefreshServiceTest {
         assertThat(response.isNewUser()).isFalse();
         verify(gitHubActivityService).fetchRawAllActivities("alice", user.getGithubCreatedAt());
         verify(userPersistenceService).updateUserStatisticsWithLog(1L, totalStats, baselineStats);
+        verify(businessMetrics).incrementRefreshes();
+    }
+
+    @Test
+    @DisplayName("갱신 후 최신 로그를 찾지 못하면 예외를 전파하지만 refresh metric 증가는 이미 반영된다")
+    void propagatesLatestLogLookupFailureAfterRefresh() {
+        User user = savedUser(1L, "alice");
+        ReflectionTestUtils.setField(user, "lastFullScanAt", LocalDateTime.of(2020, 1, 1, 0, 0));
+        GitHubAllActivitiesResponse rawResponse = GitHubAllActivitiesResponse.empty();
+        ActivityStatistics totalStats = stats(30, 4, 5, 2, 7);
+        User updatedUser = savedUser(1L, "alice");
+
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(gitHubActivityService.fetchRawAllActivities("alice", user.getGithubCreatedAt())).thenReturn(rawResponse);
+        when(gitHubDataMapper.toActivityStatistics(rawResponse)).thenReturn(totalStats);
+        when(baselineStatsCalculator.calculate(user, rawResponse)).thenReturn(null);
+        when(userPersistenceService.updateUserStatisticsWithLog(1L, totalStats, null)).thenReturn(updatedUser);
+        when(activityLogService.getLatestLog(updatedUser)).thenThrow(new BusinessException(ErrorType.ACTIVITY_LOG_NOT_FOUND));
+
+        assertThatThrownBy(() -> userRefreshService.refresh("alice"))
+                .isInstanceOf(BusinessException.class)
+                .extracting(exception -> ((BusinessException) exception).getErrorType())
+                .isEqualTo(ErrorType.ACTIVITY_LOG_NOT_FOUND);
+
         verify(businessMetrics).incrementRefreshes();
     }
 }

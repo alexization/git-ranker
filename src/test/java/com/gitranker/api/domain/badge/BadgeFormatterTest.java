@@ -37,4 +37,11 @@ class BadgeFormatterTest {
         assertThat(badgeFormatter.calculateTierFontSize("Diamond")).isEqualTo(30);
         assertThat(badgeFormatter.calculateTierFontSize("Challenger")).isEqualTo(26);
     }
+
+    @Test
+    @DisplayName("폰트 크기 경계값 6자와 7자는 서로 다른 크기를 사용한다")
+    void calculatesTierFontSizeAtBoundaries() {
+        assertThat(badgeFormatter.calculateTierFontSize("Silver")).isEqualTo(32);
+        assertThat(badgeFormatter.calculateTierFontSize("MasterX")).isEqualTo(30);
+    }
 }

@@ -42,4 +42,19 @@ class SvgBadgeRendererTest {
                 .contains("diff-minus")
                 .contains("-2");
     }
+
+    @Test
+    @DisplayName("diff가 0인 항목은 증감 마크업이 렌더링되지 않는다")
+    void doesNotRenderDiffMarkupForZeroDiff() {
+        User user = user("alice");
+        user.updateScore(Score.of(1234));
+        user.updateRankInfo(RankInfo.of(10, 55.0, 1234));
+        ActivityLog activityLog = activityLog(user, stats(1, 2, 3, 4, 5), stats(0, 0, 0, 0, 0));
+
+        String svg = svgBadgeRenderer.render(user, Tier.IRON, activityLog);
+
+        assertThat(svg).doesNotContain("+0</tspan>");
+        assertThat(svg).doesNotContain("-0</tspan>");
+        assertThat(svg).contains("font-size: 32px");
+    }
 }

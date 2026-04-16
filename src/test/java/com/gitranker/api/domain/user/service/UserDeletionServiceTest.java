@@ -60,4 +60,19 @@ class UserDeletionServiceTest {
                 .contains("Secure")
                 .contains("SameSite=Lax");
     }
+
+    @Test
+    @DisplayName("secure 옵션이 false면 삭제 쿠키에도 Secure 속성이 붙지 않는다")
+    void omitsSecureFlagWhenCookieIsNotSecure() {
+        User user = savedUser(1L, "alice");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        ReflectionTestUtils.setField(userDeletionService, "cookieDomain", "localhost");
+        ReflectionTestUtils.setField(userDeletionService, "isCookieSecure", false);
+
+        userDeletionService.deleteAccount(user, response);
+
+        assertThat(response.getHeader("Set-Cookie"))
+                .contains("Domain=localhost")
+                .doesNotContain("Secure");
+    }
 }

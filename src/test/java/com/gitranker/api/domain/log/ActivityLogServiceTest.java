@@ -48,7 +48,15 @@ class ActivityLogServiceTest {
         ActivityLog savedLog = captor.getValue();
         assertThat(savedLog.getActivityDate()).isEqualTo(logDate);
         assertThat(savedLog.getCommitCount()).isEqualTo(10);
+        assertThat(savedLog.getIssueCount()).isEqualTo(2);
+        assertThat(savedLog.getPrCount()).isEqualTo(3);
+        assertThat(savedLog.getMergedPrCount()).isEqualTo(1);
+        assertThat(savedLog.getReviewCount()).isEqualTo(4);
         assertThat(savedLog.getDiffCommitCount()).isEqualTo(2);
+        assertThat(savedLog.getDiffIssueCount()).isEqualTo(1);
+        assertThat(savedLog.getDiffPrCount()).isZero();
+        assertThat(savedLog.getDiffMergedPrCount()).isZero();
+        assertThat(savedLog.getDiffReviewCount()).isEqualTo(1);
     }
 
     @Test
@@ -63,9 +71,44 @@ class ActivityLogServiceTest {
         verify(activityLogRepository).save(captor.capture());
 
         ActivityLog baselineLog = captor.getValue();
+        assertThat(baselineLog.getCommitCount()).isEqualTo(100);
+        assertThat(baselineLog.getIssueCount()).isEqualTo(10);
+        assertThat(baselineLog.getPrCount()).isEqualTo(20);
+        assertThat(baselineLog.getMergedPrCount()).isEqualTo(15);
+        assertThat(baselineLog.getReviewCount()).isEqualTo(30);
         assertThat(baselineLog.getDiffCommitCount()).isZero();
         assertThat(baselineLog.getDiffIssueCount()).isZero();
+        assertThat(baselineLog.getDiffPrCount()).isZero();
+        assertThat(baselineLog.getDiffMergedPrCount()).isZero();
         assertThat(baselineLog.getDiffReviewCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("최신 로그가 있으면 Optional로 감싸 반환한다")
+    void returnsLatestLogWhenItExists() {
+        User user = user("alice");
+        ActivityLog latestLog = activityLog(user, stats(5, 1, 1, 0, 2), stats(1, 0, 0, 0, 1));
+        when(activityLogRepository.getTopByUserOrderByActivityDateDesc(user)).thenReturn(latestLog);
+
+        Optional<ActivityLog> result = activityLogService.findLatestLog(user);
+
+        assertThat(result).contains(latestLog);
+    }
+
+    @Test
+    @DisplayName("findByDate와 findPreviousDayLog는 repository 결과를 그대로 위임한다")
+    void delegatesDateBasedLookups() {
+        User user = user("alice");
+        LocalDate date = LocalDate.of(2025, 1, 2);
+        ActivityLog sameDayLog = activityLog(user, stats(2, 2, 2, 2, 2), ActivityStatistics.empty());
+        ActivityLog previousDayLog = activityLog(user, stats(1, 1, 1, 1, 1), ActivityStatistics.empty());
+
+        when(activityLogRepository.findByUserAndActivityDate(user, date)).thenReturn(Optional.of(sameDayLog));
+        when(activityLogRepository.findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(user, date))
+                .thenReturn(Optional.of(previousDayLog));
+
+        assertThat(activityLogService.findByDate(user, date)).contains(sameDayLog);
+        assertThat(activityLogService.findPreviousDayLog(user, date)).contains(previousDayLog);
     }
 
     @Test
@@ -91,7 +134,31 @@ class ActivityLogServiceTest {
         activityLogService.updateActivityLog(activityLog, newTotals, newDiff);
 
         assertThat(activityLog.getCommitCount()).isEqualTo(20);
+        assertThat(activityLog.getIssueCount()).isEqualTo(3);
         assertThat(activityLog.getPrCount()).isEqualTo(5);
+        assertThat(activityLog.getMergedPrCount()).isEqualTo(2);
+        assertThat(activityLog.getReviewCount()).isEqualTo(7);
+        assertThat(activityLog.getDiffCommitCount()).isEqualTo(3);
+        assertThat(activityLog.getDiffIssueCount()).isEqualTo(1);
+        assertThat(activityLog.getDiffPrCount()).isEqualTo(1);
         assertThat(activityLog.getDiffMergedPrCount()).isEqualTo(1);
+        assertThat(activityLog.getDiffReviewCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("baseline 로그 업데이트는 diff를 유지한 채 총계만 갱신한다")
+    void updatesBaselineLogWithoutTouchingDiff() {
+        User user = user("alice");
+        ActivityLog baselineLog = ActivityLog.baseline(user, stats(10, 2, 3, 4, 5), LocalDate.of(2024, 12, 31));
+
+        activityLogService.updateBaselineLog(baselineLog, stats(30, 20, 10, 5, 1));
+
+        assertThat(baselineLog.getCommitCount()).isEqualTo(30);
+        assertThat(baselineLog.getIssueCount()).isEqualTo(20);
+        assertThat(baselineLog.getPrCount()).isEqualTo(10);
+        assertThat(baselineLog.getMergedPrCount()).isEqualTo(5);
+        assertThat(baselineLog.getReviewCount()).isEqualTo(1);
+        assertThat(baselineLog.getDiffCommitCount()).isZero();
+        assertThat(baselineLog.getDiffReviewCount()).isZero();
     }
 }
