@@ -159,6 +159,9 @@ class ActivityLogServiceTest {
         assertThat(baselineLog.getMergedPrCount()).isEqualTo(5);
         assertThat(baselineLog.getReviewCount()).isEqualTo(1);
         assertThat(baselineLog.getDiffCommitCount()).isZero();
+        assertThat(baselineLog.getDiffIssueCount()).isZero();
+        assertThat(baselineLog.getDiffPrCount()).isZero();
+        assertThat(baselineLog.getDiffMergedPrCount()).isZero();
         assertThat(baselineLog.getDiffReviewCount()).isZero();
     }
 }

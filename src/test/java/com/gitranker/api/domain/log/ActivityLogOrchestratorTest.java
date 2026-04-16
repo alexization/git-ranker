@@ -48,11 +48,12 @@ class ActivityLogOrchestratorTest {
     void skipsBaselineLogWhenNotProvidedForNewUser() {
         User user = user("alice");
         ActivityStatistics totalStats = stats(10, 2, 3, 4, 5);
+        LocalDate today = LocalDate.now();
 
         activityLogOrchestrator.createLogsForNewUser(user, totalStats, null);
 
         verify(activityLogService, never()).saveBaselineLog(any(User.class), any(ActivityStatistics.class), any(LocalDate.class));
-        verify(activityLogService).saveActivityLog(user, totalStats, ActivityStatistics.empty(), LocalDate.now());
+        verify(activityLogService).saveActivityLog(user, totalStats, ActivityStatistics.empty(), today);
     }
 
     @Test
@@ -90,7 +91,7 @@ class ActivityLogOrchestratorTest {
         activityLogOrchestrator.updateLogsForRefresh(user, totalStats, null);
 
         verify(activityLogService).updateActivityLog(todayLog, totalStats, ActivityStatistics.empty());
-        verify(activityLogService, never()).updateBaselineLog(todayLog, totalStats);
+        verify(activityLogService, never()).updateBaselineLog(any(ActivityLog.class), any(ActivityStatistics.class));
     }
 
     @Test

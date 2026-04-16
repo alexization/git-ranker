@@ -62,6 +62,9 @@ class ScoreRecalculationProcessorTest {
     @DisplayName("processor uses incremental strategy when a baseline log exists")
     void usesIncrementalStrategyWhenBaselineExists() {
         User user = TestFixtures.user("alice");
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        LocalDate currentYearStart = LocalDate.of(currentYear, 1, 1);
         ActivityLog latestLog = ActivityLog.of(
                 user,
                 TestFixtures.stats(4, 1, 1, 1, 2),
@@ -78,7 +81,7 @@ class ScoreRecalculationProcessorTest {
         when(activityLogRepository.getTopByUserOrderByActivityDateDesc(user)).thenReturn(latestLog);
         when(activityLogRepository.findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(
                 eq(user),
-                eq(LocalDate.of(LocalDate.now().getYear(), 1, 1))
+                eq(currentYearStart)
         )).thenReturn(Optional.of(baselineLog));
         when(incrementalStrategy.update(eq(user), any(ActivityUpdateContext.class))).thenReturn(updatedStats);
 
@@ -91,25 +94,28 @@ class ScoreRecalculationProcessorTest {
         ArgumentCaptor<ActivityUpdateContext> contextCaptor = ArgumentCaptor.forClass(ActivityUpdateContext.class);
         verify(incrementalStrategy).update(eq(user), contextCaptor.capture());
         assertThat(contextCaptor.getValue().baselineLog()).isSameAs(baselineLog);
-        assertThat(contextCaptor.getValue().currentYear()).isEqualTo(LocalDate.now().getYear());
+        assertThat(contextCaptor.getValue().currentYear()).isEqualTo(currentYear);
 
         ArgumentCaptor<ActivityStatistics> diffCaptor = ArgumentCaptor.forClass(ActivityStatistics.class);
         ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
         verify(activityLogService).saveActivityLog(eq(user), eq(updatedStats), diffCaptor.capture(), dateCaptor.capture());
         assertThat(diffCaptor.getValue()).isEqualTo(updatedStats.calculateDiff(latestLog.toStatistics()));
-        assertThat(dateCaptor.getValue()).isEqualTo(LocalDate.now());
+        assertThat(dateCaptor.getValue()).isEqualTo(today);
     }
 
     @Test
     @DisplayName("processor uses full strategy and empty diff when no previous logs exist")
     void usesFullStrategyWhenNoBaselineExists() {
         User user = TestFixtures.user("alice");
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        LocalDate currentYearStart = LocalDate.of(currentYear, 1, 1);
         ActivityStatistics updatedStats = TestFixtures.stats(3, 2, 1, 4, 5);
 
         when(activityLogRepository.getTopByUserOrderByActivityDateDesc(user)).thenReturn(null);
         when(activityLogRepository.findTopByUserAndActivityDateLessThanOrderByActivityDateDesc(
                 eq(user),
-                eq(LocalDate.of(LocalDate.now().getYear(), 1, 1))
+                eq(currentYearStart)
         )).thenReturn(Optional.empty());
         when(fullStrategy.update(eq(user), any(ActivityUpdateContext.class))).thenReturn(updatedStats);
 
@@ -122,13 +128,13 @@ class ScoreRecalculationProcessorTest {
         ArgumentCaptor<ActivityUpdateContext> contextCaptor = ArgumentCaptor.forClass(ActivityUpdateContext.class);
         verify(fullStrategy).update(eq(user), contextCaptor.capture());
         assertThat(contextCaptor.getValue().baselineLog()).isNull();
-        assertThat(contextCaptor.getValue().currentYear()).isEqualTo(LocalDate.now().getYear());
+        assertThat(contextCaptor.getValue().currentYear()).isEqualTo(currentYear);
 
         verify(activityLogService).saveActivityLog(
                 eq(user),
                 eq(updatedStats),
                 eq(updatedStats.calculateDiff(ActivityStatistics.empty())),
-                eq(LocalDate.now())
+                eq(today)
         );
     }
 

@@ -36,13 +36,15 @@ class UserTest {
         LocalDateTime previousUpdatedAt = user.getUpdatedAt();
 
         boolean unchanged = user.updateProfile("alice", null, "alice@example.com");
+        LocalDateTime unchangedUpdatedAt = user.getUpdatedAt();
         boolean changed = user.updateProfile("alice-renamed", null, "alice-renamed@example.com");
 
         assertThat(unchanged).isFalse();
         assertThat(changed).isTrue();
+        assertThat(unchangedUpdatedAt).isEqualTo(previousUpdatedAt);
         assertThat(user.getUsername()).isEqualTo("alice-renamed");
         assertThat(user.getEmail()).isEqualTo("alice-renamed@example.com");
-        assertThat(user.getUpdatedAt()).isAfterOrEqualTo(previousUpdatedAt);
+        assertThat(user.getUpdatedAt()).isAfterOrEqualTo(unchangedUpdatedAt);
     }
 
     @Test

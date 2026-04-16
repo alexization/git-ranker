@@ -18,6 +18,9 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class UserScoreCalculationSkipListenerTest {
 
+    private static final String JOB_NAME_DAILY_SCORE = "DailyScoreRecalculationJob";
+    private static final String UNKNOWN_USER_ID = "UNKNOWN_USER";
+
     @InjectMocks
     private UserScoreCalculationSkipListener listener;
 
@@ -30,8 +33,8 @@ class UserScoreCalculationSkipListenerTest {
         listener.onSkipInRead(new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT, "timeout"));
 
         verify(batchFailureLogService).saveFailureLog(
-                "DailyScoreRecalculationJob",
-                "UNKNOWN_USER",
+                JOB_NAME_DAILY_SCORE,
+                UNKNOWN_USER_ID,
                 ErrorType.GITHUB_API_TIMEOUT,
                 "[READ_PHASE] error.github.api-timeout: timeout"
         );
@@ -45,7 +48,7 @@ class UserScoreCalculationSkipListenerTest {
         listener.onSkipInProcess(user, new IllegalStateException("boom"));
 
         verify(batchFailureLogService).saveFailureLog(
-                "DailyScoreRecalculationJob",
+                JOB_NAME_DAILY_SCORE,
                 "alice",
                 ErrorType.DEFAULT_ERROR,
                 "[PROCESS_PHASE] boom"
@@ -60,7 +63,7 @@ class UserScoreCalculationSkipListenerTest {
         listener.onSkipInWrite(user, new GitHubApiNonRetryableException(ErrorType.GITHUB_USER_NOT_FOUND));
 
         verify(batchFailureLogService).saveFailureLog(
-                "DailyScoreRecalculationJob",
+                JOB_NAME_DAILY_SCORE,
                 "alice",
                 ErrorType.GITHUB_USER_NOT_FOUND,
                 "[WRITE_PHASE] error.github.user-not-found"

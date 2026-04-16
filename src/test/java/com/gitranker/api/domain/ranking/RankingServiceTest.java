@@ -92,5 +92,7 @@ class RankingServiceTest {
         assertThat(rankingList.pageInfo().totalElements()).isEqualTo(41);
         assertThat(rankingList.pageInfo().totalPages()).isEqualTo(3);
         assertThat(rankingList.pageInfo().isLast()).isTrue();
+        verify(userRepository).findAllByOrderByScoreValueDesc(pageRequest);
+        verifyNoMoreInteractions(userRepository);
     }
 }

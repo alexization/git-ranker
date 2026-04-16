@@ -177,7 +177,11 @@ class GitHubGraphQLClientTest {
         verify(apiMetrics).recordRateLimit(org.mockito.ArgumentMatchers.eq(3), remainingCaptor.capture(), resetCaptor.capture());
         verify(tokenPool).updateTokenState("token-a", remainingCaptor.getValue(), resetCaptor.getValue());
         assertThat(remainingCaptor.getValue()).isIn(199, 200);
-        assertThat(resetCaptor.getValue()).isIn(resetAt, mergedResetAt);
+        if (remainingCaptor.getValue() == 199) {
+            assertThat(resetCaptor.getValue()).isEqualTo(resetAt);
+        } else {
+            assertThat(resetCaptor.getValue()).isEqualTo(mergedResetAt);
+        }
     }
 
     @Test

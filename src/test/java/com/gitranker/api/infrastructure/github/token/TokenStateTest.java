@@ -9,6 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TokenStateTest {
 
+    private static final Instant FUTURE_RESET_AT = Instant.parse("2099-01-01T00:00:00Z");
+    private static final Instant PAST_RESET_AT = Instant.parse("2000-01-01T00:00:00Z");
+
     @Test
     @DisplayName("new token state starts with full limit and is available")
     void initializesWithDefaultLimit() {
@@ -23,12 +26,11 @@ class TokenStateTest {
     @DisplayName("update changes remaining budget and reset time")
     void updatesState() {
         TokenState state = new TokenState("token-a");
-        Instant resetAt = Instant.now().plusSeconds(300);
 
-        state.update(50, resetAt);
+        state.update(50, FUTURE_RESET_AT);
 
         assertThat(state.getRemaining()).isEqualTo(50);
-        assertThat(state.getResetAt()).isEqualTo(resetAt);
+        assertThat(state.getResetAt()).isEqualTo(FUTURE_RESET_AT);
         assertThat(state.isAvailable(100)).isFalse();
     }
 
@@ -36,7 +38,7 @@ class TokenStateTest {
     @DisplayName("availability check restores default limit after reset time passes")
     void restoresLimitAfterResetTime() {
         TokenState state = new TokenState("token-a");
-        state.update(0, Instant.now().minusSeconds(1));
+        state.update(0, PAST_RESET_AT);
 
         boolean available = state.isAvailable(100);
 

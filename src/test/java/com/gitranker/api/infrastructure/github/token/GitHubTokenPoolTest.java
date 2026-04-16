@@ -44,7 +44,7 @@ class GitHubTokenPoolTest {
     void rotatesToNextAvailableToken() {
         GitHubTokenPool pool = new GitHubTokenPool("token-a, token-b", 100, APP_ZONE_ID);
 
-        pool.updateTokenState("token-a", 100, LocalDateTime.of(2099, 1, 1, 0, 0));
+        pool.updateTokenState("token-a", 99, LocalDateTime.of(2099, 1, 1, 0, 0));
 
         assertThat(pool.getToken()).isEqualTo("token-b");
     }
@@ -53,8 +53,8 @@ class GitHubTokenPoolTest {
     @DisplayName("getToken throws exhausted exception with earliest reset time when all tokens are unavailable")
     void throwsWhenAllTokensExhausted() {
         GitHubTokenPool pool = new GitHubTokenPool("token-a, token-b", 100, APP_ZONE_ID);
-        LocalDateTime firstReset = LocalDateTime.of(2026, 4, 16, 18, 0);
-        LocalDateTime secondReset = LocalDateTime.of(2026, 4, 16, 19, 0);
+        LocalDateTime firstReset = LocalDateTime.of(2099, 1, 1, 18, 0);
+        LocalDateTime secondReset = LocalDateTime.of(2099, 1, 1, 19, 0);
 
         pool.updateTokenState("token-a", 10, firstReset);
         pool.updateTokenState("token-b", 20, secondReset);

@@ -131,12 +131,18 @@ class AuthServiceTest {
     @Test
     @DisplayName("logout 대상 refresh token이 없으면 INVALID_REFRESH_TOKEN 예외가 발생한다")
     void throwsWhenLogoutTokenDoesNotExist() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
         when(refreshTokenRepository.findByToken("missing")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> authService.logout(savedUser(1L, "alice"), "missing", mock(HttpServletRequest.class), mock(HttpServletResponse.class)))
+        assertThatThrownBy(() -> authService.logout(savedUser(1L, "alice"), "missing", request, response))
                 .isInstanceOf(BusinessException.class)
                 .extracting(exception -> ((BusinessException) exception).getErrorType())
                 .isEqualTo(ErrorType.INVALID_REFRESH_TOKEN);
+
+        verify(refreshTokenRepository, never()).deleteByToken("missing");
+        verify(refreshTokenRepository, never()).delete(org.mockito.ArgumentMatchers.any(RefreshToken.class));
+        verifyNoInteractions(authCookieManager, refreshTokenService, jwtProvider, request, response);
     }
 
     @Test

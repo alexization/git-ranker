@@ -16,14 +16,16 @@ class GitHubApiMetricsTest {
     void recordsRateLimitInformation() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         GitHubApiMetrics metrics = new GitHubApiMetrics(registry);
+        int cost = 3;
+        int remaining = 120;
         LocalDateTime resetAt = LocalDateTime.of(2026, 4, 16, 18, 0);
 
-        metrics.recordRateLimit(3, 120, resetAt);
+        metrics.recordRateLimit(cost, remaining, resetAt);
 
-        assertThat(metrics.getRemaining()).isEqualTo(120);
+        assertThat(metrics.getRemaining()).isEqualTo(remaining);
         assertThat(metrics.getResetAtFormatted()).isEqualTo("2026-04-16T18:00");
-        assertThat(registry.get("github_api_cost_total").counter().count()).isEqualTo(3.0);
-        assertThat(registry.get("github_api_remaining").gauge().value()).isEqualTo(120.0);
+        assertThat(registry.get("github_api_cost_total").counter().count()).isEqualTo(cost);
+        assertThat(registry.get("github_api_remaining").gauge().value()).isEqualTo(remaining);
     }
 
     @Test

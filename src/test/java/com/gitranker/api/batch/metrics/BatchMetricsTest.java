@@ -43,9 +43,11 @@ class BatchMetricsTest {
         BatchMetrics metrics = new BatchMetrics(registry);
 
         metrics.recordItemsProcessed(12);
+        metrics.recordItemsProcessed(8);
         metrics.recordItemsSkipped(3);
+        metrics.recordItemsSkipped(2);
 
-        assertThat(registry.get("batch_items_processed_total").counter().count()).isEqualTo(12.0);
-        assertThat(registry.get("batch_items_skipped_total").counter().count()).isEqualTo(3.0);
+        assertThat(registry.get("batch_items_processed_total").counter().count()).isEqualTo(20.0);
+        assertThat(registry.get("batch_items_skipped_total").counter().count()).isEqualTo(5.0);
     }
 }
