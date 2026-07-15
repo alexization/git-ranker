@@ -86,7 +86,7 @@ body:
       description: 구현 후 어떤 테스트, 로그, 메트릭, trace 확인이 필요한지 적어 주세요.
       placeholder: |
         - `./gradlew test`
-        - `./gradlew integrationTest`
+        - `./gradlew build -x test`
         - actuator/prometheus 확인
         - 관련 로그 확인
     validations:

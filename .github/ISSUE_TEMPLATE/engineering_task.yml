@@ -54,7 +54,7 @@ body:
       label: 검증 방법
       placeholder: |
         - `./gradlew test`
-        - `./gradlew integrationTest`
+        - `./gradlew build -x test`
         - 로그/메트릭 확인
     validations:
       required: true

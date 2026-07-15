@@ -5,20 +5,32 @@
 ## 시작 순서
 
 1. `README.md`에서 프로젝트 목적과 high-level overview를 확인한다.
-2. `build.gradle`, `settings.gradle`에서 모듈 구조, 의존성, verification task를 확인한다.
-3. `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`에서 CI verification lane과 pre-deploy gate를 확인한다.
-4. 테스트 코드 작성이나 TDD 기반 기능 구현 요청이면 `.claude/skills/`의 `red`, `green`, `refactor` skill을 먼저 확인한다.
-5. `src/test/` tree와 `build.gradle`의 test runtime 구성을 함께 확인하고, unit test baseline이 `./gradlew test` 기준으로 정렬되어 있는지 본다.
+2. `docs/STRUCTURE.md`에서 패키지 구조와 네이밍 규약을 확인한다.
+3. `build.gradle`, `settings.gradle`에서 모듈 구조, 의존성, verification task를 확인한다.
+4. 로컬 실행/환경 변수가 필요하면 `docs/DEVELOPMENT.md`, 배포/모니터링이면 `docs/OPERATIONS.md`를 본다.
+5. 테스트 코드 작성이나 TDD 기반 기능 구현 요청이면 `.claude/skills/`의 `red`, `green`, `refactor` skill을 먼저 확인한다.
 6. `src/main/java/`, `src/main/resources/`에서 실제 구현과 runtime config를 읽는다.
 
 ## Source Of Truth
 
 - repo overview: `README.md`
+- 패키지 구조·네이밍·테스트 구조: `docs/STRUCTURE.md`
+- 로컬 개발·env·실행: `docs/DEVELOPMENT.md`
+- 배포 파이프라인·모니터링: `docs/OPERATIONS.md`
 - build and verification entrypoint: `build.gradle`
 - CI / deploy gate: `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`
 - repo-local TDD workflow: `.claude/skills/red/SKILL.md`, `.claude/skills/green/SKILL.md`, `.claude/skills/refactor/SKILL.md`
 - backend behavior and contracts: `src/main/java/`, `src/main/resources/`
 - runtime container surface: `Dockerfile`, `docker-compose.yml`
+
+## Skills
+
+`.claude/skills/`는 두 계열로 구성된다.
+
+- **프로세스 스킬 (repo 고유)**: `red` → `green` → `refactor` TDD 턴. 아래 TDD 워크플로 참고.
+- **지식 스킬 (ECC에서 선별, MIT — [affaan-m/ECC](https://github.com/affaan-m/ECC))**: `springboot-patterns`(아키텍처·관측성), `springboot-security`(OAuth2/JWT), `jpa-patterns`(엔티티·쿼리·트랜잭션), `springboot-tdd`(JUnit5/Mockito/MockMvc 기법), `java-coding-standards`, `api-design`(REST 설계). 해당 영역 작업 시 자동 참조된다.
+
+Spring Batch 전용 스킬은 없다. batch 규약은 `docs/STRUCTURE.md`의 batch 섹션이 canonical이다.
 
 ## 운영 원칙
 
