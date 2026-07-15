@@ -1,6 +1,6 @@
 ---
 name: green
-description: `git-ranker`에서 red turn으로 잠근 failing test를 최소 production-side 변경으로 통과시키는 green turn을 수행한다. Spring Boot production code를 좁은 범위로 수정하고 같은 command를 green으로 바꿔야 할 때 이 skill을 사용한다.
+description: git-ranker에서 red turn으로 잠근 failing test를 최소 production-side 변경으로 통과시키는 green turn을 수행한다. Spring Boot production code를 좁은 범위로 수정하고 같은 command를 green으로 바꿔야 할 때 이 skill을 사용한다.
 ---
 
 # Green Turn
@@ -10,7 +10,7 @@ description: `git-ranker`에서 red turn으로 잠근 failing test를 최소 pro
 ## 먼저 확인할 것
 
 - red turn의 failing evidence
-- approved spec
+- 사용자와 합의한 작업 범위
 - target test file과 failure reason
 - 관련 production package under `src/main/java`
 
@@ -38,4 +38,4 @@ description: `git-ranker`에서 red turn으로 잠근 failing test를 최소 pro
 - refactor 성격의 cleanup을 섞는 것
 - 현재 failing slice와 무관한 새 behavior를 같이 구현하는 것
 - 더 작은 수정으로 닫을 수 있는데 구조 개편이나 새 의존성 도입으로 넓히는 것
-- green 과정에서 spec drift나 infra gap이 드러났는데도 그대로 진행하는 것
+- green 과정에서 범위 어긋남이나 infra gap이 드러났는데도 사용자에게 알리지 않고 그대로 진행하는 것

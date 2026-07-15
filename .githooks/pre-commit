@@ -1,0 +1,25 @@
+#!/bin/sh
+# 구현-테스트 동반 커밋 검사.
+# src/main/ 코드 변경이 스테이징되어 있으면 src/test/ 변경도 함께 있어야 한다.
+# 의도적 예외: TDD_SKIP=1 git commit ... (근거를 커밋 메시지에 남길 것)
+set -eu
+
+if [ "${TDD_SKIP:-0}" = "1" ]; then
+    exit 0
+fi
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+impl_changed=$(printf '%s\n' "$staged" | grep -E '^src/main/.*\.(java|kt)$' || true)
+test_changed=$(printf '%s\n' "$staged" | grep -E '^src/test/' || true)
+
+if [ -n "$impl_changed" ] && [ -z "$test_changed" ]; then
+    echo "pre-commit: src/main/ 구현 변경에 대응하는 src/test/ 변경이 없습니다." >&2
+    echo "테스트를 추가하거나, 의도적 예외라면 TDD_SKIP=1 로 커밋하고 근거를 메시지에 남기세요." >&2
+    echo "" >&2
+    echo "구현 변경 파일:" >&2
+    printf '%s\n' "$impl_changed" | sed 's/^/  - /' >&2
+    exit 1
+fi
+
+exit 0

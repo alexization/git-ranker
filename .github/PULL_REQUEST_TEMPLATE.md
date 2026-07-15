@@ -33,7 +33,7 @@
 - 확인한 trace/dashboard/query:
 
 ## 7) AI 리뷰 메모 (선택)
-- Codex:
+- Claude Code:
 - CodeRabbitAI:
 
 ## 8) 리스크 및 롤백
