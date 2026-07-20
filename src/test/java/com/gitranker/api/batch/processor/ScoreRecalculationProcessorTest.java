@@ -1,11 +1,11 @@
 package com.gitranker.api.batch.processor;
 
+import com.gitranker.api.batch.dto.ScoredUserUpdate;
 import com.gitranker.api.batch.strategy.ActivityUpdateContext;
 import com.gitranker.api.batch.strategy.FullActivityUpdateStrategy;
 import com.gitranker.api.batch.strategy.IncrementalActivityUpdateStrategy;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
-import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.global.error.ErrorType;
@@ -30,7 +30,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -47,9 +46,6 @@ class ScoreRecalculationProcessorTest {
     private ActivityLogRepository activityLogRepository;
 
     @Mock
-    private ActivityLogService activityLogService;
-
-    @Mock
     private IncrementalActivityUpdateStrategy incrementalStrategy;
 
     @Mock
@@ -59,7 +55,7 @@ class ScoreRecalculationProcessorTest {
     private GitHubActivityService gitHubActivityService;
 
     @Test
-    @DisplayName("processor uses incremental strategy when a baseline log exists")
+    @DisplayName("baseline 로그가 있으면 incremental 전략으로 계산한 payload를 반환한다")
     void usesIncrementalStrategyWhenBaselineExists() {
         User user = TestFixtures.user("alice");
         LocalDate today = LocalDate.now();
@@ -85,9 +81,12 @@ class ScoreRecalculationProcessorTest {
         )).thenReturn(Optional.of(baselineLog));
         when(incrementalStrategy.update(eq(user), any(ActivityUpdateContext.class))).thenReturn(updatedStats);
 
-        User processed = processor.process(user);
+        ScoredUserUpdate result = processor.process(user);
 
-        assertThat(processed).isSameAs(user);
+        assertThat(result.user()).isSameAs(user);
+        assertThat(result.stats()).isEqualTo(updatedStats);
+        assertThat(result.diff()).isEqualTo(updatedStats.calculateDiff(latestLog.toStatistics()));
+        assertThat(result.date()).isEqualTo(today);
         assertThat(user.getTotalScore()).isEqualTo(updatedStats.calculateScore().getValue());
         verify(fullStrategy, never()).update(any(), any());
 
@@ -95,16 +94,10 @@ class ScoreRecalculationProcessorTest {
         verify(incrementalStrategy).update(eq(user), contextCaptor.capture());
         assertThat(contextCaptor.getValue().baselineLog()).isSameAs(baselineLog);
         assertThat(contextCaptor.getValue().currentYear()).isEqualTo(currentYear);
-
-        ArgumentCaptor<ActivityStatistics> diffCaptor = ArgumentCaptor.forClass(ActivityStatistics.class);
-        ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(activityLogService).saveActivityLog(eq(user), eq(updatedStats), diffCaptor.capture(), dateCaptor.capture());
-        assertThat(diffCaptor.getValue()).isEqualTo(updatedStats.calculateDiff(latestLog.toStatistics()));
-        assertThat(dateCaptor.getValue()).isEqualTo(today);
     }
 
     @Test
-    @DisplayName("processor uses full strategy and empty diff when no previous logs exist")
+    @DisplayName("이전 로그가 없으면 full 전략으로 계산하고 empty diff payload를 반환한다")
     void usesFullStrategyWhenNoBaselineExists() {
         User user = TestFixtures.user("alice");
         LocalDate today = LocalDate.now();
@@ -119,9 +112,12 @@ class ScoreRecalculationProcessorTest {
         )).thenReturn(Optional.empty());
         when(fullStrategy.update(eq(user), any(ActivityUpdateContext.class))).thenReturn(updatedStats);
 
-        User processed = processor.process(user);
+        ScoredUserUpdate result = processor.process(user);
 
-        assertThat(processed).isSameAs(user);
+        assertThat(result.user()).isSameAs(user);
+        assertThat(result.stats()).isEqualTo(updatedStats);
+        assertThat(result.diff()).isEqualTo(updatedStats.calculateDiff(ActivityStatistics.empty()));
+        assertThat(result.date()).isEqualTo(today);
         assertThat(user.getTotalScore()).isEqualTo(updatedStats.calculateScore().getValue());
         verify(incrementalStrategy, never()).update(any(), any());
 
@@ -129,17 +125,10 @@ class ScoreRecalculationProcessorTest {
         verify(fullStrategy).update(eq(user), contextCaptor.capture());
         assertThat(contextCaptor.getValue().baselineLog()).isNull();
         assertThat(contextCaptor.getValue().currentYear()).isEqualTo(currentYear);
-
-        verify(activityLogService).saveActivityLog(
-                eq(user),
-                eq(updatedStats),
-                eq(updatedStats.calculateDiff(ActivityStatistics.empty())),
-                eq(today)
-        );
     }
 
     @Test
-    @DisplayName("processor refreshes profile by node id and retries when username changed")
+    @DisplayName("username이 바뀌면 node id로 프로필을 갱신하고 재시도한 payload를 반환한다")
     void refreshesProfileAndRetriesWhenUsernameChanged() {
         User user = TestFixtures.user("old-name");
         ActivityStatistics updatedStats = TestFixtures.stats(9, 1, 2, 3, 4);
@@ -160,9 +149,12 @@ class ScoreRecalculationProcessorTest {
                 .thenReturn(updatedStats);
         when(gitHubActivityService.fetchUserByNodeId(user.getNodeId())).thenReturn(response);
 
-        User processed = processor.process(user);
+        ScoredUserUpdate result = processor.process(user);
 
-        assertThat(processed).isSameAs(user);
+        assertThat(result.user()).isSameAs(user);
+        assertThat(result.stats()).isEqualTo(updatedStats);
+        assertThat(result.diff()).isEqualTo(updatedStats);
+        assertThat(result.date()).isEqualTo(LocalDate.now());
         assertThat(user.getUsername()).isEqualTo("new-name");
         assertThat(user.getEmail()).isEqualTo("new@example.com");
         assertThat(user.getProfileImage()).isEqualTo("https://images.example.com/new.png");
@@ -170,16 +162,10 @@ class ScoreRecalculationProcessorTest {
 
         verify(gitHubActivityService).fetchUserByNodeId(user.getNodeId());
         verify(fullStrategy, times(2)).update(eq(user), any(ActivityUpdateContext.class));
-        verify(activityLogService).saveActivityLog(
-                eq(user),
-                eq(updatedStats),
-                eq(updatedStats),
-                eq(LocalDate.now())
-        );
     }
 
     @Test
-    @DisplayName("processor keeps user-not-found when node lookup cannot resolve a replacement user")
+    @DisplayName("node 조회로 대체 사용자를 찾지 못하면 user-not-found를 유지한다")
     void rethrowsUserNotFoundWhenNodeLookupFails() {
         User user = TestFixtures.user("alice");
         GitHubNodeUserResponse response = new GitHubNodeUserResponse(
@@ -199,12 +185,10 @@ class ScoreRecalculationProcessorTest {
                 .isInstanceOf(GitHubApiNonRetryableException.class)
                 .extracting("errorType")
                 .isEqualTo(ErrorType.GITHUB_USER_NOT_FOUND);
-
-        verify(activityLogService, never()).saveActivityLog(any(), any(), any(), any());
     }
 
     @Test
-    @DisplayName("processor propagates retryable GitHub errors without wrapping them")
+    @DisplayName("retryable GitHub 오류는 감싸지 않고 그대로 전파한다")
     void propagatesRetryableGitHubError() {
         User user = TestFixtures.user("alice");
         GitHubApiRetryableException exception = new GitHubApiRetryableException(ErrorType.GITHUB_API_TIMEOUT);
@@ -221,7 +205,7 @@ class ScoreRecalculationProcessorTest {
     }
 
     @Test
-    @DisplayName("processor propagates non-retryable GitHub errors other than username-changed")
+    @DisplayName("username-changed 외 non-retryable GitHub 오류는 그대로 전파한다")
     void propagatesNonRetryableGitHubError() {
         User user = TestFixtures.user("alice");
         GitHubApiNonRetryableException exception =
@@ -239,7 +223,7 @@ class ScoreRecalculationProcessorTest {
     }
 
     @Test
-    @DisplayName("processor wraps unexpected failures with batch-step business exception")
+    @DisplayName("예상치 못한 실패는 batch-step business 예외로 감싼다")
     void wrapsUnexpectedFailure() {
         User user = TestFixtures.user("alice");
 
@@ -258,7 +242,5 @@ class ScoreRecalculationProcessorTest {
                     assertThat(exception.getErrorType()).isEqualTo(ErrorType.BATCH_STEP_FAILED);
                     assertThat(exception.getData()).isEqualTo("사용자 해시: " + LogSanitizer.hashUsername(user.getUsername()));
                 });
-
-        verify(activityLogService, never()).saveActivityLog(any(), any(), any(), any());
     }
 }
