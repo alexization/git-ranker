@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -153,6 +155,35 @@ class UserRegistrationServiceTest {
                 "https://images.example.com/alice-renamed.png",
                 "alice@example.com"
         );
+    }
+
+    @Test
+    @DisplayName("동시 등록으로 node_id unique 위반이 나면 findByNodeId 폴백으로 기존 사용자 응답을 만든다")
+    void fallsBackToExistingUserWhenConcurrentRegistrationViolatesUnique() {
+        OAuthAttributes attributes = oauthAttributes("alice", "alice@example.com", "https://images.example.com/alice.png");
+        GitHubAllActivitiesResponse rawResponse = GitHubAllActivitiesResponse.empty();
+        ActivityStatistics totalStats = stats(10, 2, 3, 1, 4);
+        ActivityStatistics baselineStats = stats(5, 1, 1, 1, 2);
+        User concurrentlyCreatedUser = savedUser(1L, "alice");
+        ActivityLog latestLog = emptyActivityLog(concurrentlyCreatedUser);
+
+        when(userRepository.findByNodeId("MDQ6VXNlcjEyMzQ1"))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(concurrentlyCreatedUser));
+        when(gitHubActivityService.fetchRawAllActivities("alice", attributes.githubCreatedAt())).thenReturn(rawResponse);
+        when(gitHubDataMapper.toActivityStatistics(rawResponse)).thenReturn(totalStats);
+        when(baselineStatsCalculator.calculate(any(User.class), eq(rawResponse))).thenReturn(baselineStats);
+        when(userPersistenceService.saveNewUser(any(User.class), eq(totalStats), eq(baselineStats)))
+                .thenThrow(new DataIntegrityViolationException("Duplicate entry for key 'users.node_id'"));
+        when(activityLogService.findLatestLog(concurrentlyCreatedUser)).thenReturn(Optional.of(latestLog));
+
+        RegisterUserResponse response = userRegistrationService.register(attributes);
+
+        assertThat(response.username()).isEqualTo("alice");
+        assertThat(response.isNewUser()).isFalse();
+        assertThat(response.userId()).isEqualTo(1L);
+        verify(userRepository, times(2)).findByNodeId("MDQ6VXNlcjEyMzQ1");
+        verify(businessMetrics, never()).incrementRegistrations();
     }
 
     @Test
