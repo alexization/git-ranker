@@ -1,12 +1,12 @@
 package com.gitranker.api.batch.processor;
 
+import com.gitranker.api.batch.dto.ScoredUserUpdate;
 import com.gitranker.api.batch.strategy.ActivityUpdateContext;
 import com.gitranker.api.batch.strategy.ActivityUpdateStrategy;
 import com.gitranker.api.batch.strategy.FullActivityUpdateStrategy;
 import com.gitranker.api.batch.strategy.IncrementalActivityUpdateStrategy;
 import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogRepository;
-import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.vo.ActivityStatistics;
 import com.gitranker.api.domain.user.vo.Score;
@@ -27,16 +27,15 @@ import java.time.LocalDate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
+public class ScoreRecalculationProcessor implements ItemProcessor<User, ScoredUserUpdate> {
 
     private final ActivityLogRepository activityLogRepository;
-    private final ActivityLogService activityLogService;
     private final IncrementalActivityUpdateStrategy incrementalStrategy;
     private final FullActivityUpdateStrategy fullStrategy;
     private final GitHubActivityService gitHubActivityService;
 
     @Override
-    public User process(User user) {
+    public ScoredUserUpdate process(User user) {
         try {
             return recalculateScore(user);
         } catch (GitHubApiNonRetryableException e) {
@@ -51,7 +50,7 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         }
     }
 
-    private User recalculateScore(User user) {
+    private ScoredUserUpdate recalculateScore(User user) {
         int oldScore = user.getTotalScore();
         int currentYear = LocalDate.now().getYear();
 
@@ -62,15 +61,14 @@ public class ScoreRecalculationProcessor implements ItemProcessor<User, User> {
         user.updateScore(newScore);
 
         ActivityStatistics diffStats = updateStats.calculateDiff(previousStats);
-        activityLogService.saveActivityLog(user, updateStats, diffStats, LocalDate.now());
 
         log.debug("점수 갱신 완료 - 사용자: {}, 변동: {}",
                 LogSanitizer.maskUsername(user.getUsername()), newScore.differenceFrom(Score.of(oldScore)));
 
-        return user;
+        return new ScoredUserUpdate(user, updateStats, diffStats, LocalDate.now());
     }
 
-    private User handleUsernameChanged(User user) {
+    private ScoredUserUpdate handleUsernameChanged(User user) {
         String oldUsername = user.getUsername();
 
         GitHubNodeUserResponse response = gitHubActivityService.fetchUserByNodeId(user.getNodeId());

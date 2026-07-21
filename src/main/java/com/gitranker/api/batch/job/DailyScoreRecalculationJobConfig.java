@@ -3,6 +3,7 @@ package com.gitranker.api.batch.job;
 import com.gitranker.api.batch.listener.BatchProgressListener;
 import com.gitranker.api.batch.listener.GitHubCostListener;
 import com.gitranker.api.batch.listener.UserScoreCalculationSkipListener;
+import com.gitranker.api.batch.dto.ScoredUserUpdate;
 import com.gitranker.api.batch.processor.ScoreRecalculationProcessor;
 import com.gitranker.api.batch.reader.UserItemReader;
 import com.gitranker.api.batch.tasklet.RankingRecalculationTasklet;
@@ -10,6 +11,8 @@ import com.gitranker.api.batch.writer.UserItemWriter;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.global.error.exception.GitHubApiNonRetryableException;
 import com.gitranker.api.global.error.exception.GitHubApiRetryableException;
+import com.gitranker.api.global.error.exception.GitHubRateLimitException;
+import com.gitranker.api.global.error.exception.GitHubRateLimitExhaustedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -53,12 +56,15 @@ public class DailyScoreRecalculationJobConfig {
     @Bean
     public Step scoreRecalculationStep() {
         return new StepBuilder("scoreRecalculationStep", jobRepository)
-                .<User, User>chunk(chunkSize, transactionManager)
+                .<User, ScoredUserUpdate>chunk(chunkSize, transactionManager)
                 .reader(userItemReader.createReader(chunkSize))
                 .processor(scoreRecalculationProcessor)
                 .writer(userItemWriter)
                 .faultTolerant()
+                .processorNonTransactional()
                 .retry(GitHubApiRetryableException.class)
+                .noRetry(GitHubRateLimitException.class)
+                .noRetry(GitHubRateLimitExhaustedException.class)
                 .retryLimit(3)
                 .backOffPolicy(new ExponentialBackOffPolicy())
                 .skip(GitHubApiNonRetryableException.class)

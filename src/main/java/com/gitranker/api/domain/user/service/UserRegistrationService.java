@@ -16,6 +16,7 @@ import com.gitranker.api.infrastructure.github.GitHubDataMapper;
 import com.gitranker.api.infrastructure.github.dto.GitHubAllActivitiesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,7 +39,17 @@ public class UserRegistrationService {
         Optional<User> existingUser = userRepository.findByNodeId(attributes.nodeId());
 
         return existingUser.map(user -> handleExistingUser(user, attributes))
-                .orElseGet(() -> handleNewUser(attributes));
+                .orElseGet(() -> registerNewUserOrFallback(attributes));
+    }
+
+    private RegisterUserResponse registerNewUserOrFallback(OAuthAttributes attributes) {
+        try {
+            return handleNewUser(attributes);
+        } catch (DataIntegrityViolationException e) {
+            User concurrentlyCreatedUser = userRepository.findByNodeId(attributes.nodeId())
+                    .orElseThrow(() -> e);
+            return handleExistingUser(concurrentlyCreatedUser, attributes);
+        }
     }
 
     private RegisterUserResponse handleNewUser(OAuthAttributes attributes) {
