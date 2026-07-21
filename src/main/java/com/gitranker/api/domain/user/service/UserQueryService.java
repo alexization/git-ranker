@@ -4,7 +4,7 @@ import com.gitranker.api.domain.log.ActivityLog;
 import com.gitranker.api.domain.log.ActivityLogService;
 import com.gitranker.api.domain.user.User;
 import com.gitranker.api.domain.user.UserRepository;
-import com.gitranker.api.domain.user.dto.RegisterUserResponse;
+import com.gitranker.api.domain.user.dto.PublicUserResponse;
 import com.gitranker.api.global.error.ErrorType;
 import com.gitranker.api.global.error.exception.BusinessException;
 import com.gitranker.api.global.logging.Event;
@@ -23,7 +23,7 @@ public class UserQueryService {
     private final ActivityLogService activityLogService;
     private final BusinessMetrics businessMetrics;
 
-    public RegisterUserResponse findByUsername(String username) {
+    public PublicUserResponse findByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorType.USER_NOT_FOUND));
 
@@ -35,6 +35,6 @@ public class UserQueryService {
 
         businessMetrics.incrementProfileViews();
 
-        return RegisterUserResponse.of(user, activityLog, false);
+        return PublicUserResponse.of(user, activityLog);
     }
 }

@@ -1,5 +1,6 @@
 package com.gitranker.api.domain.user;
 
+import com.gitranker.api.domain.user.dto.PublicUserResponse;
 import com.gitranker.api.domain.user.dto.RegisterUserResponse;
 import com.gitranker.api.domain.user.service.UserDeletionService;
 import com.gitranker.api.domain.user.service.UserQueryService;
@@ -33,10 +34,10 @@ public class UserController {
 
     @GetMapping("/{username}")
     @Operation(summary = "Get a user's profile", description = "Returns the public Git Ranker profile for a GitHub username.")
-    public ApiResponse<RegisterUserResponse> getUser(
+    public ApiResponse<PublicUserResponse> getUser(
             @PathVariable @Pattern(regexp = USERNAME_PATTERN, message = USERNAME_MESSAGE) String username
     ) {
-        RegisterUserResponse response = userQueryService.findByUsername(username);
+        PublicUserResponse response = userQueryService.findByUsername(username);
 
         return ApiResponse.success(response);
     }
