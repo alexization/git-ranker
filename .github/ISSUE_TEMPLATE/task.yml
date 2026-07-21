@@ -29,9 +29,18 @@ body:
     id: what
     attributes:
       label: 작업 내용 / 기대 결과
-      description: 무엇을 해야 하는지와 완료 후 기대 동작.
+      description: 무엇을 해야 하는지와 완료 후 기대 동작. FE↔BE 공유 계약의 구체 필드는 상위 추적 이슈의 "공유 계약" 섹션을 참조(복제 금지).
     validations:
       required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: 범위 밖 (Non-goals)
+      description: 이번 이슈에서 의도적으로 하지 않는 것. 스코프 크립·재검토를 막는다. 없으면 "없음".
+      placeholder: |
+        - ...는 이번 범위에서 제외 (별도 이슈)
+    validations:
+      required: false
   - type: textarea
     id: bug_detail
     attributes:
