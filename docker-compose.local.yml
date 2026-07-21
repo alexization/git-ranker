@@ -1,0 +1,62 @@
+# 로컬 개발용 (SPRING_PROFILES_ACTIVE=local): API + MySQL 두 컨테이너만.
+# 운영 스택(docker-compose.yml)과 분리 — 모니터링(Prometheus/Loki/Grafana) 없음.
+# 실행: docker compose --env-file .env.local -f docker-compose.local.yml up -d --build
+# 검증: curl http://localhost:9090/actuator/health
+services:
+  git-ranker-api:
+    build: .
+    container_name: git-ranker-api-local
+    ports:
+      - "8080:8080"
+      - "127.0.0.1:9090:9090"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      # application-local.yml이 ${DB_URL}을 읽음 → 컨테이너에선 localhost가 아니라 DB 서비스명으로 구성
+      DB_URL: jdbc:mysql://git-ranker-db:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI}
+      GITHUB_API_TOKENS: ${GITHUB_API_TOKENS}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION}
+      TZ: Asia/Seoul
+    depends_on:
+      git-ranker-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - git-ranker-local-net
+
+  git-ranker-db:
+    image: mysql:8.0
+    container_name: git-ranker-db-local
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}   # 앱이 root로 접속 (DB_USERNAME=root). MySQL 이미지는 MYSQL_USER=root를 거부하므로 root 계정 사용.
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql_data_local:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - git-ranker-local-net
+
+networks:
+  git-ranker-local-net:
+    driver: bridge
+
+volumes:
+  mysql_data_local:
