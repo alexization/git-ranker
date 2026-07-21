@@ -21,7 +21,7 @@
 
 `local`·`prod`가 같은 변수명을 쓰고, 값은 환경별 파일로 구분한다. 로컬 도커는 `--env-file .env.local`로 주입한다(템플릿 `.env.local.example`).
 
-```
+```text
 DB_NAME, DB_USERNAME, DB_PASSWORD
 GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI
 JWT_SECRET, JWT_ACCESS_TOKEN_EXPIRATION, JWT_REFRESH_TOKEN_EXPIRATION
@@ -31,7 +31,7 @@ GITHUB_API_TOKENS   # GitHub GraphQL 토큰 (콤마 구분, 토큰 풀 로테이
 ## 실행
 
 ```bash
-SPRING_PROFILES_ACTIVE=local ./gradlew bootRun   # 앱 실행 (8080)
+SPRING_PROFILES_ACTIVE=local ./gradlew bootRun   # 호스트 직접 실행: 아래 도커 권장. 이 경로는 spring-dotenv가 읽는 .env(로컬 변수 전체)가 필요
 ./gradlew test                                    # 단위 테스트
 ./gradlew build                                   # 패키징 (CI는 build -x test)
 ```
