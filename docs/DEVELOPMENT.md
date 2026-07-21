@@ -14,16 +14,16 @@
 
 | 프로파일 | 용도 | 특징 |
 |---|---|---|
-| `local` | 로컬 개발 | localhost MySQL, `LOCAL_*` OAuth env, CORS localhost:3000, 쿠키 non-secure |
+| `local` | 로컬 개발 | MySQL, OAuth·DB env(`.env.local`), CORS localhost:3000, 쿠키 non-secure |
 | `prod` | 운영 | `DB_URL` 등 운영 env, git-ranker.com CORS, secure 쿠키, actuator 노출 축소 |
 
 ## 필요 환경 변수 (local)
 
-`spring-dotenv`가 루트 `.env`를 읽는다.
+`local`·`prod`가 같은 변수명을 쓰고, 값은 환경별 파일로 구분한다. 로컬 도커는 `--env-file .env.local`로 주입한다(템플릿 `.env.local.example`).
 
 ```
-LOCAL_DB_USERNAME, LOCAL_DB_PASSWORD
-LOCAL_GITHUB_CLIENT_ID, LOCAL_GITHUB_CLIENT_SECRET, LOCAL_GITHUB_REDIRECT_URI
+DB_NAME, DB_USERNAME, DB_PASSWORD
+GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI
 JWT_SECRET, JWT_ACCESS_TOKEN_EXPIRATION, JWT_REFRESH_TOKEN_EXPIRATION
 GITHUB_API_TOKENS   # GitHub GraphQL 토큰 (콤마 구분, 토큰 풀 로테이션)
 ```
@@ -36,7 +36,14 @@ SPRING_PROFILES_ACTIVE=local ./gradlew bootRun   # 앱 실행 (8080)
 ./gradlew build                                   # 패키징 (CI는 build -x test)
 ```
 
-docker-compose 전체 스택(api + db + 모니터링)은 `docker compose up -d`. 서비스: `git-ranker-api`(8080, mgmt 9090), `git-ranker-db`(MySQL 8.0), `prometheus`, `loki`, `promtail`, `grafana`(3001).
+로컬 도커(api + db만, `local` 프로파일):
+
+```bash
+docker compose --env-file .env.local -f docker-compose.local.yml up -d --build   # 기동
+docker compose --env-file .env.local -f docker-compose.local.yml down            # 정지(-v 추가 시 DB 볼륨 삭제)
+```
+
+운영 전체 스택(api + db + 모니터링)은 `docker compose up -d`. 서비스: `git-ranker-api`(8080, mgmt 9090), `git-ranker-db`(MySQL 8.0), `prometheus`, `loki`, `promtail`, `grafana`(3001).
 
 ## 주요 엔드포인트
 

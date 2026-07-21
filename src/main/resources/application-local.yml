@@ -4,22 +4,26 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:mysql://localhost:3306/git_ranker?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-    username: ${LOCAL_DB_USERNAME}
-    password: ${LOCAL_DB_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
 
   security:
     oauth2:
       client:
         registration:
           github:
-            client-id: ${LOCAL_GITHUB_CLIENT_ID}
-            client-secret: ${LOCAL_GITHUB_CLIENT_SECRET}
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
             scope:
               - read:user
               - user:email
-            redirect-uri: ${LOCAL_GITHUB_REDIRECT_URI}
+            redirect-uri: ${GITHUB_REDIRECT_URI}
 
 jwt:
   secret: ${JWT_SECRET}
